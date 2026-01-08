@@ -1,0 +1,15 @@
+operational-scenario-id,operational-scenario-long-label
+OS01;Destruction physique ou logique
+OS02;Injection de biais dans modèle
+OS03;Exfiltration d'algorithme ou paramètres
+OS04;Suppression ou corruption de jeux de données
+OS05;Empoisonnement des données d'entrainement
+OS06;Exfiltration de données sensibles
+OS07;Suppression de données
+OS08;Altération de données
+OS09;Exfiltration via API
+OS10;Sabotage des caméras
+OS11;Injection de fausses données
+OS12;Exfiltration de flux vidéo
+OS13;Modification de résultats
+OS14;Usage de faux résultats
