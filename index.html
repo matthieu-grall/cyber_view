@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualisation Graphe de Risques</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+        }
+
+        #graph {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(22, 22, 44, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            max-width: 300px;
+        }
+
+        .controls h2 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            color: #4ecdc4;
+        }
+
+        .controls label {
+            display: block;
+            margin: 10px 0 5px 0;
+            font-size: 14px;
+        }
+
+        .controls select {
+            width: 100%;
+            padding: 8px;
+            background: #2a2a4e;
+            border: 1px solid #4ecdc4;
+            color: #eee;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .node {
+            cursor: pointer;
+            stroke: #fff;
+            stroke-width: 2px;
+        }
+
+        .node:hover {
+            stroke: #4ecdc4;
+            stroke-width: 3px;
+        }
+
+        .link {
+            stroke: #999;
+            stroke-opacity: 0.3;
+            stroke-width: 1.5px;
+        }
+
+        .link.highlighted {
+            stroke: #4ecdc4;
+            stroke-opacity: 0.8;
+            stroke-width: 2.5px;
+        }
+
+        .node-label {
+            font-size: 11px;
+            pointer-events: none;
+            fill: #eee;
+            text-anchor: middle;
+            user-select: none;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(22, 22, 44, 0.98);
+            padding: 12px 15px;
+            border-radius: 8px;
+            pointer-events: none;
+            font-size: 13px;
+            border: 1px solid #4ecdc4;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            max-width: 300px;
+        }
+
+        .tooltip strong {
+            color: #4ecdc4;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(22, 22, 44, 0.95);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            font-size: 13px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <h2>🔍 Filtres</h2>
+        <label for="nodeTypeFilter">Type de nœud :</label>
+        <select id="nodeTypeFilter">
+            <option value="all">Tous</option>
+            <option value="risk">Risques</option>
+            <option value="business_asset">Valeurs métier</option>
+            <option value="feared_event">Événements redoutés</option>
+            <option value="severity">Gravité</option>
+            <option value="risk_source">Sources de risque</option>
+            <option value="strategic_scenario">Scénarios stratégiques</option>
+            <option value="operational_scenario">Scénarios opérationnels</option>
+            <option value="likelihood">Vraisemblance</option>
+        </select>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background: #e74c3c;"></div>
+            <span>Risques</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #3498db;"></div>
+            <span>Valeurs métier</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #f39c12;"></div>
+            <span>Événements redoutés</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #9b59b6;"></div>
+            <span>Gravité</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #e67e22;"></div>
+            <span>Sources</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #1abc9c;"></div>
+            <span>Scénarios</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #2ecc71;"></div>
+            <span>Vraisemblance</span>
+        </div>
+    </div>
+
+    <svg id="graph"></svg>
+
+    <script>
+        // Configuration
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        // Couleurs par type de nœud
+        const colors = {
+            risk: '#e74c3c',
+            business_asset: '#3498db',
+            feared_event: '#f39c12',
+            severity: '#9b59b6',
+            risk_source: '#e67e22',
+            strategic_scenario: '#1abc9c',
+            operational_scenario: '#1abc9c',
+            likelihood: '#2ecc71'
+        };
+
+        // Création du SVG
+        const svg = d3.select('#graph')
+            .attr('width', width)
+            .attr('height', height);
+
+        // Groupe pour zoom/pan
+        const g = svg.append('g');
+
+        // Tooltip
+        const tooltip = d3.select('body')
+            .append('div')
+            .attr('class', 'tooltip')
+            .style('opacity', 0);
+
+        // Zoom
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 4])
+            .on('zoom', (event) => {
+                g.attr('transform', event.transform);
+            });
+
+        svg.call(zoom);
+
+        // Chargement des données
+        async function loadData() {
+            try {
+                const [
+                    risks,
+                    businessAssets,
+                    fearedEvents,
+                    severities,
+                    riskSources,
+                    strategicScenarios,
+                    operationalScenarios,
+                    likelihoods,
+                    relationships
+                ] = await Promise.all([
+                    d3.csv('data/risk.csv', { delimiter: ';' }),
+                    d3.csv('data/business_asset.csv', { delimiter: ';' }),
+                    d3.csv('data/feared_event.csv', { delimiter: ';' }),
+                    d3.csv('data/severity.csv', { delimiter: ';' }),
+                    d3.csv('data/risk_source.csv', { delimiter: ';' }),
+                    d3.csv('data/strategic_scenario.csv', { delimiter: ';' }),
+                    d3.csv('data/operational_scenario.csv', { delimiter: ';' }),
+                    d3.csv('data/likelihood.csv', { delimiter: ';' }),
+                    d3.csv('data/relations.csv', { delimiter: ';' })
+                ]);
+
+                // Construction des nœuds
+                const nodes = [];
+                
+                risks.forEach(d => {
+                    nodes.push({
+                        id: d['generic-id'],           // ← Directement le nom de la colonne
+                        label: d['generic-long-label'], // ← Directement le nom de la colonne
+                        type: 'risk',
+                        size: 12
+                    });
+                });
+
+                businessAssets.forEach(d => {
+                    nodes.push({
+                        id: d['generic-id'],           // ← Directement le nom de la colonne
+                        label: d['generic-long-label'], // ← Directement le nom de la colonne
+                        type: 'business_asset',
+                        size: 10
+                    });
+                });
+
+                fearedEvents.forEach(d => {
+                    nodes.push({
+                        id: d['generic-id'],           // ← Directement le nom de la colonne
+                        label: d['generic-long-label'], // ← Directement le nom de la colonne
+                        type: 'feared_event',
+                        size: 8
+                    });
+                });
+
+                severities.forEach(d => {
+                    nodes.push({
+                        id: d['generic-id'],           // ← Directement le nom de la colonne
+                        label: d['generic-long-label'], // ← Directement le nom de la colonne
+                        type: 'severity',
+                        size: 8
+                    });
+                });
+
+                riskSources.forEach(d => {
+                    nodes.push({
+                        id: d['generic-id'],           // ← Directement le nom de la colonne
+                        label: d['generic-long-label'], // ← Directement le nom de la colonne
+                        type: 'risk_source',
+                        size: 8
+                    });
+                });
+
+                strategicScenarios.forEach(d => {
+                    nodes.push({
+                        id: d['generic-id'],           // ← Directement le nom de la colonne
+                        label: d['generic-long-label'], // ← Directement le nom de la colonne
+                        type: 'strategic_scenario',
+                        size: 8
+                    });
+                });
+
+                operationalScenarios.forEach(d => {
+                    nodes.push({
+                        id: d['generic-id'],           // ← Directement le nom de la colonne
+                        label: d['generic-long-label'], // ← Directement le nom de la colonne
+                        type: 'operational_scenario',
+                        size: 8
+                    });
+                });
+
+                likelihoods.forEach(d => {
+                    nodes.push({
+                        id: d['generic-id'],           // ← Directement le nom de la colonne
+                        label: d['generic-long-label'], // ← Directement le nom de la colonne
+                        type: 'likelihood',
+                        size: 8
+                    });
+                });
+
+                // Construction des liens
+                const links = relationships.map(d => ({
+                    source: d.subject,
+                    target: d.object,
+                    predicate: d.predicate
+                }));
+
+                createGraph(nodes, links);
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+                alert('Erreur lors du chargement des données. Vérifiez que les fichiers CSV sont dans le dossier data/');
+            }
+        }
+
+        function createGraph(nodes, links) {
+            // Simulation de forces
+            const simulation = d3.forceSimulation(nodes)
+                .force('link', d3.forceLink(links).id(d => d.id).distance(100))
+                .force('charge', d3.forceManyBody().strength(-300))
+                .force('center', d3.forceCenter(width / 2, height / 2))
+                .force('collision', d3.forceCollide().radius(d => d.size + 10));
+
+            // Liens
+            const link = g.append('g')
+                .selectAll('line')
+                .data(links)
+                .enter()
+                .append('line')
+                .attr('class', 'link');
+
+            // Nœuds
+            const node = g.append('g')
+                .selectAll('circle')
+                .data(nodes)
+                .enter()
+                .append('circle')
+                .attr('class', 'node')
+                .attr('r', d => d.size)
+                .attr('fill', d => colors[d.type])
+                .call(d3.drag()
+                    .on('start', dragstarted)
+                    .on('drag', dragged)
+                    .on('end', dragended))
+                .on('mouseover', (event, d) => {
+                    tooltip.transition()
+                        .duration(200)
+                        .style('opacity', 1);
+                    tooltip.html(`<strong>${d.id}</strong><br/>${d.label}<br/>Type: ${d.type}`)
+                        .style('left', (event.pageX + 10) + 'px')
+                        .style('top', (event.pageY - 28) + 'px');
+                    
+                    // Highlight connections
+                    link.classed('highlighted', l => l.source.id === d.id || l.target.id === d.id);
+                })
+                .on('mouseout', () => {
+                    tooltip.transition()
+                        .duration(500)
+                        .style('opacity', 0);
+                    link.classed('highlighted', false);
+                });
+
+            // Labels
+            const labels = g.append('g')
+                .selectAll('text')
+                .data(nodes)
+                .enter()
+                .append('text')
+                .attr('class', 'node-label')
+                .text(d => d.id);
+
+            // Update positions
+            simulation.on('tick', () => {
+                link
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+
+                node
+                    .attr('cx', d => d.x)
+                    .attr('cy', d => d.y);
+
+                labels
+                    .attr('x', d => d.x)
+                    .attr('y', d => d.y + 25);
+            });
+
+            // Filtre
+            d3.select('#nodeTypeFilter').on('change', function() {
+                const filterValue = this.value;
+                
+                node.style('opacity', d => 
+                    filterValue === 'all' || d.type === filterValue ? 1 : 0.1
+                );
+                
+                labels.style('opacity', d => 
+                    filterValue === 'all' || d.type === filterValue ? 1 : 0.1
+                );
+
+                link.style('opacity', l => {
+                    if (filterValue === 'all') return 0.3;
+                    return (l.source.type === filterValue || l.target.type === filterValue) ? 0.3 : 0.05;
+                });
+            });
+
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+        }
+
+        // Lancer l'application
+        loadData();
+    </script>
+</body>
+</html>

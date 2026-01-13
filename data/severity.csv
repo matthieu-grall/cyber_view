@@ -1,4 +1,4 @@
-severity-id;severity-long-label
+generic-id;generic-long-label
 SEV01;2. Limitée (opérationnel : accès bloqués)
 SEV02;3. Importante (droits fondamentaux / vie privée : discrimination)
 SEV03;1. Minimale (image)
