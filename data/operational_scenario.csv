@@ -1,4 +1,4 @@
-generic-id,generic-long-label
+generic-id;generic-long-label
 OS01;Destruction physique ou logique
 OS02;Injection de biais dans modèle
 OS03;Exfiltration d'algorithme ou paramètres
