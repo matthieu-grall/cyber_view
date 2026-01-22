@@ -1,0 +1,14 @@
+[
+  {
+    "id": "SC_001",
+    "label": "Confidentialité"
+  },
+  {
+    "id": "SC_002",
+    "label": "Intégrité"
+  },
+  {
+    "id": "SC_003",
+    "label": "Disponibilité"
+  }
+]

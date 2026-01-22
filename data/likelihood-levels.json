@@ -1,0 +1,22 @@
+[
+  {
+    "id": "LH_001",
+    "label": "1. Minimale",
+    "value": 1
+  },
+  {
+    "id": "LH_002",
+    "label": "2. Limitée",
+    "value": 2
+  },
+  {
+    "id": "LH_003",
+    "label": "3. Importante",
+    "value": 3
+  },
+  {
+    "id": "LH_004",
+    "label": "4. Maximale",
+    "value": 4
+  }
+]

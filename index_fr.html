@@ -9,16 +9,88 @@
 <body>
     <h1>Cartographie des Risques</h1>
 
-    <!-- Filtres -->
-    <div id="filters">
-        <label for="severityFilter">Filtrer par gravité :</label>
-        <select id="severityFilter">
-            <option value="all">Toutes</option>
-            <option value="1. Minimale">1. Minimale</option>
-            <option value="2. Limitée">2. Limitée</option>
-            <option value="3. Importante">3. Importante</option>
-            <option value="4. Maximale">4. Maximale</option>
-        </select>
+    <!-- Filtres et légende -->
+    <div id="filters" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+        <div>
+            <label for="severityFilter" style="margin-right: 10px;">Filtrer par gravité :</label>
+            <select id="severityFilter">
+                <option value="all">Toutes</option>
+                <option value="1. Minimale">1. Minimale</option>
+                <option value="2. Limitée">2. Limitée</option>
+                <option value="3. Importante">3. Importante</option>
+                <option value="4. Maximale">4. Maximale</option>
+            </select>
+        </div>
+        
+        <!-- Légende -->
+        <div style="border: 1px solid #ccc; padding: 10px; border-radius: 4px; background: #fafafa;">
+            <strong>Légende :</strong>
+            <div style="font-size: 11px; margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <!-- Nœuds -->
+                <div style="border-bottom: 1px solid #ddd; padding-bottom: 8px;">
+                    <strong style="font-size: 10px;">Nœuds :</strong>
+                    <div style="margin: 4px 0;">
+                        <span style="display: inline-block; width: 10px; height: 10px; background: #a6cee3; border: 2px solid #333; border-radius: 50%; margin-right: 5px;"></span>
+                        Risque
+                    </div>
+                    <div style="margin: 4px 0;">
+                        <span style="display: inline-block; width: 9px; height: 9px; background: #ffb6c1; border: 1px solid #666; border-radius: 50%; margin-right: 5px;"></span>
+                        Critère sécurité
+                    </div>
+                    <div style="margin: 4px 0;">
+                        <span style="display: inline-block; width: 9px; height: 9px; background: #87ceeb; border: 1px solid #666; border-radius: 50%; margin-right: 5px;"></span>
+                        Actif métier
+                    </div>
+                    <div style="margin: 4px 0;">
+                        <span style="display: inline-block; width: 8px; height: 8px; background: #4ecdc4; border: 1px solid #666; border-radius: 50%; margin-right: 5px;"></span>
+                        Source risque
+                    </div>
+                    <div style="margin: 4px 0;">
+                        <span style="display: inline-block; width: 8px; height: 8px; background: #9b59b6; border: 1px solid #666; border-radius: 50%; margin-right: 5px;"></span>
+                        Niveau gravité
+                    </div>
+                    <div style="margin: 4px 0;">
+                        <span style="display: inline-block; width: 8px; height: 8px; background: #2ecc71; border: 1px solid #666; border-radius: 50%; margin-right: 5px;"></span>
+                        Vraisemblance
+                    </div>
+                </div>
+                
+                <!-- Liens -->
+                <div style="border-bottom: 1px solid #ddd; padding-bottom: 8px;">
+                    <strong style="font-size: 10px;">Liens :</strong>
+                    <div style="margin: 4px 0;">
+                        <svg style="display: inline-block; width: 20px; height: 2px; margin-right: 5px; vertical-align: middle;">
+                            <line x1="0" y1="1" x2="20" y2="1" stroke="#ff6b6b" stroke-width="1.5"/>
+                        </svg>
+                        → Critère
+                    </div>
+                    <div style="margin: 4px 0;">
+                        <svg style="display: inline-block; width: 20px; height: 2px; margin-right: 5px; vertical-align: middle;">
+                            <line x1="0" y1="1" x2="20" y2="1" stroke="#ffa500" stroke-width="1.5"/>
+                        </svg>
+                        → Actif
+                    </div>
+                    <div style="margin: 4px 0;">
+                        <svg style="display: inline-block; width: 20px; height: 2px; margin-right: 5px; vertical-align: middle;">
+                            <line x1="0" y1="1" x2="20" y2="1" stroke="#4ecdc4" stroke-width="1.5"/>
+                        </svg>
+                        → Source
+                    </div>
+                    <div style="margin: 4px 0;">
+                        <svg style="display: inline-block; width: 20px; height: 2px; margin-right: 5px; vertical-align: middle;">
+                            <line x1="0" y1="1" x2="20" y2="1" stroke="#9b59b6" stroke-width="1.5"/>
+                        </svg>
+                        → Gravité
+                    </div>
+                    <div style="margin: 4px 0;">
+                        <svg style="display: inline-block; width: 20px; height: 2px; margin-right: 5px; vertical-align: middle;">
+                            <line x1="0" y1="1" x2="20" y2="1" stroke="#2ecc71" stroke-width="1.5"/>
+                        </svg>
+                        → Vraisemb.
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Conteneur du graphe -->

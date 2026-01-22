@@ -6,16 +6,16 @@
     "generic-technical-id": "rf_r01",
     "description": "Disparition de la fonction de reconnaissance faciale",
     "risk-scenario": {
-      "risk-source": "Crime organisé (extorsion)",
+      "risk-source-id": "RS_001",
       "target-objective": "Perturber l'accès opérationnel",
       "strategic-scenario": "Attaque directe",
       "kill-chain": "Destruction physique ou logique",
-      "likelihood": "2. Limitée"
+      "likelihood-id": "LH_002"
     },
     "feared-event": {
-      "security-criteria": "Disponibilité",
-      "business-asset": "Fonction de reconnaissance faciale",
-      "severity": "2. Limitée"
+      "security-criteria-id": "SC_003",
+      "business-asset-id": "BA_001",
+      "severity-id": "SEV_002"
     }
   },
   {
@@ -25,16 +25,16 @@
     "generic-technical-id": "rf_r02",
     "description": "Modification non désirée de la fonction de reconnaissance faciale",
     "risk-scenario": {
-      "risk-source": "Acteur étatique / concurrent (sabotage ou manipulation)",
+      "risk-source-id": "RS_002",
       "target-objective": "Modifier le modèle de manière non désirée",
       "strategic-scenario": "Attaque via l'éditeur du modèle",
       "kill-chain": "Injection de biais dans modèle",
-      "likelihood": "3. Importante"
+      "likelihood-id": "LH_003"
     },
     "feared-event": {
-      "security-criteria": "Intégrité",
-      "business-asset": "Fonction de reconnaissance faciale",
-      "severity": "3. Importante"
+      "security-criteria-id": "SC_002",
+      "business-asset-id": "BA_001",
+      "severity-id": "SEV_003"
     }
   },
   {
@@ -44,16 +44,16 @@
     "generic-technical-id": "rf_r03",
     "description": "Accès non autorisé à la fonction de reconnaissance faciale",
     "risk-scenario": {
-      "risk-source": "Employé malveillant (revente)",
+      "risk-source-id": "RS_003",
       "target-objective": "Accéder illégalement aux algorithmes ou paramètres",
       "strategic-scenario": "Attaque directe",
-      "kill-chain": "Exfiltration d’algorithme ou paramètres",
-      "likelihood": "1. Minimale"
+      "kill-chain": "Exfiltration d'algorithme ou paramètres",
+      "likelihood-id": "LH_001"
     },
     "feared-event": {
-      "security-criteria": "Confidentialité",
-      "business-asset": "Fonction de reconnaissance faciale",
-      "severity": "1. Minimale"
+      "security-criteria-id": "SC_001",
+      "business-asset-id": "BA_001",
+      "severity-id": "SEV_001"
     }
   },
   {
@@ -63,16 +63,16 @@
     "generic-technical-id": "dt_r04",
     "description": "Disparition de données d'entraînement",
     "risk-scenario": {
-      "risk-source": "Crime organisé (sabotage ciblé)",
+      "risk-source-id": "RS_004",
       "target-objective": "Supprimer ou corrompre les jeux de données",
       "strategic-scenario": "Attaque directe",
       "kill-chain": "Suppression ou corruption de jeux de données",
-      "likelihood": "2. Limitée"
+      "likelihood-id": "LH_002"
     },
     "feared-event": {
-      "security-criteria": "Disponibilité",
-      "business-asset": "Données d'entraînement",
-      "severity": "2. Limitée"
+      "security-criteria-id": "SC_003",
+      "business-asset-id": "BA_002",
+      "severity-id": "SEV_002"
     }
   },
   {
@@ -82,16 +82,16 @@
     "generic-technical-id": "dt_r05",
     "description": "Modification non désirée de données d'entraînement",
     "risk-scenario": {
-      "risk-source": "Concurrent (sabotage)",
+      "risk-source-id": "RS_005",
       "target-objective": "Introduire des biais dans les données",
       "strategic-scenario": "Attaque directe",
-      "kill-chain": "Empoisonnement des données d’entrainement",
-      "likelihood": "2. Limitée"
+      "kill-chain": "Empoisonnement des données d'entrainement",
+      "likelihood-id": "LH_002"
     },
     "feared-event": {
-      "security-criteria": "Intégrité",
-      "business-asset": "Données d'entraînement",
-      "severity": "2. Limitée"
+      "security-criteria-id": "SC_002",
+      "business-asset-id": "BA_002",
+      "severity-id": "SEV_002"
     }
   },
   {
@@ -101,16 +101,16 @@
     "generic-technical-id": "dt_r06",
     "description": "Accès non autorisé aux données d'entraînement",
     "risk-scenario": {
-      "risk-source": "Crime organisé (revente)",
+      "risk-source-id": "RS_006",
       "target-objective": "Exfiltrer des données sensibles",
       "strategic-scenario": "Attaque directe",
       "kill-chain": "Exfiltration de données sensibles",
-      "likelihood": "1. Minimale"
+      "likelihood-id": "LH_001"
     },
     "feared-event": {
-      "security-criteria": "Confidentialité",
-      "business-asset": "Données d'entraînement",
-      "severity": "2. Limitée"
+      "security-criteria-id": "SC_001",
+      "business-asset-id": "BA_002",
+      "severity-id": "SEV_002"
     }
   },
   {
@@ -120,16 +120,16 @@
     "generic-technical-id": "eb_r07",
     "description": "Disparition d'empreintes biométriques",
     "risk-scenario": {
-      "risk-source": "Crime organisé (sabotage)",
+      "risk-source-id": "RS_007",
       "target-objective": "Supprimer les données",
       "strategic-scenario": "Attaque directe",
       "kill-chain": "Suppression de données",
-      "likelihood": "3. Importante"
+      "likelihood-id": "LH_003"
     },
     "feared-event": {
-      "security-criteria": "Disponibilité",
-      "business-asset": "Empreintes biométriques",
-      "severity": "2. Limitée"
+      "security-criteria-id": "SC_003",
+      "business-asset-id": "BA_003",
+      "severity-id": "SEV_002"
     }
   },
   {
@@ -139,16 +139,16 @@
     "generic-technical-id": "eb_r08",
     "description": "Modification non désirée d'empreintes biométriques",
     "risk-scenario": {
-      "risk-source": "Acteur étatique (infiltration)",
+      "risk-source-id": "RS_008",
       "target-objective": "Altérer les données pour accès non autorisé",
       "strategic-scenario": "Attaque via un éditeur de logiciels",
       "kill-chain": "Altération de données",
-      "likelihood": "4. Maximale"
+      "likelihood-id": "LH_004"
     },
     "feared-event": {
-      "security-criteria": "Intégrité",
-      "business-asset": "Empreintes biométriques",
-      "severity": "3. Importante"
+      "security-criteria-id": "SC_002",
+      "business-asset-id": "BA_003",
+      "severity-id": "SEV_003"
     }
   },
   {
@@ -158,16 +158,16 @@
     "generic-technical-id": "eb_r09",
     "description": "Accès non autorisé aux empreintes biométriques",
     "risk-scenario": {
-      "risk-source": "Crime organisé (usurpation)",
+      "risk-source-id": "RS_009",
       "target-objective": "Usurper l'empreinte ou rendre inutilisable",
       "strategic-scenario": "Attaque directe",
       "kill-chain": "Exfiltration via API",
-      "likelihood": "3. Importante"
+      "likelihood-id": "LH_003"
     },
     "feared-event": {
-      "security-criteria": "Confidentialité",
-      "business-asset": "Empreintes biométriques",
-      "severity": "4. Maximale"
+      "security-criteria-id": "SC_001",
+      "business-asset-id": "BA_003",
+      "severity-id": "SEV_004"
     }
   },
   {
@@ -177,16 +177,16 @@
     "generic-technical-id": "dc_r10",
     "description": "Disparition de données captées",
     "risk-scenario": {
-      "risk-source": "Vandale (idéologie)",
+      "risk-source-id": "RS_010",
       "target-objective": "Saboter les caméras",
       "strategic-scenario": "Attaque directe",
       "kill-chain": "Sabotage des caméras",
-      "likelihood": "2. Limitée"
+      "likelihood-id": "LH_002"
     },
     "feared-event": {
-      "security-criteria": "Disponibilité",
-      "business-asset": "Données captées",
-      "severity": "2. Limitée"
+      "security-criteria-id": "SC_003",
+      "business-asset-id": "BA_004",
+      "severity-id": "SEV_002"
     }
   },
   {
@@ -196,16 +196,16 @@
     "generic-technical-id": "dc_r11",
     "description": "Modification non désirée des données captées",
     "risk-scenario": {
-      "risk-source": "Acteur étatique (infiltration)",
+      "risk-source-id": "RS_008",
       "target-objective": "Injecter de fausses données",
       "strategic-scenario": "Attaque directe",
       "kill-chain": "Injection de fausses données",
-      "likelihood": "2. Limitée"
+      "likelihood-id": "LH_002"
     },
     "feared-event": {
-      "security-criteria": "Intégrité",
-      "business-asset": "Données captées",
-      "severity": "3. Importante"
+      "security-criteria-id": "SC_002",
+      "business-asset-id": "BA_004",
+      "severity-id": "SEV_003"
     }
   },
   {
@@ -215,16 +215,16 @@
     "generic-technical-id": "dc_r12",
     "description": "Accès non autorisé aux données captées",
     "risk-scenario": {
-      "risk-source": "Acteur étatique (espionnage)",
+      "risk-source-id": "RS_011",
       "target-objective": "Exfiltrer le flux vidéo",
       "strategic-scenario": "Attaque directe",
       "kill-chain": "Exfiltration de flux vidéo",
-      "likelihood": "3. Importante"
+      "likelihood-id": "LH_003"
     },
     "feared-event": {
-      "security-criteria": "Confidentialité",
-      "business-asset": "Données captées",
-      "severity": "2. Limitée"
+      "security-criteria-id": "SC_001",
+      "business-asset-id": "BA_004",
+      "severity-id": "SEV_002"
     }
   },
   {
@@ -234,16 +234,16 @@
     "generic-technical-id": "ri_r13",
     "description": "Disparition des résultats d'identification",
     "risk-scenario": {
-      "risk-source": "Crime organisé (extorsion)",
+      "risk-source-id": "RS_001",
       "target-objective": "Supprimer les résultats",
       "strategic-scenario": "Attaque directe",
       "kill-chain": "Suppression de données",
-      "likelihood": "3. Importante"
+      "likelihood-id": "LH_003"
     },
     "feared-event": {
-      "security-criteria": "Disponibilité",
-      "business-asset": "Résultats d'identification",
-      "severity": "2. Limitée"
+      "security-criteria-id": "SC_003",
+      "business-asset-id": "BA_005",
+      "severity-id": "SEV_002"
     }
   },
   {
@@ -253,16 +253,16 @@
     "generic-technical-id": "ri_r14",
     "description": "Modification non désirée des résultats d'identification",
     "risk-scenario": {
-      "risk-source": "Acteur étatique (infiltration)",
+      "risk-source-id": "RS_008",
       "target-objective": "Modifier les résultats",
       "strategic-scenario": "Attaque directe",
       "kill-chain": "Modification de résultats",
-      "likelihood": "2. Limitée"
+      "likelihood-id": "LH_002"
     },
     "feared-event": {
-      "security-criteria": "Intégrité",
-      "business-asset": "Résultats d'identification",
-      "severity": "3. Importante"
+      "security-criteria-id": "SC_002",
+      "business-asset-id": "BA_005",
+      "severity-id": "SEV_003"
     }
   },
   {
@@ -272,16 +272,16 @@
     "generic-technical-id": "ri_r15",
     "description": "Accès non autorisé aux résultats d'identification",
     "risk-scenario": {
-      "risk-source": "Acteur étatique (infiltration)",
+      "risk-source-id": "RS_008",
       "target-objective": "Usurper les résultats pour accès non autorisé",
       "strategic-scenario": "Attaque directe",
       "kill-chain": "Usage de faux résultats",
-      "likelihood": "2. Limitée"
+      "likelihood-id": "LH_002"
     },
     "feared-event": {
-      "security-criteria": "Confidentialité",
-      "business-asset": "Résultats d'identification",
-      "severity": "3. Importante"
+      "security-criteria-id": "SC_001",
+      "business-asset-id": "BA_005",
+      "severity-id": "SEV_003"
     }
   }
 ]

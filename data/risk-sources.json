@@ -1,0 +1,46 @@
+[
+  {
+    "id": "RS_001",
+    "label": "Crime organisé (extorsion)"
+  },
+  {
+    "id": "RS_002",
+    "label": "Acteur étatique / concurrent (sabotage ou manipulation)"
+  },
+  {
+    "id": "RS_003",
+    "label": "Employé malveillant (revente)"
+  },
+  {
+    "id": "RS_004",
+    "label": "Crime organisé (sabotage ciblé)"
+  },
+  {
+    "id": "RS_005",
+    "label": "Concurrent (sabotage)"
+  },
+  {
+    "id": "RS_006",
+    "label": "Crime organisé (revente)"
+  },
+  {
+    "id": "RS_007",
+    "label": "Crime organisé (sabotage)"
+  },
+  {
+    "id": "RS_008",
+    "label": "Acteur étatique (infiltration)"
+  },
+  {
+    "id": "RS_009",
+    "label": "Crime organisé (usurpation)"
+  },
+  {
+    "id": "RS_010",
+    "label": "Vandale (idéologie)"
+  },
+  {
+    "id": "RS_011",
+    "label": "Acteur étatique (espionnage)"
+  }
+]
