@@ -1,0 +1,49 @@
+{
+  "classes": [
+    {
+      "generic-id": "risk",
+      "generic-short-label": "Risque",
+      "generic-long-label": "Risque métier",
+      "description": {
+        "fr": "Risque défini par un scénario et un événement redouté",
+        "en": "Risk defined by a scenario and a feared event"
+      }
+    },
+    {
+      "generic-id": "risk-scenario",
+      "generic-short-label": "Scénario",
+      "generic-long-label": "Scénario de risque",
+      "description": {
+        "fr": "Comprend la source de risque, l'objectif visé, le scénario stratégique, la chaîne d'attaque et la vraisemblance",
+        "en": "Includes risk source, target objective, strategic scenario, kill-chain, and likelihood"
+      }
+    },
+    {
+      "generic-id": "feared-event",
+      "generic-short-label": "Événement redouté",
+      "generic-long-label": "Événement redouté par l'entreprise",
+      "description": {
+        "fr": "Composé de critères de sécurité, d'un actif métier et d'une gravité",
+        "en": "Composed of security criteria, business asset, and severity"
+      }
+    },
+    {
+      "generic-id": "security-criteria",
+      "generic-short-label": "Critère de sécurité",
+      "generic-long-label": "Critère de sécurité affecté",
+      "description": {
+        "fr": "Confidentialité, intégrité, disponibilité, etc.",
+        "en": "Confidentiality, integrity, availability, etc."
+      }
+    },
+    {
+      "generic-id": "business-asset",
+      "generic-short-label": "Actif métier",
+      "generic-long-label": "Actif métier affecté par le risque",
+      "description": {
+        "fr": "Données, fonctions, résultats, etc.",
+        "en": "Data, functions, results, etc."
+      }
+    }
+  ]
+}

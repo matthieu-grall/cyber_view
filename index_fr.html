@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Visualisation des risques</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <h1>Cartographie des Risques</h1>
+
+    <!-- Filtres -->
+    <div id="filters">
+        <label for="severityFilter">Filtrer par gravité :</label>
+        <select id="severityFilter">
+            <option value="all">Toutes</option>
+            <option value="1. Minimale">1. Minimale</option>
+            <option value="2. Limitée">2. Limitée</option>
+            <option value="3. Importante">3. Importante</option>
+            <option value="4. Maximale">4. Maximale</option>
+        </select>
+    </div>
+
+    <!-- Conteneur du graphe -->
+    <div id="graph-container" style="width: 100%; height: 800px; border: 1px solid #ccc; position: relative;">
+        <svg id="graph"></svg>
+    </div>
+
+    <!-- Informations de débogage -->
+    <div id="info" style="margin-top: 20px; padding: 10px; background-color: #f0f0f0; border-radius: 4px;">
+        <p>Nombre de nœuds : <span id="nodeCount">0</span></p>
+        <p>Nombre de liens : <span id="linkCount">0</span></p>
+        <p><small>Utilisez la molette pour zoomer, cliquez-glissez pour vous déplacer</small></p>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
