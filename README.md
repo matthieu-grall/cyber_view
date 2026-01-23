@@ -44,6 +44,8 @@ The currently identified epics are as follows:
 
 ## User stories
 
+[in progress...]
+
 The currently identified user stories are as follows (in order of priority):
 | <center>**Epic**</center> | <center>**User story**</center> | <center>**Contribution**</center> | <center>**Difficulty**</center> | <center>**Progress**</center> |
 | --- | --- | --- | --- | --- |
@@ -54,8 +56,8 @@ The currently identified user stories are as follows (in order of priority):
 | Risk management network graph | **Expand/Collapse**: allows expanding and collapsing nodes. | 🔷 | ⬜ | ⭕ |
 | Risk management network graph | **Visualize all data from a risk management study**: visualization of all data from the risk management methodology. | 🟦 | 🔶 | ⭕ |
 | Risk management network graph | **Visualize data from different risk studies**: visualization of data from several risk studies that may share common elements. | 🔷 | 🟧 | ⭕ |
-| UI | Be able to choose one's visualization. | **Choose visualization**:  | 🟦 | 🔸 | ⭕ |
-| UI | Load a particular dataset. | **Load dataset**:  | 🔷 | ⬜ | ⭕ |
+| UI | **Choose visualization**: Be able to choose one's visualization. | 🟦 | 🔸 | ⭕ |
+| UI | **Load dataset**: Load a particular dataset. | 🔷 | ⬜ | ⭕ |
 | Risk management network graph | **Modify data**: allows modifying data (creation, modification, deletion, etc.). | 🔷 | 🟧 | ⭕ |
 | <many instances> Other risk management visualizations | **TBD**: offers different visualizations according to user stories (represent the system by cyberspace layers, assess compliance with best practices, assess risk treatment through measures, assess residual risks to decide their acceptability, etc.). | 🟦 | 🟧 | ⭕ |
 | <many instances> Other cyber use cases | **TBD**: visualization of data from other use cases than "Risk Management" that may share common elements. | 🟦 | 🟧 | ⭕ |
