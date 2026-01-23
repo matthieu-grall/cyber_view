@@ -36,9 +36,7 @@ The generic requirements are the following:
 
 ## Epics
 The currently identified epics are as follows:
-1. Transversal issues;
 1. User interface (UI);
-1. Artificial intelligence (AI) risk management network graph;
 1. Risk management network graph;
 1. Ontology network graph;
 1. <many instances> Other risk management visualizations;
@@ -46,25 +44,21 @@ The currently identified epics are as follows:
 
 ## User stories
 
-[in progress...]
-
 The currently identified user stories are as follows (in order of priority):
 | <center>**Epic**</center> | <center>**User story**</center> | <center>**Contribution**</center> | <center>**Difficulty**</center> | <center>**Progress**</center> |
 | --- | --- | --- | --- | --- |
-| Transversal issues | **Visualize something**: a user wishes to be able to visualize some data related to the study by scenarios in the form of a relational/network graph, in 2D or 3D, which represents objects in the form of nodes and their links in the form of edges, visually distinguishing objects (e.g.: shapes, images, colors). |  |  | ✅ |
-| AI risk management network graph | **Visualize some data from AI scenarios**: as a participant in an AI risk study, a user wishes to be able to visualize the main data related to the study by scenarios in the form of a graph, in order to quickly understand the study and verify the consistency of the data. |  |  | 🔄 |
-| AI risk management network graph | **Visualize some data from AI scenarios**: visualization of the main data from an AI risk study (by scenarios, cf. risk summary table from the methodology): risks, business values, feared events, consequences, severities, strategic scenarios, attack chains, likelihoods). |  | 🔄 |  |
-| UI | **Multilingual**: cyber_view is multilingual, and at least in French (FR) and English (EN). |  |  | 🔄 |
-| AI risk management network graph | visualization of all data from the AI risk management methodology. |  |  | ⭕ |
-| AI risk management network graph | visualization of data from several risk studies that may share common elements. |  |  | ⭕ |
-| AI risk management network graph | allows expanding and collapsing nodes. |  |  | ⭕ |
-| Transversal issues | allows modifying data (creation, modification, deletion, etc.). |  |  | ⭕ |
-| <many instances> Other risk management visualizations | offers different visualizations according to user stories (represent the system by cyberspace layers, assess compliance with best practices, assess risk treatment through measures, assess residual risks to decide their acceptability, etc.). |  |  | ⭕ |
-| Risk management network graph | visualization of all data from the "Risk Management" use case. |  |  | ⭕ |
-| <many instances> Other cyber use cases | visualization of data from other use cases than "Risk Management" that may share common elements. |  |  | ⭕ |
-| Transversal issues | Be able to choose one's visualization. |  |  | ⭕ |
-| Transversal issues | Load a particular dataset. |  |  | ⭕ |
-| AI risk management network graph | Integrate more complete data than that from an AI risk assessment summary. |  |  | ⭕ |
+| Risk management network graph | **Visualize something**: I wish to be able to visualize some data related to an AI risk study in the form of a relational/network graph, in 2D or 3D, which represents objects in the form of nodes and their links in the form of edges, visually distinguishing objects (e.g.: shapes, images, colors). | 🟦 | 🔸 | ✅ |
+| UI | **Template**: as a user, I wish to get a consistent DATA VISIONS template. | 🔹 | ⬜ | ✅ |
+| UI | **Multilingual**: as a user, I wish to be able to change the UI language, and at least in French (FR) and English (EN). | 🟦 | 🔸 | 🔄 |
+| Risk management network graph | **Visualize some data from AI scenarios**: as a participant in an AI risk study, I wish to be able to visualize the main data related to the study by scenarios (risks, business values, feared events, consequences, severities, strategic scenarios, attack chains, likelihoods) in the form of a graph, in order to quickly understand the study and verify the consistency of the data. | 🟦 | 🔶 | 🔄 |
+| Risk management network graph | **Expand/Collapse**: allows expanding and collapsing nodes. | 🔷 | ⬜ | ⭕ |
+| Risk management network graph | **Visualize all data from a risk management study**: visualization of all data from the risk management methodology. | 🟦 | 🔶 | ⭕ |
+| Risk management network graph | **Visualize data from different risk studies**: visualization of data from several risk studies that may share common elements. | 🔷 | 🟧 | ⭕ |
+| UI | Be able to choose one's visualization. | **Choose visualization**:  | 🟦 | 🔸 | ⭕ |
+| UI | Load a particular dataset. | **Load dataset**:  | 🔷 | ⬜ | ⭕ |
+| Risk management network graph | **Modify data**: allows modifying data (creation, modification, deletion, etc.). | 🔷 | 🟧 | ⭕ |
+| <many instances> Other risk management visualizations | **TBD**: offers different visualizations according to user stories (represent the system by cyberspace layers, assess compliance with best practices, assess risk treatment through measures, assess residual risks to decide their acceptability, etc.). | 🟦 | 🟧 | ⭕ |
+| <many instances> Other cyber use cases | **TBD**: visualization of data from other use cases than "Risk Management" that may share common elements. | 🟦 | 🟧 | ⭕ |
 
 **Contribution scale**:
 ⬜ Minimal
