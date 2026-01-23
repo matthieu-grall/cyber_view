@@ -3,7 +3,7 @@
 // =============================================
 
 // Dimensions du SVG - adapté au conteneur
-const container = d3.select("#graph-container");
+const container = d3.select("#graph_container");
 const width = container.node().clientWidth || 1200;
 const height = container.node().clientHeight || 800;
 
