@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>cyber_view</title>
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+
+<body>
+
+<!-- Global container -->
+<div class="global_container">
+
+    <!-- Top container -->
+	<div class="top_container">
+
+		<div class="top_logo_div">
+			<h1 data-i18n="header.logo">Data Visions</h1>
+		</div>
+		<div class="top_title_div">
+			<h1 data-i18n="header.title">cyber_view</h1>
+		</div>
+		<div class="top_flags_div">
+			<h1><a href="#" class="language-toggle" data-lang="fr"><img src="img/fr.png" alt="FR" title="Français"></a><a href="#" class="language-toggle" data-lang="en"><img src="img/en.png" alt="EN" title="English"></a></h1>
+		</div>
+
+	</div>
+
+    <!-- Content container -->
+	<div class="content_container">
+
+		<!-- Menu container -->
+        <div class="content_menu_container">
+
+			<!-- Menu title -->
+            <div class="menu_title_div">
+				<h2 data-i18n="menu.actions">Actions</h2>
+			</div>
+
+            <!-- Filters -->
+            <div id="filters">
+                <label for="severityFilter" data-i18n="menu.severityFilter">Filtrer par gravité :</label>
+                <select id="severityFilter">
+                    <option value="all" data-i18n="menu.allSeverities">Toutes</option>
+                    <option value="1. Minimale" data-i18n="menu.severity1">1. Minimale</option>
+                    <option value="2. Limitée" data-i18n="menu.severity2">2. Limitée</option>
+                    <option value="3. Importante" data-i18n="menu.severity3">3. Importante</option>
+                    <option value="4. Maximale" data-i18n="menu.severity4">4. Maximale</option>
+                </select>
+                <label for="typeFilter" data-i18n="menu.typeFilter">Filtrer par type :</label>
+                <select id="typeFilter">
+                    <option value="all" data-i18n="menu.allTypes">Tous</option>
+                </select>
+            </div>
+            
+        </div>
+
+		<!-- Right section (Graph + Information) -->
+		<div class="content_right_section">
+
+	        <!-- Graph container -->
+	        <div id="graph_container">
+	            <svg id="graph"></svg>
+	        </div>
+
+	        <!-- Information container -->
+	    	<div class="information_container">
+	            
+				<!-- Information title -->
+	            <div class="menu_title_div">
+					<h2 data-i18n="information.title">Information</h2>
+				</div>
+
+	            <!-- Key container -->
+	            <div id="key">
+	                <strong data-i18n="information.legend">Légende :</strong>
+	                <div id="key-content">
+	                
+	                    <!-- Nodes Key -->
+	                    <div class="key-section">
+	                        <strong data-i18n="information.nodes">Nœuds :</strong>
+	                        <div id="ontology-nodes">
+	                            <!-- Dynamically populated from cyber-ontology.json -->
+	                        </div>
+	                    </div>
+	                </div>
+	            
+	            </div>
+
+	            <div id="info">
+	                <div>
+	                    <p style="margin: 4px 0;"><span data-i18n="information.nodeCount">Nombre de nœuds :</span> <span id="nodeCount">0</span></p>
+	                    <p style="margin: 4px 0;"><span data-i18n="information.linkCount">Nombre de liens :</span> <span id="linkCount">0</span></p>
+	                    <p style="margin: 4px 0;"><small data-i18n="information.zoomHint">Utilisez la molette pour zoomer, cliquez-glissez pour vous déplacer</small></p>
+	                </div>
+	            </div>
+	        
+	        </div>
+
+		</div>
+
+    <!-- ==================== MODULAR SCRIPT LOADING ==================== -->
+    <!-- CONFIGURATION: Central configuration and constants -->
+    <script src="js/config.js"></script>
+    
+    <!-- INTERNATIONALIZATION: Language management and translation system -->
+    <script src="js/i18n.js"></script>
+    
+    <!-- DATA LOADING: Unified data file loading with caching -->
+    <script src="js/data-loader.js"></script>
+    
+    <!-- ONTOLOGY: Semantic ontology management and mapping -->
+    <script src="js/ontology.js"></script>
+    
+    <!-- GRAPH DATA: Graph structure creation from raw data -->
+    <script src="js/graph-data.js"></script>
+    
+    <!-- VISUALIZATION: Node rendering with tooltips and interactions -->
+    <script src="js/graph/node-renderer.js"></script>
+    
+    <!-- VISUALIZATION: Link/edge rendering with relationship labels -->
+    <script src="js/graph/link-renderer.js"></script>
+    
+    <!-- SIMULATION: D3 force-directed simulation and physics -->
+    <script src="js/graph/simulation.js"></script>
+    
+    <!-- INTERACTIONS: Filter logic for severity and node type -->
+    <script src="js/interactions/filters.js"></script>
+    
+    <!-- INTERACTIONS: Node details panel and click-to-display logic -->
+    <script src="js/interactions/node-details.js"></script>
+    
+    <!-- APPLICATION: Main orchestration and initialization -->
+    <script src="js/main.js"></script>
+    <!-- ==================== END SCRIPT LOADING ==================== -->
+
+	</div>
+
+	<div class="bottom_container">
+
+		<div class="bottom_credits_div">
+			<p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><span data-i18n="footer.license">Site sous licence</span> <a href="http://creativecommons.org/licenses/by/4.0/deed.fr" target="_blank" rel="license noopener noreferrer"><span data-i18n="footer.cc">CC BY 4.0</span><img class="license-icon" src="./img/cc.svg" alt="CC"><img class="license-icon" src="./img/by.svg" alt="BY"></a> | <span data-i18n="footer.flags">Drapeaux par</span> <a href="https://www.vecteezy.com/members/jayali-667571954" target="_blank" rel="noopener noreferrer"><span data-i18n="footer.flagsAuthor">Jawad Ali</span></a> de <a href="https://www.vecteezy.com/" target="_blank" rel="noopener noreferrer"><span data-i18n="footer.flagsSource">VECTEEZY</span></a> | <span data-i18n="footer.background">Fond par</span> <a href="https://pixabay.com/fr/users/creativemagic-480360/" target="_blank" rel="noopener noreferrer"><span data-i18n="footer.backgroundAuthor">Magic Creative</span></a> de <a href="https://pixabay.com" target="_blank" rel="noopener noreferrer"><span data-i18n="footer.backgroundSource">PIXABAY</span></a></p>		</div>
+
+	</div>
+
+</div>
+
+</body>
+
+</html>

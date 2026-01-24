@@ -1,6 +1,5 @@
 # cyber_view
 
-
 [![CC BY 4.0][cc-by-shield]][cc-by]
 
 Those documents are licensed under a 
@@ -11,6 +10,27 @@ Those documents are licensed under a
 [cc-by]: http://creativecommons.org/licenses/by/4.0/
 [cc-by-image]: https://i.creativecommons.org/l/by/4.0/88x31.png
 [cc-by-shield]: https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg
+
+## Table of Contents
+
+- [Objective](#objective)
+- [User Features](#user-features)
+  - [Graph Visualization](#graph-visualization)
+  - [User Interactions](#user-interactions)
+  - [Data Filtering](#data-filtering)
+  - [Internationalization](#internationalization)
+  - [Dynamic Legend](#dynamic-legend)
+- [Installation and Usage](#installation-and-usage)
+  - [Requirements](#requirements)
+  - [Quick Start](#quick-start)
+  - [First Use](#first-use)
+- [Documentation](#documentation)
+- [Requirements](#requirements-1)
+- [Epics](#epics)
+- [User Stories](#user-stories)
+- [Backlog and History](#backlog-and-history)
+
+---
 
 ## Objective
 
@@ -23,7 +43,85 @@ This should also allow to:
 - **highlight the [cyber_ontology](https://github.com/matthieu-grall/cyber_ontology) and the [methodological tools for artificial intelligence (AI)](https://github.com/matthieu-grall/ai)**;
 - **carry out numerous study or research projects**.
 
-## Requirements
+---
+
+## User Features
+
+### Graph Visualization
+
+- **Force-Directed Graph**: Interactive visualization of cybersecurity risks with automatic layout based on D3.js physics
+- **Zoom and Pan**: Scroll to zoom, click-drag to navigate the graph
+- **Proportional Nodes**: Node size increases with the number of connections
+- **Color Coding**: Nodes are colored by type (risk, source, asset, etc.) and by severity
+
+### User Interactions
+
+- **Node Hover**: Displays tooltip with name, type, severity, and number of connections
+- **Link Hover**: Displays relationship type between nodes
+- **Node Click**: Shows details panel with:
+  - Complete node information
+  - List of connected nodes and relationship types
+  - Number of connections
+  - Additional properties
+- **Drag Nodes**: Manually move nodes on the graph
+- **Empty Click**: Closes the details panel
+
+### Data Filtering
+
+- **Filter by Severity**: Display only risks of a specific severity level (Minimal, Limited, Important, Maximum)
+- **Filter by Type**: Display only nodes of a specific type (risk, source, asset, criteria, etc.)
+- **Combined Filtering**: Both filters work together (AND logic)
+- **Dynamic Update**: The graph reorganizes automatically when filtering
+
+### Internationalization
+
+- **French/English**: Switch between FR and EN via flags in the header
+- **Complete Translations**: All interface texts are translated
+- **Persistence**: Language is saved in the browser
+
+### Dynamic Legend
+
+- **Node Legend**: Displays semantic definitions for each node type
+- **Multilingual Update**: Legend changes language when switching FR/EN
+
+---
+
+## Installation and Usage
+
+### Requirements
+
+- Modern browser (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+)
+- No installation needed (static web application)
+
+### Quick Start
+
+```bash
+# Option 1: Direct opening
+open index.html
+
+# Option 2: Local server (recommended for development)
+python -m http.server 8000
+# Then open: http://localhost:8000
+```
+
+### First Use
+
+1. Open `index.html` in a browser
+2. Observe the risk graph appear
+3. Try the interactions:
+   - Hover over nodes → see tooltips
+   - Click a node → see details panel
+   - Use filters → filter risks
+   - Scroll/drag → zoom and navigate
+4. Switch language (FR/EN flags)
+
+---
+
+## Documentation
+
+For detailed information about code architecture, development guide, configuration, and troubleshooting, see [TECHNICAL.md](TECHNICAL.md).
+
+---
 
 The generic requirements are the following:
 - cyber_view is a **web application**;
@@ -47,20 +145,20 @@ The currently identified epics are as follows:
 [in progress...]
 
 The currently identified user stories are as follows (in order of priority):
-| **Epic** | **User story** | **Contribution** | **Difficulty** | **Progress** |
+| <center>**Epic**</center> | <center>**User story**</center> | <center>**Contribution**</center> | <center>**Difficulty**</center> | <center>**Progress**</center> |
 | --- | --- | --- | --- | --- |
-| Risk management network graph | **Visualize something**: I wish to be able to visualize some data related to an AI risk study in the form of a relational/network graph, in 2D or 3D, which represents objects in the form of nodes and their links in the form of edges, visually distinguishing objects (e.g.: shapes, images, colors). | 🟦 | 🔸 | ✅ |
-| UI | **Template**: as a user, I wish to get a consistent DATA VISIONS template. | 🔹 | ⬜ | ✅ |
-| UI | **Multilingual**: as a user, I wish to be able to change the UI language, and at least in French (FR) and English (EN). | 🟦 | 🔸 | 🔄 |
-| Risk management network graph | **Visualize some data from AI scenarios**: as a participant in an AI risk study, I wish to be able to visualize the main data related to the study by scenarios (risks, business values, feared events, consequences, severities, strategic scenarios, attack chains, likelihoods) in the form of a graph, in order to quickly understand the study and verify the consistency of the data. | 🟦 | 🔶 | 🔄 |
-| Risk management network graph | **Expand/Collapse**: allows expanding and collapsing nodes. | 🔷 | ⬜ | ⭕ |
-| Risk management network graph | **Visualize all data from a risk management study**: visualization of all data from the risk management methodology. | 🟦 | 🔶 | ⭕ |
-| Risk management network graph | **Visualize data from different risk studies**: visualization of data from several risk studies that may share common elements. | 🔷 | 🟧 | ⭕ |
-| UI | **Choose visualization**: Be able to choose one's visualization. | 🟦 | 🔸 | ⭕ |
-| UI | **Load dataset**: Load a particular dataset. | 🔷 | ⬜ | ⭕ |
-| Risk management network graph | **Modify data**: allows modifying data (creation, modification, deletion, etc.). | 🔷 | 🟧 | ⭕ |
-| <many instances> Other risk management visualizations | **TBD**: offers different visualizations according to user stories (represent the system by cyberspace layers, assess compliance with best practices, assess risk treatment through measures, assess residual risks to decide their acceptability, etc.). | 🟦 | 🟧 | ⭕ |
-| <many instances> Other cyber use cases | **TBD**: visualization of data from other use cases than "Risk Management" that may share common elements. | 🟦 | 🟧 | ⭕ |
+| Risk management network graph | **Visualize something**: I wish to be able to visualize some data related to an AI risk study in the form of a relational/network graph, in 2D or 3D, which represents objects in the form of nodes and their links in the form of edges, visually distinguishing objects (e.g.: shapes, images, colors). | <center>🟦</center> | <center>🔸</center> | <center>✅</center> |
+| UI | **Template**: as a user, I wish to get a consistent DATA VISIONS template. | <center>🔹</center> | <center>⬜</center> | <center>✅</center> |
+| UI | **Multilingual**: as a user, I wish to be able to change the UI language, and at least in French (FR) and English (EN). | <center>🟦</center> | <center>🔸</center> | <center>🔄</center> |
+| Risk management network graph | **Visualize some data from AI scenarios**: as a participant in an AI risk study, I wish to be able to visualize the main data related to the study by scenarios (risks, business values, feared events, consequences, severities, strategic scenarios, attack chains, likelihoods) in the form of a graph, in order to quickly understand the study and verify the consistency of the data. | <center>🟦</center> | <center>🔶</center> | <center>🔄</center> |
+| Risk management network graph | **Expand/Collapse**: allows expanding and collapsing nodes. | <center>🔷</center> | <center>⬜</center> | <center>⭕</center> |
+| Risk management network graph | **Visualize all data from a risk management study**: visualization of all data from the risk management methodology. | <center>🟦</center> | <center>🔶</center> | <center>⭕</center> |
+| Risk management network graph | **Visualize data from different risk studies**: visualization of data from several risk studies that may share common elements. | <center>🔷</center> | <center>🟧</center> | <center>⭕</center> |
+| UI | **Choose visualization**: Be able to choose one's visualization. | <center>🟦</center> | <center>🔸</center> | <center>⭕</center> |
+| UI | **Load dataset**: Load a particular dataset. | <center>🔷</center> | <center>⬜</center> | <center>⭕</center> |
+| Risk management network graph | **Modify data**: allows modifying data (creation, modification, deletion, etc.). | <center>🔷</center> | <center>🟧</center> | <center>⭕</center> |
+| <many instances> Other risk management visualizations | **TBD**: offers different visualizations according to user stories (represent the system by cyberspace layers, assess compliance with best practices, assess risk treatment through measures, assess residual risks to decide their acceptability, etc.). | <center>🟦</center> | <center>🟧</center> | <center>⭕</center> |
+| <many instances> Other cyber use cases | **TBD**: visualization of data from other use cases than "Risk Management" that may share common elements. | <center>🟦</center> | <center>🟧</center> | <center>⭕</center> |
 
 **Contribution scale**:
 ⬜ Minimal
@@ -84,18 +182,18 @@ The currently identified user stories are as follows (in order of priority):
 [in progress...]
 
 The backlog is the following:
-| **User story** | **Action** | **Progress** |
+| <center>**User story**</center> | <center>**Action**</center> | <center>**Progress**</center> |
 | --- | --- | --- |
-| Visualize something | Create data (csv) | ✅ |
-| Visualize something | Create code to visualize data | ✅ |
-| Template | Adopt the DATA VISIONS template | ✅ |
-| Visualize some data from AI scenarios | Scale the size of nodes proportionally to the number of adjacent edges | ⭕ |
-| Visualize some data from AI scenarios | Reference the [cyber_ontology](https://github.com/matthieu-grall/cyber_ontology) for each object (class, properties or relationship) | ⭕ |
-| Multilingual | Automatically retrieve the FR and EN labels from the [cyber_ontology](https://github.com/matthieu-grall/cyber_ontology) when they exist | ⭕ |
-|  |  |  |  | ⭕ |
-|  |  |  |  | ⭕ |
-|  |  |  |  | ⭕ |
-|  |  |  |  | ⭕ |
+| Visualize something | Create data (csv) | <center>✅</center> |
+| Visualize something | Create code to visualize data | <center>✅</center> |
+| Template | Adopt the DATA VISIONS template | <center>✅</center> |
+| Visualize some data from AI scenarios | Scale the size of nodes proportionally to the number of adjacent edges | <center>⭕</center> |
+| Visualize some data from AI scenarios | Reference the [cyber_ontology](https://github.com/matthieu-grall/cyber_ontology) for each object (class, properties or relationship) | <center>⭕</center> |
+| Multilingual | Automatically retrieve the FR and EN labels from the [cyber_ontology](https://github.com/matthieu-grall/cyber_ontology) when they exist | <center>⭕</center> |
+|  |  |  |  | <center>⭕</center> |
+|  |  |  |  | <center>⭕</center> |
+|  |  |  |  | <center>⭕</center> |
+|  |  |  |  | <center>⭕</center> |
 
 **Progress scale**:
 ⭕ Not started

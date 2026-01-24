@@ -1,0 +1,35 @@
+{
+  "header": {
+    "logo": "Data Visions",
+    "title": "cyber_view"
+  },
+  "menu": {
+    "actions": "Actions",
+    "severityFilter": "Filter by severity:",
+    "allSeverities": "All",
+    "severity1": "1. Minimal",
+    "severity2": "2. Limited",
+    "severity3": "3. Important",
+    "severity4": "4. Maximum",
+    "typeFilter": "Filter by type:",
+    "allTypes": "All"
+  },
+  "information": {
+    "title": "Information",
+    "legend": "Legend:",
+    "nodes": "Nodes:",
+    "nodeCount": "Number of nodes:",
+    "linkCount": "Number of links:",
+    "zoomHint": "Use the wheel to zoom, click-drag to move"
+  },
+  "footer": {
+    "license": "Website under license",
+    "cc": "CC BY 4.0",
+    "flags": "Flags by",
+    "flagsAuthor": "Jawad Ali",
+    "flagsSource": "VECTEEZY",
+    "background": "Background by",
+    "backgroundAuthor": "Magic Creative",
+    "backgroundSource": "PIXABAY"
+  }
+}

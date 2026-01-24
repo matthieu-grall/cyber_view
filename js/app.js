@@ -2,6 +2,117 @@
 // app.js - Visualisation D3.js des risques
 // =============================================
 
+// ===== INTERNATIONALIZATION (i18n) =====
+const i18n = {
+    currentLang: localStorage.getItem('lang') || 'fr',
+    translations: {}
+};
+
+// Charger les traductions
+async function loadTranslations(lang) {
+    try {
+        const response = await fetch(`locales/${lang}.json`);
+        i18n.translations = await response.json();
+        i18n.currentLang = lang;
+        localStorage.setItem('lang', lang);
+        document.documentElement.lang = lang;
+        applyTranslations();
+    } catch (error) {
+        console.error('Erreur chargement traductions:', error);
+    }
+}
+
+// Appliquer les traductions aux éléments DOM
+function applyTranslations() {
+    // Traductions pour data-i18n (texte interne)
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        const text = getTranslation(key);
+        if (text) element.textContent = text;
+    });
+    
+    // Traductions pour data-i18n-placeholder
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+        const key = element.getAttribute('data-i18n-placeholder');
+        const text = getTranslation(key);
+        if (text) element.placeholder = text;
+    });
+    
+    // Régénérer la légende de l'ontologie avec la nouvelle langue
+    if (ontologyData) {
+        generateOntologyLegend(ontologyData);
+    }
+    
+    // Mettre à jour les labels du filtre type
+    updateTypeFilterLabels();
+}
+
+// Générer la légende des nœuds à partir de l'ontologie
+function generateOntologyLegend(ontologyData) {
+    const container = document.getElementById('ontology-nodes');
+    if (!container) return;
+    
+    container.innerHTML = ''; // Effacer le contenu précédent
+    
+    // Couleurs des nœuds par type
+    const nodeColors = {
+        'risk': '#a6cee3',
+        'feared-event': '#ffb6c1',
+        'business-asset': '#87ceeb',
+        'risk-source': '#4ecdc4',
+        'security-property': '#9b59b6'
+    };
+    
+    const nodeSizes = {
+        'risk': { w: 10, h: 10, b: '2px solid #333' },
+        'feared-event': { w: 9, h: 9, b: '1px solid #666' },
+        'business-asset': { w: 9, h: 9, b: '1px solid #666' },
+        'risk-source': { w: 8, h: 8, b: '1px solid #666' },
+        'security-property': { w: 8, h: 8, b: '1px solid #666' }
+    };
+    
+    // Créer les éléments de légende pour chaque classe
+    ontologyData.classes.forEach(ontologyClass => {
+        const classId = ontologyClass.id;
+        const color = nodeColors[classId] || '#ddd';
+        const size = nodeSizes[classId] || { w: 8, h: 8, b: '1px solid #666' };
+        const label = ontologyClass.label[i18n.currentLang] || ontologyClass.label.fr;
+        
+        const keyItem = document.createElement('div');
+        keyItem.className = 'key-item';
+        keyItem.innerHTML = `
+            <span class="key-color-dot" style="width: ${size.w}px; height: ${size.h}px; background: ${color}; border: ${size.b};"></span>
+            <span title="${ontologyClass.isDefinedBy[i18n.currentLang] || ontologyClass.isDefinedBy.fr}">${label}</span>
+        `;
+        container.appendChild(keyItem);
+    });
+}
+
+// Récupérer une traduction
+function getTranslation(key) {
+    const keys = key.split('.');
+    let value = i18n.translations;
+    for (const k of keys) {
+        value = value?.[k];
+    }
+    return value || key;
+}
+
+// Event listeners pour changement de langue
+document.addEventListener('DOMContentLoaded', function() {
+    // Charger les traductions initiales
+    loadTranslations(i18n.currentLang);
+    
+    // Ajouter les event listeners aux drapeaux
+    document.querySelectorAll('.language-toggle').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const lang = this.getAttribute('data-lang');
+            loadTranslations(lang);
+        });
+    });
+});
+
 // Dimensions du SVG - adapté au conteneur
 const container = d3.select("#graph_container");
 const width = container.node().clientWidth || 1200;
@@ -29,23 +140,49 @@ const referenceData = {
     likelihoodLevels: []
 };
 
+// Données d'ontologie
+let ontologyData = null;
+
+// Variables globales pour les sélections D3
+let nodeSelection = null;
+let linkSelection = null;
+
+// Mapping des types de relations avec labels traduits
+const relationshipLabels = {
+    "has-criteria": { fr: "affecte le critère", en: "affects criterion" },
+    "affects-asset": { fr: "affecte l'actif", en: "affects asset" },
+    "from-source": { fr: "provient de la source", en: "comes from source" },
+    "has-severity": { fr: "a pour gravité", en: "has severity" },
+    "has-likelihood": { fr: "a pour vraisemblance", en: "has likelihood" }
+};
+
+// Mapping des types de nœuds avec labels de l'ontologie
+function getNodeTypeLabel(type, lang = 'fr') {
+    if (!ontologyData) return type;
+    
+    const classMap = {
+        'risk': 'risk',
+        'feared-event': 'feared-event',
+        'security-criteria': 'security-property',
+        'business-asset': 'business-asset',
+        'risk-source': 'risk-source',
+        'severity-level': null,
+        'likelihood-level': null
+    };
+    
+    const classId = classMap[type];
+    if (!classId) return type;
+    
+    const ontClass = ontologyData.classes.find(c => c.id === classId);
+    return ontClass ? ontClass.label[lang] : type;
+}
+
 // Fonction pour résoudre un ID dans les données de référence
 function resolveId(id, dataType) {
     if (!id || !referenceData[dataType]) return null;
     const item = referenceData[dataType].find(d => d.id === id);
     return item ? item.label : id;
 }
-
-// Créer un groupe pour le zoom/pan
-const g = svg.append("g");
-
-// Ajouter le zoom
-const zoom = d3.zoom()
-    .on("zoom", (event) => {
-        g.attr("transform", event.transform);
-    });
-
-svg.call(zoom);
 
 // Chargement des données
 Promise.all([
@@ -54,8 +191,21 @@ Promise.all([
     d3.json("data/business-assets.json"),
     d3.json("data/security-criteria.json"),
     d3.json("data/severity-levels.json"),
-    d3.json("data/likelihood-levels.json")
-]).then(function([riskData, riskSources, businessAssets, securityCriteria, severityLevels, likelihoodLevels]) {
+    d3.json("data/likelihood-levels.json"),
+    d3.json("data/cyber-ontology.json")
+]).then(function([riskData, riskSources, businessAssets, securityCriteria, severityLevels, likelihoodLevels, cyberOntology]) {
+    // Charger les traductions initiales et créer le graphe
+    ontologyData = cyberOntology;
+    loadTranslations(i18n.currentLang).then(() => {
+        generateOntologyLegend(ontologyData);
+        renderGraph(riskData, riskSources, businessAssets, securityCriteria, severityLevels, likelihoodLevels);
+    }).catch(error => {
+        console.error('Erreur lors du chargement du graphe:', error);
+    });
+});
+
+// Fonction principale pour rendre le graphe
+async function renderGraph(riskData, riskSources, businessAssets, securityCriteria, severityLevels, likelihoodLevels) {
     // Charger les données de référence
     referenceData.riskSources = riskSources;
     referenceData.businessAssets = businessAssets;
@@ -69,6 +219,21 @@ Promise.all([
         businessAssets: businessAssets.length,
         securityCriteria: securityCriteria.length
     });
+
+    // ===== CRÉATION DES NŒUDS =====
+    // Effacer le graphe existant si rafraîchissement de langue
+    svg.selectAll("*").remove();
+    
+    // Créer un groupe pour le zoom/pan
+    let g = svg.append("g");
+
+    // Ajouter le zoom
+    const zoom = d3.zoom()
+        .on("zoom", (event) => {
+            g.attr("transform", event.transform);
+        });
+
+    svg.call(zoom);
 
     // ===== CRÉATION DES NŒUDS =====
     let nodes = [];
@@ -204,6 +369,29 @@ Promise.all([
     document.getElementById("nodeCount").textContent = nodes.length;
     document.getElementById("linkCount").textContent = links.length;
 
+    // Calculer le degré (nombre de liens) pour chaque nœud
+    const nodeDegree = {};
+    nodes.forEach(n => nodeDegree[n.id] = 0);
+    links.forEach(l => {
+        nodeDegree[l.source]++;
+        nodeDegree[l.target]++;
+    });
+
+    // Ajouter le degré aux nœuds
+    nodes.forEach(n => {
+        n.degree = nodeDegree[n.id];
+    });
+
+    // Remplir les options du filtre par type
+    const typeFilterSelect = document.getElementById('typeFilter');
+    const uniqueTypes = [...new Set(nodes.map(n => n.type))];
+    uniqueTypes.forEach(type => {
+        const option = document.createElement('option');
+        option.value = type;
+        option.textContent = getNodeTypeLabel(type, i18n.currentLang);
+        typeFilterSelect.appendChild(option);
+    });
+
     // Force simulation - adapté pour la nouvelle structure
     const simulation = d3.forceSimulation(nodes)
         .force("link", d3.forceLink(links)
@@ -226,7 +414,7 @@ Promise.all([
         }));
 
     // Dessin des liens AVANT les nœuds (important pour l'ordre de rendu)
-    const link = g.append("g")
+    linkSelection = g.append("g")
         .attr("class", "links")
         .selectAll("line")
         .data(links)
@@ -245,7 +433,7 @@ Promise.all([
         .attr("stroke-width", 1.5);
 
     // Dessin des nœuds
-    const node = g.append("g")
+    nodeSelection = g.append("g")
         .attr("class", "nodes")
         .selectAll("g")
         .data(nodes, d => d.id)
@@ -253,18 +441,23 @@ Promise.all([
         .append("g")
         .attr("class", d => "node node-" + d.type);
 
-    // Rayon du nœud selon le type
+    // Rayon du nœud selon le type ET le degré (nombre de liens)
     const nodeRadius = (d) => {
-        if (d.type === "risk") return 12;
-        if (d.type === "security-criteria") return 10;
-        if (d.type === "business-asset") return 10;
-        if (d.type === "risk-source") return 9;
-        if (d.type === "severity-level") return 8;
-        if (d.type === "likelihood-level") return 8;
-        return 8;
+        const baseSizes = {
+            "risk": 12,
+            "security-criteria": 10,
+            "business-asset": 10,
+            "risk-source": 9,
+            "severity-level": 8,
+            "likelihood-level": 8
+        };
+        const baseRadius = baseSizes[d.type] || 8;
+        // Augmenter le rayon en fonction du degré (max 20% d'augmentation)
+        const degreeBoost = Math.min(d.degree * 0.5, 4);
+        return baseRadius + degreeBoost;
     };
 
-    node.append("circle")
+    nodeSelection.append("circle")
         .attr("r", nodeRadius)
         .attr("fill", d => {
             if (d.type === "risk") return severityColor[d.severity] || "#cccccc";
@@ -279,9 +472,26 @@ Promise.all([
             if (d.type === "risk") return "#333";
             return "#666";
         })
-        .attr("stroke-width", d => d.type === "risk" ? 2 : 1.5);
+        .attr("stroke-width", d => d.type === "risk" ? 2 : 1.5)
+        .on("mouseover", function(event, d) {
+            // Afficher le type du nœud au survol
+            const typeLabel = getNodeTypeLabel(d.type, i18n.currentLang);
+            const title = `${typeLabel}\n${d.label}`;
+            d3.select(this).attr("data-tooltip", title);
+        })
+        .on("click", function(event, d) {
+            event.stopPropagation();
+            displayNodeInfo(d);
+        });
+    
+    // Ajouter des tooltips aux liens
+    linkSelection.append("title")
+        .text(d => {
+            const relationLabel = relationshipLabels[d.type]?.[i18n.currentLang] || d.type;
+            return relationLabel;
+        });
 
-    node.append("text")
+    nodeSelection.append("text")
         .attr("dx", 15)
         .attr("dy", 4)
         .attr("font-size", d => d.type === "risk" ? "11px" : "9px")
@@ -291,20 +501,20 @@ Promise.all([
         .text(d => `[${d.type}] ${d.label}${d.description ? '\n' + d.description : ""}`);
 
     // Drag
-    node.call(d3.drag()
+    nodeSelection.call(d3.drag()
         .on("start", dragstarted)
         .on("drag", dragged)
         .on("end", dragended));
 
     // Simulation tick
     simulation.on("tick", () => {
-        link
+        linkSelection
             .attr("x1", d => d.source.x)
             .attr("y1", d => d.source.y)
             .attr("x2", d => d.target.x)
             .attr("y2", d => d.target.y);
 
-        node.attr("transform", d => `translate(${d.x},${d.y})`);
+        nodeSelection.attr("transform", d => `translate(${d.x},${d.y})`);
     });
 
     // Drag functions
@@ -325,29 +535,85 @@ Promise.all([
         d.fy = null;
     }
 
-    // Filtre par gravité
-    d3.select("#severityFilter").on("change", function() {
-        const value = this.value;
-        
-        // Filtrer les nœuds
-        node.style("opacity", d => {
-            if (d.type === "risk") {
-                return (value === "all" || d.severity === value) ? 1 : 0.1;
-            }
-            // Les nœuds intermédiaires suivent leurs nœuds parents
-            return 1;
-        });
-        
-        // Filtrer les liens
-        link.style("opacity", l => {
-            const srcType = l.source.type;
-            const srcSeverity = l.source.severity;
-            
-            if (srcType === "risk") {
-                return (value === "all" || srcSeverity === value) ? 0.8 : 0.05;
-            }
-            return 1;
-        });
-    });
+    // Attacher les event listeners aux filtres
+    d3.select("#severityFilter").on("change", applyFilters);
+    d3.select("#typeFilter").on("change", applyFilters);
 
-});
+};
+
+// Fonction pour appliquer les filtres (doit être accessible globalement)
+function applyFilters() {
+    if (!nodeSelection || !linkSelection) return;
+    
+    const severityValue = document.getElementById('severityFilter').value;
+    const typeValue = document.getElementById('typeFilter').value;
+    
+    // Filtrer les nœuds
+    nodeSelection.style("opacity", d => {
+        const severityMatch = d.type !== "risk" || severityValue === "all" || d.severity === severityValue;
+        const typeMatch = typeValue === "all" || d.type === typeValue;
+        return (severityMatch && typeMatch) ? 1 : 0.1;
+    });
+    
+    // Filtrer les liens
+    linkSelection.style("opacity", l => {
+        const severityMatch = l.source.type !== "risk" || severityValue === "all" || l.source.severity === severityValue;
+        const typeMatch = typeValue === "all" || l.source.type === typeValue || l.target.type === typeValue;
+        return (severityMatch && typeMatch) ? 0.8 : 0.05;
+    });
+}
+
+// Mettre à jour les labels du filtre type en fonction de la langue
+function updateTypeFilterLabels() {
+    const typeFilterSelect = document.getElementById('typeFilter');
+    if (!typeFilterSelect) return;
+    
+    // Garder la valeur sélectionnée
+    const selectedValue = typeFilterSelect.value;
+    
+    // Mise à jour des options (excepté "all")
+    const options = typeFilterSelect.querySelectorAll('option');
+    options.forEach(option => {
+        if (option.value !== 'all') {
+            const newLabel = getNodeTypeLabel(option.value, i18n.currentLang);
+            option.textContent = newLabel;
+        }
+    });
+    
+    // Restaurer la sélection
+    typeFilterSelect.value = selectedValue;
+}
+
+// Fonction pour afficher les informations d'un nœud
+function displayNodeInfo(node) {
+    const infoDiv = document.getElementById('info');
+    const typeLabel = getNodeTypeLabel(node.type, i18n.currentLang);
+    
+    let html = `
+        <div style="border-top: 2px solid #333; padding-top: 10px; margin-top: 10px;">
+            <h4 style="margin: 5px 0;">${node.label}</h4>
+            <p style="margin: 4px 0;"><strong>Type :</strong> ${typeLabel}</p>
+    `;
+    
+    if (node.degree !== undefined) {
+        html += `<p style="margin: 4px 0;"><strong>Nombre de liens :</strong> ${node.degree}</p>`;
+    }
+    
+    if (node.severity) {
+        html += `<p style="margin: 4px 0;"><strong>Gravité :</strong> ${node.severity}</p>`;
+    }
+    
+    if (node.description) {
+        html += `<p style="margin: 4px 0; font-size: 12px;"><strong>Description :</strong> ${node.description}</p>`;
+    }
+    
+    html += `</div>`;
+    
+    // Ajouter les infos après les compteurs
+    const countersDiv = infoDiv.querySelector('div');
+    if (countersDiv) {
+        countersDiv.innerHTML += html;
+    } else {
+        infoDiv.innerHTML = html;
+    }
+}

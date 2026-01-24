@@ -1,0 +1,35 @@
+{
+  "header": {
+    "logo": "Data Visions",
+    "title": "cyber_view"
+  },
+  "menu": {
+    "actions": "Actions",
+    "severityFilter": "Filtrer par gravité :",
+    "allSeverities": "Toutes",
+    "severity1": "1. Minimale",
+    "severity2": "2. Limitée",
+    "severity3": "3. Importante",
+    "severity4": "4. Maximale",
+    "typeFilter": "Filtrer par type :",
+    "allTypes": "Tous"
+  },
+  "information": {
+    "title": "Information",
+    "legend": "Légende :",
+    "nodes": "Nœuds :",
+    "nodeCount": "Nombre de nœuds :",
+    "linkCount": "Nombre de liens :",
+    "zoomHint": "Utilisez la molette pour zoomer, cliquez-glissez pour vous déplacer"
+  },
+  "footer": {
+    "license": "Site sous licence",
+    "cc": "CC BY 4.0",
+    "flags": "Drapeaux par",
+    "flagsAuthor": "Jawad Ali",
+    "flagsSource": "VECTEEZY",
+    "background": "Fond par",
+    "backgroundAuthor": "Magic Creative",
+    "backgroundSource": "PIXABAY"
+  }
+}
