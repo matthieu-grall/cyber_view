@@ -19,6 +19,8 @@ const CyberViewApplication = (() => {
     const state = {
         isInitialized: false,
         currentData: null,
+        currentView: 'usecase',
+        currentUsecaseData: null,
         simulation: null,
         nodeGroup: null,
         linkGroup: null
@@ -159,6 +161,7 @@ const CyberViewApplication = (() => {
                     toggle.classList.remove('active');
                 });
                 el.classList.add('active');
+                updateLoadedStudyName();
             });
         });
 
@@ -169,6 +172,157 @@ const CyberViewApplication = (() => {
                 el.classList.add('active');
             }
         });
+    }
+
+    function getUseCaseConfig(useCaseId) {
+        return AppConfig.useCases.find(useCase => useCase.id === useCaseId);
+    }
+
+    function updateLoadedStudyName() {
+        const loadedStudyNameElement = document.querySelector(AppConfig.selectors.loadedStudyName);
+        if (!loadedStudyNameElement) return;
+
+        const currentUsecase = DataLoaderModule.getCurrentUsecase();
+        if (!currentUsecase) {
+            loadedStudyNameElement.textContent = '';
+            return;
+        }
+
+        const label = currentUsecase.name || currentUsecase.id || '';
+        const header = I18nModule.getTranslation('menu.loadedStudy');
+        loadedStudyNameElement.textContent = header ? `${header}: ${label}` : label;
+    }
+
+    async function loadUseCaseData(useCaseId) {
+        const useCaseConfig = getUseCaseConfig(useCaseId);
+        if (!useCaseConfig) {
+            throw new Error(`Use case not found: ${useCaseId}`);
+        }
+
+        const allData = await DataLoaderModule.loadAll(useCaseConfig.file);
+        state.currentUsecaseData = allData;
+        updateLoadedStudyName();
+        return allData;
+    }
+
+    function initializeViewControls() {
+        const sourceSelect = document.querySelector(AppConfig.selectors.sourceSelect);
+        const modeSelect = document.querySelector(AppConfig.selectors.modeSelect);
+
+        if (sourceSelect) {
+            sourceSelect.value = state.currentView;
+            sourceSelect.addEventListener('change', async (event) => {
+                state.currentView = event.target.value;
+                await renderCurrentView();
+            });
+        }
+
+        if (modeSelect) {
+            modeSelect.addEventListener('change', (event) => {
+                toggleMode(event.target.value);
+            });
+        }
+    }
+
+    async function renderCurrentView() {
+        if (state.currentView === 'ontology') {
+            await renderOntologyGraph();
+        } else {
+            await renderUsecaseGraph();
+        }
+    }
+
+    async function renderUsecaseGraph() {
+        if (!state.currentUsecaseData) {
+            await loadUseCaseData(AppConfig.defaultUseCaseId);
+        }
+
+        const allData = state.currentUsecaseData;
+        const graphData = GraphDataModule.createGraphData(
+            allData.risks,
+            allData.riskSources,
+            allData.businessAssets,
+            allData.securityCriteria,
+            allData.severityLevels,
+            allData.likelihoodLevels
+        );
+
+        state.currentData = graphData;
+        renderGraph(graphData.nodes, graphData.links, state.renderWidth, state.renderHeight);
+        FiltersModule.initialize(graphData.nodes, graphData.links);
+        FiltersModule.populateFilterOptions();
+        FiltersModule.attachEventHandlers();
+        NodeDetailsModule.initialize(graphData.nodes, graphData.links);
+        document.getElementById('filters').style.display = '';
+    }
+
+    async function renderOntologyGraph() {
+        const ontologyData = await DataLoaderModule.loadOntology();
+        const graphData = GraphDataModule.createOntologyGraph(ontologyData, I18nModule.getLanguage());
+
+        state.currentData = graphData;
+        renderGraph(graphData.nodes, graphData.links, state.renderWidth, state.renderHeight);
+        NodeDetailsModule.initialize(graphData.nodes, graphData.links);
+        document.getElementById('filters').style.display = 'none';
+    }
+
+    function toggleMode(mode) {
+        const visualizationElements = document.querySelectorAll('.visualization-only');
+        const editorContainer = document.getElementById('editor_container');
+
+        if (mode === 'edit') {
+            visualizationElements.forEach(el => el.style.display = 'none');
+            if (editorContainer) editorContainer.style.display = 'block';
+        } else {
+            visualizationElements.forEach(el => el.style.display = '');
+            if (editorContainer) editorContainer.style.display = 'none';
+        }
+    }
+
+    function populateStudySelector() {
+        const studySelect = document.querySelector(AppConfig.selectors.studySelect);
+        if (!studySelect) return;
+
+        studySelect.innerHTML = '';
+        AppConfig.useCases.forEach(useCase => {
+            const option = document.createElement('option');
+            option.value = useCase.id;
+            option.textContent = useCase.label;
+            studySelect.appendChild(option);
+        });
+
+        studySelect.value = AppConfig.defaultUseCaseId;
+        studySelect.addEventListener('change', async () => {
+            try {
+                const allData = await loadUseCaseData(studySelect.value);
+                if (state.currentView === 'usecase') {
+                    await renderUsecaseGraph();
+                }
+            } catch (error) {
+                console.error('Failed to load selected use case:', error);
+            }
+        });
+
+        // File load button and input wiring
+        const loadButton = document.getElementById('studyLoadButton');
+        const fileInput = document.getElementById('studyFileInput');
+        if (loadButton && fileInput) {
+            loadButton.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', async (evt) => {
+                const file = evt.target.files && evt.target.files[0];
+                if (!file) return;
+                try {
+                    const allData = await DataLoaderModule.loadFromFile(file);
+                    state.currentUsecaseData = allData;
+                    if (state.currentView === 'usecase') {
+                        await renderUsecaseGraph();
+                    }
+                    updateLoadedStudyName();
+                } catch (err) {
+                    console.error('Error loading use case from file:', err);
+                }
+            });
+        }
     }
 
     /**
@@ -200,50 +354,42 @@ const CyberViewApplication = (() => {
                 I18nModule.applyTranslations();
                 logProgress('I18N', `Language set to: ${currentLanguage}`);
 
-                // ========== STAGE 3: Load data files ==========
-                const allData = await DataLoaderModule.loadAll();
-                logProgress('DATA', 'All data files loaded');
+                // ========== STAGE 3: Prepare study selection UI ==========
+                populateStudySelector();
 
-                // ========== STAGE 4: Load ontology ==========
+                // ========== STAGE 4: Initialize visualization ==========
+                const vizConfig = initializeVisualization();
+                state.nodeGroup = vizConfig.nodeGroup;
+                state.linkGroup = vizConfig.linkGroup;
+                state.renderWidth = vizConfig.width;
+                state.renderHeight = vizConfig.height;
+                logProgress('VIZ', 'Visualization canvas created');
+
+                // ========== STAGE 5: Load use case data ==========
+                const allData = await loadUseCaseData(AppConfig.defaultUseCaseId);
+                logProgress('DATA', 'Use case data loaded');
+
+                // ========== STAGE 6: Load ontology ==========
                 await OntologyModule.load();
                 OntologyModule.generateLegend();
                 logProgress('ONTOLOGY', 'Ontology loaded and legend generated');
 
-                // ========== STAGE 5: Create graph data structure ==========
-                const graphData = GraphDataModule.createGraphData(
-                    allData.risks,
-                    allData.riskSources,
-                    allData.businessAssets,
-                    allData.securityCriteria,
-                    allData.severityLevels,
-                    allData.likelihoodLevels
-                );
-                state.currentData = graphData;
-                logProgress('GRAPH', `Graph created: ${graphData.nodes.length} nodes, ${graphData.links.length} links`);
+                // ========== STAGE 7: Store use case data ==========
+                state.currentUsecaseData = allData;
+                logProgress('DATA', 'Use case data cached for rendering');
 
-                // ========== STAGE 6: Initialize visualization ==========
-                const vizConfig = initializeVisualization();
-                state.nodeGroup = vizConfig.nodeGroup;
-                state.linkGroup = vizConfig.linkGroup;
-                logProgress('VIZ', 'Visualization canvas created');
-
-                // ========== STAGE 7: Render graph ==========
-                renderGraph(graphData.nodes, graphData.links, vizConfig.width, vizConfig.height);
-                logProgress('RENDER', 'Graph rendered with nodes and links');
-
-                // ========== STAGE 8: Initialize modules ==========
-                FiltersModule.initialize(graphData.nodes, graphData.links);
-                FiltersModule.populateFilterOptions();
-                FiltersModule.attachEventHandlers();
-                logProgress('FILTERS', 'Filter module initialized');
-
-                NodeDetailsModule.initialize(graphData.nodes, graphData.links);
-                NodeDetailsModule.attachEventHandlers();
-                logProgress('DETAILS', 'Node details module initialized');
+                // ========== STAGE 8: Render initial view ==========
+                await renderCurrentView();
+                logProgress('RENDER', 'Initial view rendered');
 
                 // ========== STAGE 9: Set up language switching ==========
                 setupLanguageSwitching();
                 logProgress('LANG_SWITCH', 'Language switching initialized');
+
+                // ========== STAGE 11: Set up view controls ==========
+                initializeViewControls();
+                toggleMode('visualization');
+                logProgress('VIEW', 'View controls initialized');
 
                 // ========== FINAL: Mark as initialized ==========
                 state.isInitialized = true;
@@ -268,7 +414,7 @@ const CyberViewApplication = (() => {
                 d3.select(errorDiv).html(`
                     <div class="error-message">
                         <h3>Error</h3>
-                        <p>${escapeHtml(message)}</p>
+                        <p>${this.escapeHtml(message)}</p>
                     </div>
                 `).style('display', 'block');
             }

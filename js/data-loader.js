@@ -11,7 +11,8 @@ const DataLoaderModule = (() => {
         businessAssets: [],
         securityCriteria: [],
         severityLevels: [],
-        likelihoodLevels: []
+        likelihoodLevels: [],
+        currentUsecase: null
     };
 
     // ==================== PRIVATE METHODS ====================
@@ -36,33 +37,102 @@ const DataLoaderModule = (() => {
     // ==================== PUBLIC API ====================
     return {
         /**
-         * Load all required data files in parallel
-         * @returns {Promise<Object>} Promise resolving to all loaded data
+         * Load a unified use case JSON file
+         * @param {string} useCaseFile - Path to the use case JSON file
+         * @returns {Promise<Object>} Promise resolving to data loaded from the use case
          */
-        async loadAll() {
+        async loadAll(useCaseFile = AppConfig.dataFiles.useCase) {
             try {
-                const [risks, riskSources, businessAssets, securityCriteria, severityLevels, likelihoodLevels] = 
-                    await Promise.all([
-                        loadJsonFile(AppConfig.dataFiles.risks),
-                        loadJsonFile(AppConfig.dataFiles.riskSources),
-                        loadJsonFile(AppConfig.dataFiles.businessAssets),
-                        loadJsonFile(AppConfig.dataFiles.securityCriteria),
-                        loadJsonFile(AppConfig.dataFiles.severityLevels),
-                        loadJsonFile(AppConfig.dataFiles.likelihoodLevels)
-                    ]);
+                const useCaseData = await loadJsonFile(useCaseFile);
 
-                data.risks = risks;
-                data.riskSources = riskSources;
-                data.businessAssets = businessAssets;
-                data.securityCriteria = securityCriteria;
-                data.severityLevels = severityLevels;
-                data.likelihoodLevels = likelihoodLevels;
+                data.risks = useCaseData.risks || [];
+                data.riskSources = useCaseData.riskSources || [];
+                data.businessAssets = useCaseData.businessAssets || [];
+                data.securityCriteria = useCaseData.securityCriteria || [];
+                data.severityLevels = useCaseData.severityLevels || [];
+                data.likelihoodLevels = useCaseData.likelihoodLevels || [];
+                data.currentUsecase = {
+                    id: useCaseData.id || null,
+                    name: useCaseData.name || null,
+                    description: useCaseData.description || null,
+                    date: useCaseData.date || null
+                };
 
                 return data;
             } catch (error) {
-                console.error('Failed to load all data files:', error);
+                console.error('Failed to load use case data:', error);
                 throw error;
             }
+        },
+
+        /**
+         * Load a use case from a File object (from an <input type="file">)
+         * @param {File} file - File object selected by the user
+         * @returns {Promise<Object>} Promise resolving to loaded data
+         */
+        async loadFromFile(file) {
+            try {
+                const text = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = () => reject(reader.error);
+                    reader.readAsText(file, 'utf-8');
+                });
+
+                const useCaseData = JSON.parse(text);
+
+                data.risks = useCaseData.risks || [];
+                data.riskSources = useCaseData.riskSources || [];
+                data.businessAssets = useCaseData.businessAssets || [];
+                data.securityCriteria = useCaseData.securityCriteria || [];
+                data.severityLevels = useCaseData.severityLevels || [];
+                data.likelihoodLevels = useCaseData.likelihoodLevels || [];
+                data.currentUsecase = {
+                    id: useCaseData.id || null,
+                    name: useCaseData.name || null,
+                    description: useCaseData.description || null,
+                    date: useCaseData.date || null
+                };
+
+                return data;
+            } catch (error) {
+                console.error('Failed to load use case from file:', error);
+                throw error;
+            }
+        },
+
+        /**
+         * Get metadata about the currently loaded use case
+         * @returns {Object|null}
+         */
+        getCurrentUsecase() {
+            return data.currentUsecase;
+        },
+
+        /**
+         * Load ontology JSON data from file
+         * @returns {Promise<Object>} Promise resolving to ontology data
+         */
+        async loadOntology() {
+            try {
+                if (data.ontology) {
+                    return data.ontology;
+                }
+                const response = await loadJsonFile(AppConfig.dataFiles.cyberOntology);
+                data.ontology = response;
+                return data.ontology;
+            } catch (error) {
+                console.error('Failed to load ontology data:', error);
+                throw error;
+            }
+        },
+
+        /**
+         * Get loaded ontology data
+         * @returns {Object|null} Ontology data or null if not loaded
+         */
+        getOntologyData() {
+            return data.ontology || null;
         },
 
         /**

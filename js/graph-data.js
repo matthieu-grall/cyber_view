@@ -163,6 +163,62 @@ const GraphDataModule = (() => {
             });
 
             return { nodes, links };
+        },
+
+        /**
+         * Create ontology graph from ontology JSON schema
+         * @param {Object} ontologyData - Ontology JSON data
+         * @param {string} language - Language code for labels
+         * @returns {Object} Object containing nodes and links arrays
+         */
+        createOntologyGraph(ontologyData, language = 'fr') {
+            const nodes = [];
+            const links = [];
+            const classMap = new Map();
+            const classes = ontologyData?.classes || [];
+
+            classes.forEach(ontologyClass => {
+                const labelFr = ontologyClass.label?.fr || ontologyClass.id;
+                const labelEn = ontologyClass.label?.en || ontologyClass.id;
+                const label = language === 'en' ? labelEn : labelFr;
+
+                const node = {
+                    id: ontologyClass.id,
+                    type: 'ontology-class',
+                    label,
+                    labelFr,
+                    labelEn,
+                    rawData: ontologyClass,
+                    subClassOf: ontologyClass.subClassOf || null,
+                    description: ontologyClass.isDefinedBy?.[language] || ontologyClass.isDefinedBy?.fr || '',
+                    degree: 0
+                };
+
+                nodes.push(node);
+                classMap.set(node.id, node);
+            });
+
+            classes.forEach(ontologyClass => {
+                if (ontologyClass.subClassOf) {
+                    links.push({
+                        source: ontologyClass.subClassOf,
+                        target: ontologyClass.id,
+                        type: 'subClassOf'
+                    });
+                }
+            });
+
+            const nodeDegree = {};
+            nodes.forEach(n => nodeDegree[n.id] = 0);
+            links.forEach(l => {
+                nodeDegree[l.source]++;
+                nodeDegree[l.target]++;
+            });
+            nodes.forEach(n => {
+                n.degree = nodeDegree[n.id];
+            });
+
+            return { nodes, links };
         }
     };
 })();

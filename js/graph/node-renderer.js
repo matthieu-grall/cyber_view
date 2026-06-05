@@ -170,12 +170,21 @@ const NodeRendererModule = (() => {
          * @param {d3.Selection} nodeGroup - D3 selection for node group
          */
         updateNodeLabels(nodeGroup) {
+            // Update labels for nodes that carry both French and English forms
+            nodeGroup.selectAll('text')
+                .text(node => {
+                    if (node.labelFr && node.labelEn) {
+                        node.label = I18nModule.getLanguage() === 'en' ? node.labelEn : node.labelFr;
+                    }
+                    const maxLength = 15;
+                    return node.label.length > maxLength
+                        ? node.label.substring(0, maxLength) + '...'
+                        : node.label;
+                });
+
             // Update tooltips with new language
             nodeGroup.selectAll('title')
                 .text(node => createNodeTooltip(node));
-
-            // Note: Labels might need language-specific updates if ontology affects display
-            // Current implementation uses node.label which is language-independent
         }
     };
 })();

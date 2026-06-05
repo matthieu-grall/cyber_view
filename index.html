@@ -33,13 +33,40 @@
 		<!-- Menu container -->
         <div class="content_menu_container">
 
+				<!-- Mode selector (Visualization vs Edit) -->
+				<div class="mode_selector_container">
+					<label for="modeSelect" data-i18n="menu.modeLabel">Mode :</label>
+					<select id="modeSelect">
+						<option value="visualization" data-i18n="menu.modeVisualization">Visualisation</option>
+						<option value="edit" data-i18n="menu.modeEdit">Édition JSON</option>
+					</select>
+				</div>
+
+				<!-- Source selector (Ontology vs Use-case) - visible in all modes -->
+				<div class="source_selector_container">
+					<label for="sourceSelect" data-i18n="menu.sourceLabel">Afficher :</label>
+					<select id="sourceSelect">
+						<option value="usecase" data-i18n="menu.sourceUsecase">Individus</option>
+						<option value="ontology" data-i18n="menu.sourceOntology">Ontologie</option>
+					</select>
+				</div>
+
+				<!-- Study selection -->
+				<div class="study_selection_container">
+					<label for="studySelect" data-i18n="menu.studySelectLabel">Étude</label>
+					<select id="studySelect"></select>
+					<button id="studyLoadButton" data-i18n="menu.loadStudyButton">Charger un fichier...</button>
+					<input id="studyFileInput" type="file" accept=".json" style="display:none">
+					<div id="loadedStudyName" class="loaded-study-name"></div>
+				</div>
+
 			<!-- Menu title -->
             <div class="menu_title_div">
 				<h2 data-i18n="menu.actions">Actions</h2>
 			</div>
 
-            <!-- Filters -->
-            <div id="filters">
+            <!-- Filters (visible only in visualization mode) -->
+            <div id="filters" class="visualization-only">
                 <label for="severityFilter" data-i18n="menu.severityFilter">Filtrer par gravité :</label>
                 <select id="severityFilter">
                     <option value="all" data-i18n="menu.allSeverities">Toutes</option>
@@ -53,11 +80,21 @@
                     <option value="all" data-i18n="menu.allTypes">Tous</option>
                 </select>
             </div>
+
+			<!-- JSON Editor (visible only in edit mode) -->
+			<div id="editor_container" class="editor-only" style="display:none;">
+				<div class="editor_controls">
+					<button id="editorValidateButton" data-i18n="menu.validateJSON">Valider</button>
+					<button id="editorExportButton" data-i18n="menu.exportJSON">Exporter</button>
+					<div id="editorStatus" class="editor-status"></div>
+				</div>
+				<textarea id="jsonEditor" class="json-editor" placeholder="JSON content will appear here..."></textarea>
+			</div>
             
         </div>
 
 		<!-- Right section (Graph + Information) -->
-		<div class="content_right_section">
+		<div class="content_right_section visualization-only">
 
 	        <!-- Graph container -->
 	        <div id="graph_container">
@@ -130,6 +167,9 @@
     
     <!-- INTERACTIONS: Node details panel and click-to-display logic -->
     <script src="js/interactions/node-details.js"></script>
+    
+    <!-- EDITOR: JSON editing interface and export functionality -->
+    <script src="js/editor.js"></script>
     
     <!-- APPLICATION: Main orchestration and initialization -->
     <script src="js/main.js"></script>

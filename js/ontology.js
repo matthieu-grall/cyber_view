@@ -63,6 +63,10 @@ const OntologyModule = (() => {
         getNodeTypeLabel(nodeType, language) {
             if (!ontologyData) return nodeType;
 
+            if (nodeType === 'ontology-class') {
+                return I18nModule.getTranslation('information.ontologyClass') || 'Ontology class';
+            }
+
             const ontologyClass = mapNodeTypeToOntologyClass(nodeType);
             if (!ontologyClass) return nodeType;
 
@@ -78,6 +82,10 @@ const OntologyModule = (() => {
          */
         getNodeTypeDefinition(nodeType, language) {
             if (!ontologyData) return '';
+
+            if (nodeType === 'ontology-class') {
+                return I18nModule.getTranslation('information.ontologyClass') || 'Ontology class';
+            }
 
             const ontologyClass = mapNodeTypeToOntologyClass(nodeType);
             if (!ontologyClass) return '';

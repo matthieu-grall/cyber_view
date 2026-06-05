@@ -5,6 +5,12 @@
   },
   "menu": {
     "actions": "Actions",
+    "modeLabel": "Mode:",
+    "modeVisualization": "Visualization",
+    "modeEdit": "Edit",
+    "sourceLabel": "Show:",
+    "sourceOntology": "Ontology",
+    "sourceUsecase": "Individuals",
     "severityFilter": "Filter by severity:",
     "allSeverities": "All",
     "severity1": "1. Minimal",
@@ -12,7 +18,12 @@
     "severity3": "3. Important",
     "severity4": "4. Maximum",
     "typeFilter": "Filter by type:",
-    "allTypes": "All"
+    "allTypes": "All",
+    "studySelectLabel": "Study",
+    "loadedStudy": "Loaded study",
+    "loadStudyButton": "Load a file...",
+    "validateJSON": "Validate",
+    "exportJSON": "Export"
   },
   "information": {
     "title": "Information",
@@ -20,7 +31,21 @@
     "nodes": "Nodes:",
     "nodeCount": "Number of nodes:",
     "linkCount": "Number of links:",
-    "zoomHint": "Use the wheel to zoom, click-drag to move"
+    "zoomHint": "Use the wheel to zoom, click-drag to move",
+    "type": "Type",
+    "description": "Description",
+    "connections": "Connections",
+    "properties": "Properties",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "labels": "Labels",
+    "labelFr": "Label FR",
+    "labelEn": "Label EN",
+    "definition": "Definition",
+    "definitionFr": "Definition FR",
+    "definitionEn": "Definition EN",
+    "ontologyClass": "Ontology class"
   },
   "footer": {
     "license": "Website under license",

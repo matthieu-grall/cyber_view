@@ -13,7 +13,8 @@ const AppConfig = {
             riskSource: '#4ecdc4',
             securityProperty: '#9b59b6',
             severityLevel: '#9b59b6',
-            likelihoodLevel: '#2ecc71'
+            likelihoodLevel: '#2ecc71',
+            'ontology-class': '#f7b6d2'
         },
         nodeSeverity: {
             '1. Minimale': '#a6cee3',
@@ -27,6 +28,7 @@ const AppConfig = {
             'from-source': '#4ecdc4',
             'has-severity': '#9b59b6',
             'has-likelihood': '#2ecc71',
+            'subClassOf': '#7f7f7f',
             'default': '#999'
         }
     },
@@ -40,6 +42,7 @@ const AppConfig = {
             'risk-source': 9,
             'severity-level': 8,
             'likelihood-level': 8,
+            'ontology-class': 10,
             'default': 8
         },
         degreeBoost: {
@@ -58,13 +61,9 @@ const AppConfig = {
         'affects-asset': { fr: 'affecte l\'actif', en: 'affects asset' },
         'from-source': { fr: 'provient de la source', en: 'comes from source' },
         'has-severity': { fr: 'a pour gravité', en: 'has severity' },
-        'has-likelihood': { fr: 'a pour vraisemblance', en: 'has likelihood' }
+        'has-likelihood': { fr: 'a pour vraisemblance', en: 'has likelihood' },
+        'subClassOf': { fr: 'est sous-classe de', en: 'is subclass of' }
     },
-
-    // ==================== DATA FILES ====================
-    /**
-     * Paths to data files loaded by DataLoaderModule
-     */
     dataFiles: {
         risks: 'data/risks.json',
         riskSources: 'data/risk-sources.json',
@@ -72,8 +71,18 @@ const AppConfig = {
         securityCriteria: 'data/security-criteria.json',
         severityLevels: 'data/severity-levels.json',
         likelihoodLevels: 'data/likelihood-levels.json',
+        useCase: 'data/usecase-2026-06-05.json',
         cyberOntology: 'data/cyber-ontology.json'
     },
+
+    useCases: [
+        {
+            id: 'usecase-2026-06-05',
+            label: 'Use case 2026-06-05',
+            file: 'data/usecase-2026-06-05.json'
+        }
+    ],
+    defaultUseCaseId: 'usecase-2026-06-05',
 
     // ==================== TRANSLATION FILES ====================
     translationFiles: {
@@ -95,7 +104,11 @@ const AppConfig = {
         ontologyLegend: '#ontology-nodes',
         languageToggle: '.language-toggle',
         nodeCount: '#nodeCount',
-        linkCount: '#linkCount'
+        linkCount: '#linkCount',
+        studySelect: '#studySelect',
+        loadedStudyName: '#loadedStudyName',
+        sourceSelect: '#sourceSelect',
+        modeSelect: '#modeSelect'
     },
 
     // ==================== SIMULATION FORCES ====================

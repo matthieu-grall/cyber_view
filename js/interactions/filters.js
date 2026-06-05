@@ -106,7 +106,7 @@ const FiltersModule = (() => {
             const severityFilter = d3.select(AppConfig.selectors.severityFilter);
             const severityLevels = DataLoaderModule.getReferenceData('severityLevels') || [];
 
-            severityFilter.selectAll('option[data-value]').remove(); // Remove existing options
+            severityFilter.selectAll('option').remove(); // Remove existing options
 
             severityFilter.append('option')
                 .attr('value', '')
@@ -123,7 +123,7 @@ const FiltersModule = (() => {
             const typeFilter = d3.select(AppConfig.selectors.typeFilter);
             const nodeTypes = [...new Set(state.currentNodes.map(n => n.type))];
 
-            typeFilter.selectAll('option[data-value]').remove(); // Remove existing options
+            typeFilter.selectAll('option').remove(); // Remove existing options
 
             typeFilter.append('option')
                 .attr('value', '')
