@@ -8,7 +8,7 @@ const FiltersModule = (() => {
     // ==================== PRIVATE STATE ====================
     const state = {
         activeSeverityFilter: null,
-        activeTypeFilter: null,
+        activeTypeFilters: new Set(),
         visibleNodeIds: new Set(),
         currentNodes: [],
         currentLinks: []
@@ -20,7 +20,7 @@ const FiltersModule = (() => {
      * Determine which nodes should be visible based on active filters
      * @returns {Set} Set of visible node IDs
      */
-    function calculateVisibleNodes() {
+        function calculateVisibleNodes() {
         const visibleIds = new Set();
 
         state.currentNodes.forEach(node => {
@@ -31,8 +31,8 @@ const FiltersModule = (() => {
                 matches = false;
             }
 
-            // Check type filter
-            if (state.activeTypeFilter && node.type !== state.activeTypeFilter) {
+            // Check type filters (multi-select). If none selected, allow all types.
+            if (state.activeTypeFilters.size > 0 && !state.activeTypeFilters.has(node.type)) {
                 matches = false;
             }
 
@@ -119,42 +119,45 @@ const FiltersModule = (() => {
                     .text(level.label);
             });
 
-            // Populate type filter
-            const typeFilter = d3.select(AppConfig.selectors.typeFilter);
-            const nodeTypes = [...new Set(state.currentNodes.map(n => n.type))];
+            // Populate type filter as a list of buttons
+            const container = document.getElementById('typeFilterContainer');
+            if (container) {
+                container.innerHTML = '';
 
-            typeFilter.selectAll('option').remove(); // Remove existing options
+                // Count nodes per type
+                const counts = {};
+                state.currentNodes.forEach(n => { counts[n.type] = (counts[n.type] || 0) + 1; });
 
-            typeFilter.append('option')
-                .attr('value', '')
-                .attr('data-i18n', 'menu.allTypes')
-                .text(I18nModule.getTranslation('menu.allTypes'));
+                const nodeTypes = [...new Set(state.currentNodes.map(n => n.type))];
 
-            nodeTypes.forEach(type => {
-                const typeLabel = OntologyModule.getNodeTypeLabel(type, I18nModule.getLanguage());
-                typeFilter.append('option')
-                    .attr('value', type)
-                    .text(typeLabel);
-            });
+                nodeTypes.forEach(type => {
+                    const typeLabel = OntologyModule.getNodeTypeLabel(type, I18nModule.getLanguage());
+                    const btn = document.createElement('button');
+                    btn.className = 'type-filter-button';
+                    btn.setAttribute('data-type', type);
+                    btn.innerHTML = `<span class="label">${typeLabel}</span><span class="count">${counts[type] || 0}</span>`;
+                    container.appendChild(btn);
+                });
+            }
         },
 
         /**
-         * Update filter dropdown labels after language change
+         * Update filter labels after language change
          */
         updateFilterLabels() {
             const severityFilter = d3.select(AppConfig.selectors.severityFilter);
-            const typeFilter = d3.select(AppConfig.selectors.typeFilter);
 
-            // Update type filter labels
-            typeFilter.selectAll('option').each(function(d, i) {
-                if (i === 0) {
-                    d3.select(this).text(I18nModule.getTranslation('menu.allTypes'));
-                } else {
-                    const value = d3.select(this).attr('value');
-                    const typeLabel = OntologyModule.getNodeTypeLabel(value, I18nModule.getLanguage());
-                    d3.select(this).text(typeLabel);
+                // Update type filter buttons labels if present
+                const container = document.getElementById('typeFilterContainer');
+                if (container) {
+                    container.querySelectorAll('.type-filter-button').forEach(btn => {
+                        const type = btn.getAttribute('data-type');
+                        const typeLabel = OntologyModule.getNodeTypeLabel(type, I18nModule.getLanguage());
+                        const count = btn.querySelector('.count') ? btn.querySelector('.count').textContent : '';
+                        btn.querySelector('.label').textContent = typeLabel;
+                        if (count) btn.querySelector('.count').textContent = count;
+                    });
                 }
-            });
 
             // Severity labels are language-independent (numeric/descriptive)
             severityFilter.selectAll('option[value=""]').text(
@@ -177,7 +180,13 @@ const FiltersModule = (() => {
          * @param {string} type - Selected node type (empty string = all)
          */
         setTypeFilter(type) {
-            state.activeTypeFilter = type || null;
+            // Toggle single type selection: if empty -> clear
+            if (!type) {
+                state.activeTypeFilters.clear();
+            } else {
+                if (state.activeTypeFilters.has(type)) state.activeTypeFilters.delete(type);
+                else state.activeTypeFilters.add(type);
+            }
             state.visibleNodeIds = calculateVisibleNodes();
             applyFiltersToVisualization();
         },
@@ -187,12 +196,13 @@ const FiltersModule = (() => {
          */
         clearFilters() {
             state.activeSeverityFilter = null;
-            state.activeTypeFilter = null;
+            state.activeTypeFilters.clear();
             state.visibleNodeIds = new Set(state.currentNodes.map(n => n.id));
-            
+
             d3.select(AppConfig.selectors.severityFilter).property('value', '');
-            d3.select(AppConfig.selectors.typeFilter).property('value', '');
-            
+            const container = document.getElementById('typeFilterContainer');
+            if (container) container.querySelectorAll('.type-filter-button.active').forEach(b => b.classList.remove('active'));
+
             applyFiltersToVisualization();
         },
 
@@ -203,7 +213,7 @@ const FiltersModule = (() => {
         getFilterState() {
             return {
                 severity: state.activeSeverityFilter,
-                type: state.activeTypeFilter
+                types: Array.from(state.activeTypeFilters)
             };
         },
 
@@ -216,10 +226,22 @@ const FiltersModule = (() => {
                     FiltersModule.setSeverityFilter(this.value);
                 });
 
-            d3.select(AppConfig.selectors.typeFilter)
-                .on('change', function() {
-                    FiltersModule.setTypeFilter(this.value);
+            // Type filter buttons click handling
+            const container = document.getElementById('typeFilterContainer');
+            if (container) {
+                container.addEventListener('click', (e) => {
+                    const btn = e.target.closest('.type-filter-button');
+                    if (!btn) return;
+                    const type = btn.getAttribute('data-type');
+                    // toggle visual state
+                    const isActive = btn.classList.toggle('active');
+                    // update state
+                    if (isActive) state.activeTypeFilters.add(type);
+                    else state.activeTypeFilters.delete(type);
+                    state.visibleNodeIds = calculateVisibleNodes();
+                    applyFiltersToVisualization();
                 });
+            }
         }
     };
 })();

@@ -156,8 +156,12 @@ const NodeRendererModule = (() => {
                         .style('opacity', 1);
                 })
                 .on('click', function(event, d) {
-                    // Dispatch custom event for node selection
-                    // Will be handled by NodeDetailsModule
+                    // Directly display node details if the module is available
+                    if (typeof NodeDetailsModule !== 'undefined' && NodeDetailsModule.displayNodeDetails) {
+                        NodeDetailsModule.displayNodeDetails(d);
+                    }
+
+                    // Dispatch custom event for node selection as fallback
                     document.dispatchEvent(new CustomEvent('nodeSelected', { detail: d }));
                 });
 

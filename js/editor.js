@@ -19,10 +19,15 @@ const EditorModule = (() => {
 
     // Setup mode selector (visualization vs edit)
     function setupModeToggle() {
-        const modeSelect = document.getElementById('modeSelect');
-        if (modeSelect) {
-            modeSelect.addEventListener('change', (e) => {
-                currentMode = e.target.value;
+        const modeBtnVisualization = document.getElementById('modeBtnVisualization');
+        const modeBtnEdit = document.getElementById('modeBtnEdit');
+        if (modeBtnVisualization && modeBtnEdit) {
+            modeBtnVisualization.addEventListener('click', () => {
+                currentMode = 'visualization';
+                toggleMode(currentMode);
+            });
+            modeBtnEdit.addEventListener('click', () => {
+                currentMode = 'edit';
                 toggleMode(currentMode);
             });
         }
@@ -30,10 +35,15 @@ const EditorModule = (() => {
 
     // Setup source selector (ontology vs usecase)
     function setupSourceToggle() {
-        const sourceSelect = document.getElementById('sourceSelect');
-        if (sourceSelect) {
-            sourceSelect.addEventListener('change', (e) => {
-                currentSource = e.target.value;
+        const sourceBtnUsecase = document.getElementById('sourceBtnUsecase');
+        const sourceBtnOntology = document.getElementById('sourceBtnOntology');
+        if (sourceBtnUsecase && sourceBtnOntology) {
+            sourceBtnUsecase.addEventListener('click', () => {
+                currentSource = 'usecase';
+                loadDataBySource(currentSource);
+            });
+            sourceBtnOntology.addEventListener('click', () => {
+                currentSource = 'ontology';
                 loadDataBySource(currentSource);
             });
         }

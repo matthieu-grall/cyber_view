@@ -206,21 +206,20 @@ const CyberViewApplication = (() => {
     }
 
     function initializeViewControls() {
-        const sourceSelect = document.querySelector(AppConfig.selectors.sourceSelect);
-        const modeSelect = document.querySelector(AppConfig.selectors.modeSelect);
+        // Source buttons
+        const sourceBtnUsecase = document.getElementById('sourceBtnUsecase');
+        const sourceBtnOntology = document.getElementById('sourceBtnOntology');
 
-        if (sourceSelect) {
-            sourceSelect.value = state.currentView;
-            sourceSelect.addEventListener('change', async (event) => {
-                state.currentView = event.target.value;
+        if (sourceBtnUsecase && sourceBtnOntology) {
+            const setSource = async (source) => {
+                sourceBtnUsecase.classList.toggle('active', source === 'usecase');
+                sourceBtnOntology.classList.toggle('active', source === 'ontology');
+                state.currentView = source === 'ontology' ? 'ontology' : 'usecase';
                 await renderCurrentView();
-            });
-        }
+            };
 
-        if (modeSelect) {
-            modeSelect.addEventListener('change', (event) => {
-                toggleMode(event.target.value);
-            });
+            sourceBtnUsecase.addEventListener('click', async () => setSource('usecase'));
+            sourceBtnOntology.addEventListener('click', async () => setSource('ontology'));
         }
     }
 
@@ -253,6 +252,7 @@ const CyberViewApplication = (() => {
         FiltersModule.populateFilterOptions();
         FiltersModule.attachEventHandlers();
         NodeDetailsModule.initialize(graphData.nodes, graphData.links);
+        NodeDetailsModule.attachEventHandlers();
         document.getElementById('filters').style.display = '';
     }
 
@@ -263,47 +263,35 @@ const CyberViewApplication = (() => {
         state.currentData = graphData;
         renderGraph(graphData.nodes, graphData.links, state.renderWidth, state.renderHeight);
         NodeDetailsModule.initialize(graphData.nodes, graphData.links);
+        NodeDetailsModule.attachEventHandlers();
         document.getElementById('filters').style.display = 'none';
-    }
-
-    function toggleMode(mode) {
-        const visualizationElements = document.querySelectorAll('.visualization-only');
-        const editorContainer = document.getElementById('editor_container');
-
-        if (mode === 'edit') {
-            visualizationElements.forEach(el => el.style.display = 'none');
-            if (editorContainer) editorContainer.style.display = 'block';
-        } else {
-            visualizationElements.forEach(el => el.style.display = '');
-            if (editorContainer) editorContainer.style.display = 'none';
-        }
     }
 
     function populateStudySelector() {
         const studySelect = document.querySelector(AppConfig.selectors.studySelect);
-        if (!studySelect) return;
+        if (studySelect) {
+            studySelect.innerHTML = '';
+            AppConfig.useCases.forEach(useCase => {
+                const option = document.createElement('option');
+                option.value = useCase.id;
+                option.textContent = useCase.label;
+                studySelect.appendChild(option);
+            });
 
-        studySelect.innerHTML = '';
-        AppConfig.useCases.forEach(useCase => {
-            const option = document.createElement('option');
-            option.value = useCase.id;
-            option.textContent = useCase.label;
-            studySelect.appendChild(option);
-        });
-
-        studySelect.value = AppConfig.defaultUseCaseId;
-        studySelect.addEventListener('change', async () => {
-            try {
-                const allData = await loadUseCaseData(studySelect.value);
-                if (state.currentView === 'usecase') {
-                    await renderUsecaseGraph();
+            studySelect.value = AppConfig.defaultUseCaseId;
+            studySelect.addEventListener('change', async () => {
+                try {
+                    const allData = await loadUseCaseData(studySelect.value);
+                    if (state.currentView === 'usecase') {
+                        await renderUsecaseGraph();
+                    }
+                } catch (error) {
+                    console.error('Failed to load selected use case:', error);
                 }
-            } catch (error) {
-                console.error('Failed to load selected use case:', error);
-            }
-        });
+            });
+        }
 
-        // File load button and input wiring
+        // File load button and input wiring (always present)
         const loadButton = document.getElementById('studyLoadButton');
         const fileInput = document.getElementById('studyFileInput');
         if (loadButton && fileInput) {
@@ -388,8 +376,6 @@ const CyberViewApplication = (() => {
 
                 // ========== STAGE 11: Set up view controls ==========
                 initializeViewControls();
-                toggleMode('visualization');
-                logProgress('VIEW', 'View controls initialized');
 
                 // ========== FINAL: Mark as initialized ==========
                 state.isInitialized = true;

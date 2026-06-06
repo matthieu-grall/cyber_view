@@ -100,36 +100,43 @@ const OntologyModule = (() => {
         generateLegend() {
             if (!ontologyData) return;
 
-            const container = document.querySelector(AppConfig.selectors.ontologyLegend);
-            if (!container) return;
+            const classesContainer = document.querySelector('#legend-classes');
+            const relationsContainer = document.querySelector('#legend-relations');
+            if (!classesContainer || !relationsContainer) return;
 
-            container.innerHTML = '';
+            const classDot = document.createElement('div');
+            classDot.className = 'key-item';
+            classDot.innerHTML = `
+                <span class="key-color-dot" style="
+                    width: 12px;
+                    height: 12px;
+                    background: ${AppConfig.colors.nodeType['ontology-class'] || '#4b91d6'};
+                    border: 1px solid #666;
+                    display: inline-block;
+                    border-radius: 50%;
+                    vertical-align: middle;
+                "></span>
+                <span>${I18nModule.getTranslation('information.classes')}</span>
+            `;
 
-            const nodeSizes = AppConfig.nodeSizes.baseRadius;
-            const nodeColors = AppConfig.colors.nodeType;
+            const relationLine = document.createElement('div');
+            relationLine.className = 'key-item';
+            relationLine.innerHTML = `
+                <span class="key-line" style="
+                    width: 24px;
+                    height: 2px;
+                    background: #888;
+                    display: inline-block;
+                    vertical-align: middle;
+                    margin-right: 8px;
+                "></span>
+                <span>${I18nModule.getTranslation('information.relations')}</span>
+            `;
 
-            ontologyData.classes.forEach(ontologyClass => {
-                const classId = ontologyClass.id;
-                const color = nodeColors[classId] || nodeColors[classId.replace('-', '')] || '#ddd';
-                const baseSize = nodeSizes[classId] || nodeSizes.default;
-                const label = ontologyClass.label[I18nModule.getLanguage()] || ontologyClass.label.fr;
-                const definition = ontologyClass.isDefinedBy[I18nModule.getLanguage()] || ontologyClass.isDefinedBy.fr;
-
-                const keyItem = document.createElement('div');
-                keyItem.className = 'key-item';
-                keyItem.innerHTML = `
-                    <span class="key-color-dot" style="
-                        width: ${baseSize * 1.5}px;
-                        height: ${baseSize * 1.5}px;
-                        background: ${color};
-                        border: 1px solid #666;
-                        display: inline-block;
-                        border-radius: 50%;
-                    "></span>
-                    <span title="${definition}">${label}</span>
-                `;
-                container.appendChild(keyItem);
-            });
+            classesContainer.innerHTML = '';
+            relationsContainer.innerHTML = '';
+            classesContainer.appendChild(classDot);
+            relationsContainer.appendChild(relationLine);
         }
     };
 })();

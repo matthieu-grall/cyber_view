@@ -59,10 +59,12 @@ This should also allow to:
 - **Node Hover**: Displays tooltip with name, type, severity, and number of connections
 - **Link Hover**: Displays relationship type between nodes
 - **Node Click**: Shows details panel with:
-  - Complete node information
-  - List of connected nodes and relationship types
-  - Number of connections
-  - Additional properties
+  - Node label and semantic type
+  - Description or severity information
+  - List of connected nodes and relation types
+  - Number of adjacent connections
+  - Additional node properties from the data object
+- **Recent fix**: restored details panel rendering, fixed layout overflow, and aligned footer style
 - **Drag Nodes**: Manually move nodes on the graph
 - **Empty Click**: Closes the details panel
 

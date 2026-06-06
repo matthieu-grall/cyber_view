@@ -71,39 +71,14 @@ const NodeDetailsModule = (() => {
         return String(value);
     }
 
-    function getNestedValue(object, path) {
-        return path.split('.').reduce((current, key) => {
-            if (!current || typeof current !== 'object') return undefined;
-            return current[key];
-        }, object);
-    }
-
-    function setNestedValue(object, path, value) {
-        const keys = path.split('.');
-        const lastKey = keys.pop();
-        const parent = keys.reduce((current, key) => {
-            if (!current[key] || typeof current[key] !== 'object') {
-                current[key] = {};
-            }
-            return current[key];
-        }, object);
-        parent[lastKey] = value;
-    }
-
-    function createEditableFieldRow(fieldPath, labelText, fieldValue, multiline = false) {
-        return `
-            <div class="field-row" data-field-row="${escapeHtml(fieldPath)}">
-                <div class="field-label"><strong>${escapeHtml(labelText)}</strong></div>
-                <div class="field-content">${escapeHtml(fieldValue)}</div>
-                <button class="edit-field-button" data-field="${escapeHtml(fieldPath)}">${escapeHtml(I18nModule.getTranslation('information.edit') || 'Modifier')}</button>
-            </div>
-        `;
-    }
-
     function createNodeDetailsHTML(node) {
         const typeLabel = OntologyModule.getNodeTypeLabel(node.type, I18nModule.getLanguage());
         const typeDefinition = OntologyModule.getNodeTypeDefinition(node.type, I18nModule.getLanguage());
         const connected = getConnectedNodes(node);
+        const parentClassId = node.rawData?.subClassOf;
+        const parentClassLabel = parentClassId
+            ? OntologyModule.getNodeTypeLabel(parentClassId, I18nModule.getLanguage()) || parentClassId
+            : null;
 
         let html = `
             <div class="node-details">
@@ -112,37 +87,67 @@ const NodeDetailsModule = (() => {
                     <p class="node-type">${escapeHtml(typeLabel)}</p>
                 </div>
 
-                <div class="details-section">
-                    <h3>${I18nModule.getTranslation('information.type')}</h3>
-                    <p>${escapeHtml(typeDefinition || typeLabel)}</p>
-                </div>
+                <!-- Redundant 'Type' section removed: class is shown in header as node-type -->
         `;
 
         if (node.type === 'ontology-class') {
             html += `
-                <div class="details-section details-editable">
-                    <h3>${I18nModule.getTranslation('information.labels')}</h3>
-                    ${createEditableFieldRow('label.fr', I18nModule.getTranslation('information.labelFr') || 'Label FR', node.labelFr || '')}
-                    ${createEditableFieldRow('label.en', I18nModule.getTranslation('information.labelEn') || 'Label EN', node.labelEn || '')}
-                </div>
-
-                <div class="details-section details-editable">
-                    <h3>${I18nModule.getTranslation('information.definition')}</h3>
-                    ${createEditableFieldRow('isDefinedBy.fr', I18nModule.getTranslation('information.definitionFr') || 'Definition FR', node.rawData?.isDefinedBy?.fr || '', true)}
-                    ${createEditableFieldRow('isDefinedBy.en', I18nModule.getTranslation('information.definitionEn') || 'Definition EN', node.rawData?.isDefinedBy?.en || '', true)}
-                </div>
-            `;
-        }
-
-        // Show severity if available
-        if (node.severity) {
-            html += `
                 <div class="details-section">
-                    <h3>${I18nModule.getTranslation('information.severity') || 'Severity'}</h3>
-                    <p class="severity-badge severity-${node.severity.toLowerCase()}">${escapeHtml(node.severity)}</p>
+                    <h3>${I18nModule.getTranslation('information.labels')}</h3>
+                    <p><strong>${I18nModule.getTranslation('information.labelFr') || 'Label FR'}:</strong> ${escapeHtml(node.labelFr || '')}</p>
+                    <p><strong>${I18nModule.getTranslation('information.labelEn') || 'Label EN'}:</strong> ${escapeHtml(node.labelEn || '')}</p>
                 </div>
+
+                <!-- Ontology class definition omitted from UI (view in ontology directly) -->
             `;
+
+            if (parentClassId) {
+                html += `
+                    <div class="details-section">
+                        <h3>${I18nModule.getTranslation('information.parentClass') || 'Super-classe'}</h3>
+                        <p>${escapeHtml(parentClassLabel)}</p>
+                    </div>
+                `;
+            }
+
+            const properties = node.rawData?.properties || [];
+            if (properties.length > 0) {
+                html += `
+                    <div class="details-section">
+                        <h3>${I18nModule.getTranslation('information.properties')}</h3>
+                        <ul class="properties-list">
+                `;
+                properties.forEach(prop => {
+                    const propLabel = prop.label?.[I18nModule.getLanguage()] || prop.label?.fr || prop.id || '';
+                    const propRange = prop.range ? ` (${escapeHtml(prop.range)})` : '';
+                    html += `<li><strong>${escapeHtml(propLabel)}</strong>${propRange}</li>`;
+                });
+                html += `
+                        </ul>
+                    </div>
+                `;
+            }
+
+            const relations = node.rawData?.relations || [];
+            if (relations.length > 0) {
+                html += `
+                    <div class="details-section">
+                        <h3>${I18nModule.getTranslation('information.relations') || 'Relations'}</h3>
+                        <ul class="properties-list">
+                `;
+                relations.forEach(rel => {
+                    const relLabel = rel.label?.[I18nModule.getLanguage()] || rel.label?.fr || rel.id || '';
+                    const relRange = rel.range ? ` (${escapeHtml(rel.range)})` : '';
+                    html += `<li><strong>${escapeHtml(relLabel)}</strong>${relRange}</li>`;
+                });
+                html += `
+                        </ul>
+                    </div>
+                `;
+            }
         }
+
+        // Severity display removed (shown in Relations when applicable)
 
         // Show description if available for other nodes
         if (node.description && node.type !== 'ontology-class') {
@@ -157,7 +162,7 @@ const NodeDetailsModule = (() => {
         if (connected.length > 0) {
             html += `
                 <div class="details-section">
-                    <h3>${I18nModule.getTranslation('information.connections')} (${connected.length})</h3>
+                    <h3>${I18nModule.getTranslation('information.relations') || 'Relations'} (${connected.length})</h3>
                     <ul class="connections-list">
             `;
 
@@ -181,7 +186,7 @@ const NodeDetailsModule = (() => {
             `;
         }
 
-        const excludeKeys = ['id', 'label', 'type', 'severity', 'description', 'degree', 'labelFr', 'labelEn', 'rawData', 'subClassOf'];
+        const excludeKeys = ['id', 'label', 'type', 'severity', 'description', 'degree', 'labelFr', 'labelEn', 'rawData', 'subClassOf', 'index', 'x', 'y', 'vx', 'vy', 'fx', 'fy'];
         const additionalProps = Object.keys(node).filter(k => !excludeKeys.includes(k));
 
         if (additionalProps.length > 0) {
@@ -210,90 +215,6 @@ const NodeDetailsModule = (() => {
         `;
 
         return html;
-    }
-
-    function attachInlineEditHandlers() {
-        const infoPanel = document.querySelector(AppConfig.selectors.informationPanel);
-        if (!infoPanel) return;
-
-        infoPanel.querySelectorAll('.edit-field-button').forEach(button => {
-            button.addEventListener('click', () => {
-                const fieldPath = button.getAttribute('data-field');
-                openInlineEditor(fieldPath);
-            });
-        });
-    }
-
-    function openInlineEditor(fieldPath) {
-        const row = document.querySelector(`[data-field-row="${fieldPath}"]`);
-        if (!row || !state.currentNode) return;
-
-        const currentValue = getNestedValue(state.currentNode.rawData, fieldPath) || '';
-        const isMultiline = fieldPath.startsWith('isDefinedBy');
-        const editorContainer = document.createElement('div');
-        editorContainer.className = 'inline-editor-container';
-
-        const input = isMultiline
-            ? document.createElement('textarea')
-            : document.createElement('input');
-        input.className = 'inline-editor-input';
-        input.value = currentValue;
-        input.rows = isMultiline ? 4 : 1;
-
-        const saveButton = document.createElement('button');
-        saveButton.className = 'inline-save-button';
-        saveButton.textContent = I18nModule.getTranslation('information.save') || 'Enregistrer';
-
-        const cancelButton = document.createElement('button');
-        cancelButton.className = 'inline-cancel-button';
-        cancelButton.textContent = I18nModule.getTranslation('information.cancel') || 'Annuler';
-
-        editorContainer.appendChild(input);
-        editorContainer.appendChild(saveButton);
-        editorContainer.appendChild(cancelButton);
-
-        const content = row.querySelector('.field-content');
-        if (content) {
-            content.textContent = '';
-            content.appendChild(editorContainer);
-        }
-
-        saveButton.addEventListener('click', () => {
-            const newValue = input.value.trim();
-            saveFieldValue(fieldPath, newValue);
-        });
-
-        cancelButton.addEventListener('click', () => {
-            if (content) {
-                content.textContent = currentValue;
-            }
-        });
-    }
-
-    function saveFieldValue(fieldPath, value) {
-        if (!state.currentNode || !state.currentNode.rawData) return;
-
-        setNestedValue(state.currentNode.rawData, fieldPath, value);
-
-        if (fieldPath === 'label.fr') {
-            state.currentNode.labelFr = value;
-            if (I18nModule.getLanguage() === 'fr') {
-                state.currentNode.label = value;
-            }
-        } else if (fieldPath === 'label.en') {
-            state.currentNode.labelEn = value;
-            if (I18nModule.getLanguage() === 'en') {
-                state.currentNode.label = value;
-            }
-        } else if (fieldPath === 'isDefinedBy.fr' || fieldPath === 'isDefinedBy.en') {
-            if (I18nModule.getLanguage() === fieldPath.split('.')[1]) {
-                state.currentNode.description = value;
-            }
-        }
-
-        // Refresh display and graph labels
-        NodeDetailsModule.displayNodeDetails(state.currentNode);
-        NodeRendererModule.updateNodeLabels(d3.selectAll('.node-group-item'));
     }
 
     /**
@@ -329,8 +250,6 @@ const NodeDetailsModule = (() => {
             const infoPanel = d3.select(AppConfig.selectors.informationPanel);
             infoPanel.html(createNodeDetailsHTML(node))
                 .style('display', 'block');
-
-            attachInlineEditHandlers();
 
             // Highlight selected node in graph
             d3.selectAll('.node-circle')
