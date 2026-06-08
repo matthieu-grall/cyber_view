@@ -29,10 +29,6 @@ html, body {
     min-height: 0;
 }
 
-.global_container h2 {
-    font-weight: normal;
-}
-
 .global_container h3 {
     font-weight: normal;
 }
@@ -222,10 +218,7 @@ html, body {
 
 .bottom_credits_div p {
     margin: 5px;
-    font-family: inherit;
-    font-size: 12px;
     line-height: 1.4;
-    color: #000;
 }
 
 /* OTHERS (TO BE IMPROVED) */

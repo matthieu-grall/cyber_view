@@ -110,8 +110,8 @@ const FiltersModule = (() => {
 
             severityFilter.append('option')
                 .attr('value', '')
-                .attr('data-i18n', 'menu.allSeverities')
-                .text(I18nModule.getTranslation('menu.allSeverities'));
+                .attr('data-i18n', 'commandsLabels.allClasses')
+                .text(I18nModule.getTranslation('commandsLabels.allClasses'));
 
             severityLevels.forEach(level => {
                 severityFilter.append('option')
@@ -161,7 +161,7 @@ const FiltersModule = (() => {
 
             // Severity labels are language-independent (numeric/descriptive)
             severityFilter.selectAll('option[value=""]').text(
-                I18nModule.getTranslation('menu.allSeverities')
+                I18nModule.getTranslation('commandsLabels.allClasses')
             );
         },
 

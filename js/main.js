@@ -189,7 +189,7 @@ const CyberViewApplication = (() => {
         }
 
         const label = currentUsecase.name || currentUsecase.id || '';
-        const header = I18nModule.getTranslation('menu.loadedStudy');
+        const header = I18nModule.getTranslation('commandsLabels.loadedFile');
         loadedStudyNameElement.textContent = header ? `${header}: ${label}` : label;
     }
 
@@ -207,19 +207,19 @@ const CyberViewApplication = (() => {
 
     function initializeViewControls() {
         // Source buttons
-        const sourceBtnUsecase = document.getElementById('sourceBtnUsecase');
-        const sourceBtnOntology = document.getElementById('sourceBtnOntology');
+        const viewBtnIndividuals = document.getElementById('viewBtnIndividuals');
+        const viewBtnOntology = document.getElementById('viewBtnOntology');
 
-        if (sourceBtnUsecase && sourceBtnOntology) {
+        if (viewBtnIndividuals && viewBtnOntology) {
             const setSource = async (source) => {
-                sourceBtnUsecase.classList.toggle('active', source === 'usecase');
-                sourceBtnOntology.classList.toggle('active', source === 'ontology');
+                viewBtnIndividuals.classList.toggle('active', source === 'usecase');
+                viewBtnOntology.classList.toggle('active', source === 'ontology');
                 state.currentView = source === 'ontology' ? 'ontology' : 'usecase';
                 await renderCurrentView();
             };
 
-            sourceBtnUsecase.addEventListener('click', async () => setSource('usecase'));
-            sourceBtnOntology.addEventListener('click', async () => setSource('ontology'));
+            viewBtnIndividuals.addEventListener('click', async () => setSource('usecase'));
+            viewBtnOntology.addEventListener('click', async () => setSource('ontology'));
         }
     }
 

@@ -1,22 +1,88 @@
 {
   "classes": [
     {
-      "id": "cyber-data",
+      "id": "#class-cyber-data",
       "label": {
         "fr": "Donnée cyber",
         "en": "Cyber data"
       },
       "isDefinedBy": {
-        "fr": "Classe racine pour les données et objets cyber liés aux études.",
-        "en": "Root class for cyber-related data and objects in studies."
+        "fr": "Classe racine des données du périmètre cyber.",
+        "en": "Root class for cyber-related data."
       },
       "versionInfo": "2026-06-05: add #cyber-data",
-      "properties": [],
-      "relations": []
+      "properties": [
+        {
+          "id": "#property-description",
+          "type": "datatype",
+          "label": {
+            "fr": "description",
+            "en": "description"
+          },
+          "range": "xsd:string"
+        },
+        {
+          "id": "#property-generic-id",
+          "type": "datatype",
+          "label": {
+            "fr": "identifiant générique",
+            "en": "generic identifier"
+          },
+          "range": "xsd:normalizedString"
+        },
+        {
+          "id": "#property-generic-technical-id",
+          "type": "datatype",
+          "label": {
+            "fr": "identifiant technique générique",
+            "en": "generic technical identifier"
+          },
+          "range": "xsd:normalizedString"
+        }
+      ],
+      "relations": [
+        {
+          "id": "#relation-includes",
+          "type": "object",
+          "label": {
+            "fr": "comprend",
+            "en": "includes"
+          },
+          "target": "#class-cyber-data"
+        },
+        {
+          "id": "#relation-is-composed-by",
+          "type": "object",
+          "label": {
+            "fr": "est composé de",
+            "en": "is composed by"
+          },
+          "target": "#class-cyber-data"
+        },
+        {
+          "id": "#relation-is-included-in",
+          "type": "object",
+          "label": {
+            "fr": "est compris dans",
+            "en": "is included in"
+          },
+          "target": "#class-cyber-data"
+        },
+        {
+          "id": "#relation-is-part-of",
+          "type": "object",
+          "label": {
+            "fr": "compose",
+            "en": "is part of"
+          },
+          "target": "#class-cyber-data"
+        }
+      ]
     },
+
     {
-      "id": "anthropogenic-data",
-      "subClassOf": "cyber-data",
+      "id": "#class-anthropogenic-data",
+      "subClassOf": "#class-cyber-data",
       "label": {
         "fr": "Donnée anthropique",
         "en": "Anthropogenic data"
@@ -29,9 +95,10 @@
       "properties": [],
       "relations": []
     },
+
     {
-      "id": "risk",
-      "subClassOf": "anthropogenic-data",
+      "id": "#class-risk",
+      "subClassOf": "#class-anthropogenic-data",
       "label": {
         "fr": "Risque",
         "en": "Risk"
@@ -41,12 +108,54 @@
         "en": "(source: [ISO/IEC 27000])\nEffect of uncertainty on objectives."
       },
       "versionInfo": "2025-04-11: add #risk, 2025-07-10: move",
-      "properties": [],
-      "relations": []
+      "properties": [
+        {
+          "id": "#property-reference",
+          "type": "datatype",
+          "label": {
+            "fr": "référence",
+            "en": "reference"
+          },
+          "range": "xsd:normalizedString"
+        },
+        {
+          "id": "#property-likelihood",
+          "type": "datatype",
+          "label": {
+            "fr": "vraisemblance",
+            "en": "likelihood"
+          },
+          "range": "xsd:normalizedString"
+        },
+        {
+          "id": "#property-severity",
+          "type": "datatype",
+          "label": {
+            "fr": "gravité",
+            "en": "severity"
+          },
+          "range": "xsd:normalizedString"
+        }
+      ],
+      "relations": [
+        {
+          "id": "#relation-is-risk-that-includes",
+          "type": "object",
+          "label": {
+            "fr": "est un risque qui comprend",
+            "en": "is a risk that includes"
+          },
+          "target": [
+            "#class-attack-path",
+            "#class-feared-event"
+          ]
+        }
+      ]
     },
+
     {
-      "id": "feared-event",
-      "subClassOf": "anthropogenic-data",
+      "id": "#class-feared-event",
+      "subClassOf": "#class-anthropogenic-data",
       "label": {
         "fr": "Evénement redouté",
         "en": "Feared event"
@@ -56,12 +165,60 @@
         "en": "(source: [EBIOS Risk Manager])\nA feared event is associated with a business asset and harms a security need or criterion of the business asset (examples: unavailability of a service, illegitimate modification of a high temperature threshold of an industrial process, disclosure of classified data, modification of a database). The feared events to be exploited are those of the strategic scenarios and relate to the impact of an attack on a business asset. Each feared event is assessed according to the level of severity of the consequences, using metrics."
       },
       "versionInfo": "2025-04-11: add #feared-event, 2025-07-10: move",
-      "properties": [],
-      "relations": []
+      "properties": [
+        {
+          "id": "#property-severity",
+          "type": "datatype",
+          "label": {
+            "fr": "gravité",
+            "en": "severity"
+          },
+          "range": "xsd:normalizedString"
+        }
+      ],
+      "relations": [
+        {
+          "id": "#relation-affects",
+          "type": "object",
+          "label": {
+            "fr": "affecte",
+            "en": "affects"
+          },
+          "target": "#class-security-property"
+        },
+        {
+          "id": "#relation-causes-consequence",
+          "type": "object",
+          "label": {
+            "fr": "cause comme impact",
+            "en": "causes consequence"
+          },
+          "target": "#class-consequence"
+        },
+        {
+          "id": "#relation-impacts",
+          "type": "object",
+          "label": {
+            "fr": "impacte",
+            "en": "impacts"
+          },
+          "target": "#class-business-asset"
+        },
+        {
+          "id": "#relation-is-included-in-risk",
+          "type": "object",
+          "label": {
+            "fr": "est compris dans un risque",
+            "en": "is included in risk"
+          },
+          "target": "#class-risk"
+        }
+      ]
     },
+
     {
-      "id": "security-property",
-      "subClassOf": "anthropogenic-data",
+      "id": "#class-security-property",
+      "subClassOf": "#class-anthropogenic-data",
       "label": {
         "fr": "Propriété de sécurité",
         "en": "Security property"
@@ -72,11 +229,31 @@
       },
       "versionInfo": "2025-04-11: add #security-property, 2025-07-10: move",
       "properties": [],
-      "relations": []
+      "relations": [
+        {
+          "id": "#relation-is-the-subject-of",
+          "type": "object",
+          "label": {
+            "fr": "fait l'objet de",
+            "en": "is the subject of"
+          },
+          "target": "#class-control"
+        },
+        {
+          "id": "#relation-is-affected-by",
+          "type": "object",
+          "label": {
+            "fr": "est affectée par",
+            "en": "is affected by"
+          },
+          "target": "#class-feared-event"
+        }
+      ]
     },
+
     {
-      "id": "business-asset",
-      "subClassOf": "anthropogenic-data",
+      "id": "#class-business-asset",
+      "subClassOf": "#class-anthropogenic-data",
       "label": {
         "fr": "Valeur métier",
         "en": "Business asset"
@@ -87,11 +264,37 @@
       },
       "versionInfo": "2024-12-07: add #business-asset, 2025-07-10: move",
       "properties": [],
-      "relations": []
+      "relations": [
+        {
+          "id": "#relation-is-impacted-by",
+          "type": "object",
+          "label": {
+            "fr": "est impactée par",
+            "en": "is impacted by"
+          },
+          "target": [
+            "#class-feared-event",
+            "#class-strategic-scenario"
+          ]
+        },
+        {
+          "id": "#relation-relies-on",
+          "type": "object",
+          "label": {
+            "fr": "repose sur",
+            "en": "relies on"
+          },
+          "target": [
+            "#class-information-system",
+            "#class-supporting-asset"
+          ]
+        }
+      ]
     },
+
     {
-      "id": "risk-source",
-      "subClassOf": "anthropogenic-data",
+      "id": "#class-risk-source",
+      "subClassOf": "#class-anthropogenic-data",
       "label": {
         "fr": "Source de risque",
         "en": "Risk source"
@@ -101,42 +304,37 @@
         "en": "(source: [EBIOS Risk Manager])\nElement, person, group of persons or an organisation that can generate a risk. A risk origin can be characterised by its motivation, its resources, its skills, its preferred methods of attack.\nE.g.: state services, hacktivists, competitors, vengeful employees."
       },
       "versionInfo": "2025-04-11: add #risk-source",
-      "properties": [],
-      "relations": []
-    }
-  ],
-  "properties": [
-    {
-      "id": "property-id",
-      "label": {
-        "fr": "ID de propriété",
-        "en": "Property ID"
-      },
-      "isDefinedBy": {
-        "fr": "Identifiant unique de la propriété dans l'ontologie.",
-        "en": "Unique identifier for the property in the ontology."
-      },
-      "versionInfo": "2026-06-05: add property model",
-      "type": "string",
-      "pattern": "^[a-z0-9_-]+$",
-      "cardinality": "1..1"
-    }
-  ],
-  "relations": [
-    {
-      "id": "relation-id",
-      "label": {
-        "fr": "Relation modèle",
-        "en": "Relation model"
-      },
-      "isDefinedBy": {
-        "fr": "Définit un type de relation entre deux classes de l'ontologie.",
-        "en": "Defines a relationship type between two ontology classes."
-      },
-      "versionInfo": "2026-06-05: add relation model",
-      "domain": "risk",
-      "range": "business-asset",
-      "cardinality": "0..*"
+      "properties": [
+        {
+          "id": "#property-relevance",
+          "type": "datatype",
+          "label": {
+            "fr": "pertinence",
+            "en": "relevance"
+          },
+          "range": "xsd:normalizedString"
+        }
+      ],
+      "relations": [
+        {
+          "id": "#relation-is-included-in-strategic-scenario",
+          "type": "object",
+          "label": {
+            "fr": "est compris dans un scénario stratégique",
+            "en": "is included in strategic scenario"
+          },
+          "target": "#class-strategic-scenario"
+        },
+        {
+          "id": "#relation-has-goal",
+          "type": "object",
+          "label": {
+            "fr": "a comme objectif",
+            "en": "has goal"
+          },
+          "target": "#class-target-objective"
+        }
+      ]
     }
   ]
 }

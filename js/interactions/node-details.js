@@ -93,9 +93,9 @@ const NodeDetailsModule = (() => {
         if (node.type === 'ontology-class') {
             html += `
                 <div class="details-section">
-                    <h3>${I18nModule.getTranslation('information.labels')}</h3>
-                    <p><strong>${I18nModule.getTranslation('information.labelFr') || 'Label FR'}:</strong> ${escapeHtml(node.labelFr || '')}</p>
-                    <p><strong>${I18nModule.getTranslation('information.labelEn') || 'Label EN'}:</strong> ${escapeHtml(node.labelEn || '')}</p>
+                    <h3>${I18nModule.getTranslation('informationLabels.ontologyLabels')}</h3>
+                    <p><strong>${I18nModule.getTranslation('informationLabels.ontologyLabelFR') || 'Label FR'}:</strong> ${escapeHtml(node.labelFr || '')}</p>
+                    <p><strong>${I18nModule.getTranslation('informationLabels.ontologyLabelEN') || 'Label EN'}:</strong> ${escapeHtml(node.labelEn || '')}</p>
                 </div>
 
                 <!-- Ontology class definition omitted from UI (view in ontology directly) -->
@@ -104,7 +104,7 @@ const NodeDetailsModule = (() => {
             if (parentClassId) {
                 html += `
                     <div class="details-section">
-                        <h3>${I18nModule.getTranslation('information.parentClass') || 'Super-classe'}</h3>
+                        <h3>${I18nModule.getTranslation('informationLabels.ontologyParentClass') || 'Super-classe'}</h3>
                         <p>${escapeHtml(parentClassLabel)}</p>
                     </div>
                 `;
@@ -114,7 +114,7 @@ const NodeDetailsModule = (() => {
             if (properties.length > 0) {
                 html += `
                     <div class="details-section">
-                        <h3>${I18nModule.getTranslation('information.properties')}</h3>
+                        <h3>${I18nModule.getTranslation('informationLabels.ontologyProperties')}</h3>
                         <ul class="properties-list">
                 `;
                 properties.forEach(prop => {
@@ -132,7 +132,7 @@ const NodeDetailsModule = (() => {
             if (relations.length > 0) {
                 html += `
                     <div class="details-section">
-                        <h3>${I18nModule.getTranslation('information.relations') || 'Relations'}</h3>
+                        <h3>${I18nModule.getTranslation('informationLabels.relations') || 'Relations'}</h3>
                         <ul class="properties-list">
                 `;
                 relations.forEach(rel => {
@@ -153,7 +153,7 @@ const NodeDetailsModule = (() => {
         if (node.description && node.type !== 'ontology-class') {
             html += `
                 <div class="details-section">
-                    <h3>${I18nModule.getTranslation('information.description')}</h3>
+                    <h3>${I18nModule.getTranslation('informationLabels.description')}</h3>
                     <p>${escapeHtml(node.description)}</p>
                 </div>
             `;
@@ -162,7 +162,7 @@ const NodeDetailsModule = (() => {
         if (connected.length > 0) {
             html += `
                 <div class="details-section">
-                    <h3>${I18nModule.getTranslation('information.relations') || 'Relations'} (${connected.length})</h3>
+                    <h3>${I18nModule.getTranslation('informationLabels.relations') || 'Relations'} (${connected.length})</h3>
                     <ul class="connections-list">
             `;
 
@@ -192,7 +192,7 @@ const NodeDetailsModule = (() => {
         if (additionalProps.length > 0) {
             html += `
                 <div class="details-section">
-                    <h3>${I18nModule.getTranslation('information.properties')}</h3>
+                    <h3>${I18nModule.getTranslation('informationLabels.ontologyProperties')}</h3>
                     <dl class="properties-list">
             `;
 

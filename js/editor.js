@@ -35,14 +35,14 @@ const EditorModule = (() => {
 
     // Setup source selector (ontology vs usecase)
     function setupSourceToggle() {
-        const sourceBtnUsecase = document.getElementById('sourceBtnUsecase');
-        const sourceBtnOntology = document.getElementById('sourceBtnOntology');
-        if (sourceBtnUsecase && sourceBtnOntology) {
-            sourceBtnUsecase.addEventListener('click', () => {
+        const viewBtnIndividuals = document.getElementById('viewBtnIndividuals');
+        const viewBtnOntology = document.getElementById('viewBtnOntology');
+        if (viewBtnIndividuals && viewBtnOntology) {
+            viewBtnIndividuals.addEventListener('click', () => {
                 currentSource = 'usecase';
                 loadDataBySource(currentSource);
             });
-            sourceBtnOntology.addEventListener('click', () => {
+            viewBtnOntology.addEventListener('click', () => {
                 currentSource = 'ontology';
                 loadDataBySource(currentSource);
             });

@@ -96,7 +96,7 @@ const AppConfig = {
      * Update these if HTML structure changes
      */
     selectors: {
-        svgContainer: '#graph_container',
+        svgContainer: '#content_graph_container',
         graph: '#graph',
         severityFilter: '#severityFilter',
         typeFilter: '#typeFilter',
@@ -106,7 +106,7 @@ const AppConfig = {
         nodeCount: '#nodeCount',
         linkCount: '#linkCount',
         studySelect: '#studySelect',
-        loadedStudyName: '#loadedStudyName',
+        loadedStudyName: '#loadedFileName',
         sourceSelect: '#sourceSelect',
         modeSelect: '#modeSelect'
     },

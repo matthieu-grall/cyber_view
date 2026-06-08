@@ -64,7 +64,7 @@ const OntologyModule = (() => {
             if (!ontologyData) return nodeType;
 
             if (nodeType === 'ontology-class') {
-                return I18nModule.getTranslation('information.ontologyClass') || 'Ontology class';
+                return I18nModule.getTranslation('informationLabels.ontologyClass') || 'Ontology class';
             }
 
             const ontologyClass = mapNodeTypeToOntologyClass(nodeType);
@@ -84,7 +84,7 @@ const OntologyModule = (() => {
             if (!ontologyData) return '';
 
             if (nodeType === 'ontology-class') {
-                return I18nModule.getTranslation('information.ontologyClass') || 'Ontology class';
+                return I18nModule.getTranslation('informationLabels.ontologyClass') || 'Ontology class';
             }
 
             const ontologyClass = mapNodeTypeToOntologyClass(nodeType);
@@ -116,7 +116,7 @@ const OntologyModule = (() => {
                     border-radius: 50%;
                     vertical-align: middle;
                 "></span>
-                <span>${I18nModule.getTranslation('information.classes')}</span>
+                <span>${I18nModule.getTranslation('informationLabels.classes')}</span>
             `;
 
             const relationLine = document.createElement('div');
@@ -130,7 +130,7 @@ const OntologyModule = (() => {
                     vertical-align: middle;
                     margin-right: 8px;
                 "></span>
-                <span>${I18nModule.getTranslation('information.relations')}</span>
+                <span>${I18nModule.getTranslation('informationLabels.relations')}</span>
             `;
 
             classesContainer.innerHTML = '';
