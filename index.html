@@ -12,142 +12,150 @@
 <!-- Global container -->
 <div class="global_container">
 
-    <!-- Top container -->
-	<div class="top_container">
+    <!-- Top bar -->
+    <div class="top">
 
-		<div class="top_logo_div">
-			<h1 data-i18n="headerLabels.logo">Data Visions</h1>
-		</div>
-		<div class="top_title_div">
-			<h1 data-i18n="headerLabels.title">cyber_view</h1>
-		</div>
-		<div class="top_flags_div">
-			<h1><a href="#" class="language-toggle" data-lang="fr"><img src="img/fr.png" alt="FR" title="Français"></a><a href="#" class="language-toggle" data-lang="en"><img src="img/en.png" alt="EN" title="English"></a></h1>
-		</div>
-
-	</div>
-
-    <!-- Content container -->
-	<div class="content_container">
-
-		<!-- Left section: commands container -->
-        <div class="content_commands_container">
-
-			<!-- Commands title -->
-            <div class="commands_title_div">
-				<h2 data-i18n="commandsLabels.title">Commandes</h2>
-			</div>
-
-			<!-- File manager -->
-			<div class="file_manager_container">
-				<h3 data-i18n="commandsLabels.file">Fichier de données</h3>
-				<div class="loaded-file-line">
-					<label data-i18n="commandsLabels.loadedFile">Fichier chargé</label> : <span id="loadedFileName"></span>
-				</div>
-				<button id="fileLoadButton" data-i18n="commandsLabels.loadFileButton">Charger un fichier</button>
-				<input id="filut" type="file" accept=".json" style="display:none">
-			</div>
-
-			<!-- View selector (Ontology vs Individuals) -->
-			<div class="view_selector_container">
-				<h3 data-i18n="commandsLabels.view">Vue</h3>
-				<div class="view-buttons">
-					<button id="viewBtnIndividuals" class="view-btn active" data-source="individuals" data-i18n="commandsLabels.viewIndividuals">Individus</button>
-					<button id="viewBtnOntology" class="view-btn" data-source="ontology" data-i18n="commandsLabels.viewOntology">Ontologie</button>
-				</div>
-			</div>
-
-			<!-- Filters -->
-           	<div class="filters_container">
-				<h3 data-i18n="commandsLabels.classFilter">Filtres</h3>
-				<div id="typeFilterContainer" class="type-filter-container" role="group" aria-label="Types"></div>
-			</div>
-
-		</div>
-
-		<!-- Center section: graph container -->
-        <div id="content_graph_container">
-            <svg id="graph"></svg>
+        <div class="top__logo">
+            <h1 data-i18n="headerLabels.logo">Data Visions</h1>
         </div>
-
-		<!-- Right section: information container -->
-		<div class="content_information_container">
-	            
-			<!-- Information title -->
-            <div class="information_title_div">
-				<h2 data-i18n="informationLabels.title">Informations</h2>
-			</div>
-
-			<!-- General information -->
-            <div>
-				<h3 data-i18n="informationLabels.general">Général</h3>
-			</div>
-			<div>
-                <p><span data-i18n="informationLabels.nodeCount">Nombre de classes :</span> <span id="nodeCount">0</span></p>
-   	            <p><span data-i18n="informationLabels.linkCount">Nombre de relations :</span> <span id="linkCount">0</span></p>
-                <p data-i18n="informationLabels.zoomHint">Utilisez la molette pour zoomer, cliquez-glissez pour vous déplacer</p>
-                <div id="key-content">
-					<h3 data-i18n="informationLabels.legend">Légende</h3>
-		            <div class="key-section">
-	    	            <div id="legend-classes"></div>
-	        	    </div>
-	            	<div class="key-section">
-	                	<div id="legend-relations"></div>
-	            	</div>
-	        	</div>
-           	</div>
-           
-			<!-- Individual information -->
-            <div>
-				<h3 data-i18n="informationLabels.selectedIndividual">Individu sélectionné</h3>
-			</div>
-			<div id="info"></div>
-            
+        <div class="top__title">
+            <h1 data-i18n="headerLabels.title">cyber_view</h1>
+        </div>
+        <div class="top__actions">
+            <h1>
+                <a href="#" class="language-toggle" data-lang="fr"><img src="img/fr.png" alt="FR" title="Français"></a>
+                <a href="#" class="language-toggle" data-lang="en"><img src="img/en.png" alt="EN" title="English"></a>
+            </h1>
         </div>
 
     </div>
 
-	<div class="bottom_container">
+    <!-- Content area: three panels -->
+    <div class="content">
 
-		<div class="bottom_credits_div">
-			<p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><span data-i18n="footerLabels.license">Site sous licence</span> <a href="http://creativecommons.org/licenses/by/4.0/deed.fr" target="_blank" rel="license noopener noreferrer"><span data-i18n="footerLabels.cc">CC BY 4.0</span><img class="license-icon" src="./img/cc.svg" alt="CC"><img class="license-icon" src="./img/by.svg" alt="BY"></a> | <span data-i18n="footerLabels.flags">Drapeaux par</span> <a href="https://www.vecteezy.com/members/jayali-667571954" target="_blank" rel="noopener noreferrer"><span data-i18n="footerLabels.flagsAuthor">Jawad Ali</span></a> de <a href="https://www.vecteezy.com/" target="_blank" rel="noopener noreferrer"><span data-i18n="footerLabels.flagsSource">VECTEEZY</span></a> | <span data-i18n="footerLabels.background">Fond par</span> <a href="https://pixabay.com/fr/users/creativemagic-480360/" target="_blank" rel="noopener noreferrer"><span data-i18n="footerLabels.backgroundAuthor">Magic Creative</span></a> de <a href="https://pixabay.com" target="_blank" rel="noopener noreferrer"><span data-i18n="footerLabels.backgroundSource">PIXABAY</span></a></p>
-		</div>
+        <!-- Left panel: commands -->
+        <div class="content__panel--left">
 
-	</div>
+            <h2 data-i18n="commandsLabels.title">Commandes</h2>
+
+            <!-- File loader -->
+            <div class="file-loader">
+                <h3 data-i18n="commandsLabels.file">Fichier de données</h3>
+                <!-- FIX: label shown statically; JS writes only the file name into #loadedFileName -->
+                <div class="file-loader__label">
+                    <label data-i18n="commandsLabels.loadedFile">Fichier chargé</label> : <span id="loadedFileName"></span>
+                </div>
+                <button id="fileLoadButton" class="file-loader__button" data-i18n="commandsLabels.loadFileButton">Charger un fichier</button>
+                <input id="filut" type="file" accept=".json" style="display:none">
+            </div>
+
+            <!-- View toggle (Individuals vs Ontology) -->
+            <div class="view-toggle">
+                <h3 data-i18n="commandsLabels.view">Vue</h3>
+                <div class="view-toggle__buttons">
+                    <button id="viewBtnIndividuals" class="view-toggle__btn view-toggle__btn--active" data-source="individuals" data-i18n="commandsLabels.viewIndividuals">Individus</button>
+                    <button id="viewBtnOntology" class="view-toggle__btn" data-source="ontology" data-i18n="commandsLabels.viewOntology">Ontologie</button>
+                </div>
+            </div>
+
+            <!-- Type filter: scrollable, sized for many classes -->
+            <div class="type-filter">
+                <h3 data-i18n="commandsLabels.classFilter">Filtres</h3>
+                <div id="typeFilterContainer" class="type-filter__list" role="group" aria-label="Types"></div>
+            </div>
+
+        </div>
+
+        <!-- Center panel: graph -->
+        <div id="content_graph_container" class="content__panel--center">
+            <svg id="graph"></svg>
+        </div>
+
+        <!-- Right panel: information -->
+        <div class="content__panel--right">
+
+            <h2 data-i18n="informationLabels.title">Informations</h2>
+
+            <!-- Graph stats -->
+            <div class="graph-stats">
+                <h3 data-i18n="informationLabels.general">Général</h3>
+                <p><span data-i18n="informationLabels.nodeCount">Nombre de classes :</span> <span id="nodeCount">0</span></p>
+                <p><span data-i18n="informationLabels.linkCount">Nombre de relations :</span> <span id="linkCount">0</span></p>
+                <p data-i18n="informationLabels.zoomHint">Utilisez la molette pour zoomer, cliquez-glissez pour vous déplacer</p>
+            </div>
+
+            <!-- Graph legend: vertical stack, normal font size -->
+            <div class="graph-legend">
+                <h3 data-i18n="informationLabels.legend">Légende</h3>
+                <div class="graph-legend__section" id="legend-classes"></div>
+                <div class="graph-legend__section" id="legend-relations"></div>
+            </div>
+
+            <!-- Selected node details -->
+            <div class="node-details">
+                <h3 data-i18n="informationLabels.selectedIndividual">Individu sélectionné</h3>
+                <div id="info"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="bottom">
+
+        <div class="bottom__credits">
+            <!-- FIX: CC/BY images are in separate <a> tags to avoid underline bleeding onto images -->
+            <p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/">
+                <span data-i18n="footerLabels.license">Site sous licence</span>
+                <a href="http://creativecommons.org/licenses/by/4.0/deed.fr" target="_blank" rel="license noopener noreferrer"><span data-i18n="footerLabels.cc">CC BY 4.0</span></a><a href="http://creativecommons.org/licenses/by/4.0/deed.fr" target="_blank" rel="license noopener noreferrer"><img class="license-icon" src="./img/cc.svg" alt="CC"></a><a href="http://creativecommons.org/licenses/by/4.0/deed.fr" target="_blank" rel="license noopener noreferrer"><img class="license-icon" src="./img/by.svg" alt="BY"></a>
+                | <span data-i18n="footerLabels.flags">Drapeaux par</span>
+                <a href="https://www.vecteezy.com/members/jayali-667571954" target="_blank" rel="noopener noreferrer"><span data-i18n="footerLabels.flagsAuthor">Jawad Ali</span></a>
+                <span data-i18n="footerLabels.flagsFrom">de</span> <a href="https://www.vecteezy.com/" target="_blank" rel="noopener noreferrer"><span data-i18n="footerLabels.flagsSource">VECTEEZY</span></a>
+                | <span data-i18n="footerLabels.background">Fond par</span>
+                <a href="https://pixabay.com/fr/users/creativemagic-480360/" target="_blank" rel="noopener noreferrer"><span data-i18n="footerLabels.backgroundAuthor">Magic Creative</span></a>
+                <span data-i18n="footerLabels.backgroundFrom">de</span> <a href="https://pixabay.com" target="_blank" rel="noopener noreferrer"><span data-i18n="footerLabels.backgroundSource">PIXABAY</span></a>
+            </p>
+        </div>
+
+    </div>
+
+    <!-- ==================== SCRIPTS ==================== -->
 
     <!-- CONFIGURATION: Central configuration and constants -->
     <script src="js/config.js"></script>
-    
+
     <!-- INTERNATIONALIZATION: Language management and translation system -->
     <script src="js/i18n.js"></script>
-    
+
     <!-- DATA LOADING: Unified data file loading with caching -->
     <script src="js/data-loader.js"></script>
-    
+
     <!-- ONTOLOGY: Semantic ontology management and mapping -->
     <script src="js/ontology.js"></script>
-    
+
     <!-- GRAPH DATA: Graph structure creation from raw data -->
     <script src="js/graph-data.js"></script>
-    
+
     <!-- VISUALIZATION: Node rendering with tooltips and interactions -->
     <script src="js/graph/node-renderer.js"></script>
-    
+
     <!-- VISUALIZATION: Link/edge rendering with relationship labels -->
     <script src="js/graph/link-renderer.js"></script>
-    
+
     <!-- SIMULATION: D3 force-directed simulation and physics -->
     <script src="js/graph/simulation.js"></script>
-    
+
     <!-- INTERACTIONS: Filter logic for severity and node type -->
     <script src="js/interactions/filters.js"></script>
-    
+
     <!-- INTERACTIONS: Node details panel and click-to-display logic -->
     <script src="js/interactions/node-details.js"></script>
-    
+
     <!-- APPLICATION: Main orchestration and initialization -->
     <script src="js/main.js"></script>
-    <!-- ==================== END SCRIPT LOADING ==================== -->
+
+    <!-- ==================== END SCRIPTS ==================== -->
 
 </div>
 

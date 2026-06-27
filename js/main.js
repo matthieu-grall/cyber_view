@@ -189,8 +189,7 @@ const CyberViewApplication = (() => {
         }
 
         const label = currentUsecase.name || currentUsecase.id || '';
-        const header = I18nModule.getTranslation('commandsLabels.loadedFile');
-        loadedStudyNameElement.textContent = header ? `${header}: ${label}` : label;
+        loadedStudyNameElement.textContent = label;
     }
 
     async function loadUseCaseData(useCaseId) {

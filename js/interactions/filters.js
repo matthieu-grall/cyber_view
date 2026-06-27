@@ -133,7 +133,7 @@ const FiltersModule = (() => {
                 nodeTypes.forEach(type => {
                     const typeLabel = OntologyModule.getNodeTypeLabel(type, I18nModule.getLanguage());
                     const btn = document.createElement('button');
-                    btn.className = 'type-filter-button';
+                    btn.className = 'type-filter__item';
                     btn.setAttribute('data-type', type);
                     btn.innerHTML = `<span class="label">${typeLabel}</span><span class="count">${counts[type] || 0}</span>`;
                     container.appendChild(btn);
@@ -150,7 +150,7 @@ const FiltersModule = (() => {
                 // Update type filter buttons labels if present
                 const container = document.getElementById('typeFilterContainer');
                 if (container) {
-                    container.querySelectorAll('.type-filter-button').forEach(btn => {
+                    container.querySelectorAll('.type-filter__item').forEach(btn => {
                         const type = btn.getAttribute('data-type');
                         const typeLabel = OntologyModule.getNodeTypeLabel(type, I18nModule.getLanguage());
                         const count = btn.querySelector('.count') ? btn.querySelector('.count').textContent : '';
@@ -201,7 +201,7 @@ const FiltersModule = (() => {
 
             d3.select(AppConfig.selectors.severityFilter).property('value', '');
             const container = document.getElementById('typeFilterContainer');
-            if (container) container.querySelectorAll('.type-filter-button.active').forEach(b => b.classList.remove('active'));
+            if (container) container.querySelectorAll('.type-filter__item--active').forEach(b => b.classList.remove('type-filter__item--active'));
 
             applyFiltersToVisualization();
         },
@@ -230,11 +230,11 @@ const FiltersModule = (() => {
             const container = document.getElementById('typeFilterContainer');
             if (container) {
                 container.addEventListener('click', (e) => {
-                    const btn = e.target.closest('.type-filter-button');
+                    const btn = e.target.closest('.type-filter__item');
                     if (!btn) return;
                     const type = btn.getAttribute('data-type');
                     // toggle visual state
-                    const isActive = btn.classList.toggle('active');
+                    const isActive = btn.classList.toggle('type-filter__item--active');
                     // update state
                     if (isActive) state.activeTypeFilters.add(type);
                     else state.activeTypeFilters.delete(type);
