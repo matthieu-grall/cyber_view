@@ -174,8 +174,8 @@ const NodeDetailsModule = (() => {
 
                 html += `
                     <li>
-                        <span class="node-details__connection-label">${escapeHtml(conn.node.label)}</span>
                         <span class="node-details__relationship-badge">${escapeHtml(relationText)}</span>
+                        <span class="node-details__connection-label">${escapeHtml(conn.node.label)}</span>
                     </li>
                 `;
             });

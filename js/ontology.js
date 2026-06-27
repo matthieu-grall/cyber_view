@@ -107,6 +107,7 @@ const OntologyModule = (() => {
             const classDot = document.createElement('div');
             classDot.className = 'key-item';
             classDot.innerHTML = `
+                <span>${I18nModule.getTranslation('informationLabels.classes')}</span>
                 <span class="key-color-dot" style="
                     width: 12px;
                     height: 12px;
@@ -115,22 +116,22 @@ const OntologyModule = (() => {
                     display: inline-block;
                     border-radius: 50%;
                     vertical-align: middle;
+                    margin-left: 8px;
                 "></span>
-                <span>${I18nModule.getTranslation('informationLabels.classes')}</span>
             `;
 
             const relationLine = document.createElement('div');
             relationLine.className = 'key-item';
             relationLine.innerHTML = `
+                <span>${I18nModule.getTranslation('informationLabels.relations')}</span>
                 <span class="key-line" style="
                     width: 24px;
                     height: 2px;
                     background: #888;
                     display: inline-block;
                     vertical-align: middle;
-                    margin-right: 8px;
+                    margin-left: 8px;
                 "></span>
-                <span>${I18nModule.getTranslation('informationLabels.relations')}</span>
             `;
 
             classesContainer.innerHTML = '';
