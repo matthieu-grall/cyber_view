@@ -51,13 +51,32 @@ const LinkRendererModule = (() => {
          * @returns {d3.Selection} Updated link selection with styling and tooltips
          */
         renderLinks(linkGroup) {
-            // Create line elements for each link
+            // Ensure an SVG marker for directed edges exists
+            const svg = d3.select(AppConfig.selectors.svgContainer).select('svg');
+            if (!svg.select('defs').node()) {
+                const defs = svg.append('defs');
+                defs.append('marker')
+                    .attr('id', 'arrow')
+                    .attr('viewBox', '0 -5 10 10')
+                    .attr('refX', 10)
+                    .attr('refY', 0)
+                    .attr('markerWidth', 6)
+                    .attr('markerHeight', 6)
+                    .attr('orient', 'auto')
+                    .attr('markerUnits', 'strokeWidth')
+                    .append('path')
+                    .attr('d', 'M0,-5 L10,0 L0,5')
+                    .attr('fill', '#999');
+            }
+
+            // Create line elements for each link (directed: show arrowheads)
             const lines = linkGroup
                 .append('line')
                 .attr('stroke', link => getLinkColor(link))
                 .attr('stroke-width', link => getLinkStrokeWidth(link))
                 .attr('stroke-opacity', 0.6)
-                .attr('class', 'link');
+                .attr('class', 'link')
+                .attr('marker-end', 'url(#arrow)');
 
             // Add SVG title element for native browser tooltips
             // Shows relationship name and connected nodes

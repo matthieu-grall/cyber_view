@@ -177,20 +177,31 @@ const GraphDataModule = (() => {
             const classMap = new Map();
             const classes = ontologyData?.classes || [];
 
+            // Helper to extract a stable id from different ontology formats
+            function extractId(ontObj) {
+                if (!ontObj) return null;
+                return ontObj.id || ontObj.uri || ontObj['@id'] || null;
+            }
+
+            // First pass: create nodes with robust id and label handling
             classes.forEach(ontologyClass => {
-                const labelFr = ontologyClass.label?.fr || ontologyClass.id;
-                const labelEn = ontologyClass.label?.en || ontologyClass.id;
+                const id = ontologyClass.id || ontologyClass.uri || ontologyClass['@id'] || null;
+                if (!id) return; // skip malformed entries
+
+                const labelFr = (typeof ontologyClass.label === 'string') ? ontologyClass.label : (ontologyClass.label?.fr || id);
+                const labelEn = (typeof ontologyClass.label === 'string') ? ontologyClass.label : (ontologyClass.label?.en || id);
                 const label = language === 'en' ? labelEn : labelFr;
 
                 const node = {
-                    id: ontologyClass.id,
+                    id,
                     type: 'ontology-class',
                     label,
                     labelFr,
                     labelEn,
                     rawData: ontologyClass,
+                    // keep original subClassOf raw value for reference
                     subClassOf: ontologyClass.subClassOf || null,
-                    description: ontologyClass.isDefinedBy?.[language] || ontologyClass.isDefinedBy?.fr || '',
+                    description: (typeof ontologyClass.isDefinedBy === 'string') ? ontologyClass.isDefinedBy : (ontologyClass.isDefinedBy?.[language] || ontologyClass.isDefinedBy?.fr || ''),
                     degree: 0
                 };
 
@@ -198,27 +209,43 @@ const GraphDataModule = (() => {
                 classMap.set(node.id, node);
             });
 
+            // Second pass: create subclass links, normalizing arrays and uri fields
             classes.forEach(ontologyClass => {
-                if (ontologyClass.subClassOf) {
+                const childId = ontologyClass.id || ontologyClass.uri || ontologyClass['@id'] || null;
+                if (!childId) return;
+
+                const rawParent = ontologyClass.subClassOf;
+                if (!rawParent) return;
+
+                // Accept string or array of parents
+                const parents = Array.isArray(rawParent) ? rawParent : [rawParent];
+                parents.forEach(p => {
+                    // p may be a uri string or an object; try to extract id
+                    const parentId = (typeof p === 'string') ? p : (p.id || p.uri || p['@id'] || null);
+                    if (!parentId) return;
+
                     links.push({
-                        source: ontologyClass.subClassOf,
-                        target: ontologyClass.id,
+                        source: parentId,
+                        target: childId,
                         type: 'subClassOf'
                     });
-                }
+                });
             });
 
+            // Compute degrees safely (initialize missing nodes to 0)
             const nodeDegree = {};
             nodes.forEach(n => nodeDegree[n.id] = 0);
             links.forEach(l => {
+                if (nodeDegree[l.source] === undefined) nodeDegree[l.source] = 0;
+                if (nodeDegree[l.target] === undefined) nodeDegree[l.target] = 0;
                 nodeDegree[l.source]++;
                 nodeDegree[l.target]++;
             });
             nodes.forEach(n => {
-                n.degree = nodeDegree[n.id];
+                n.degree = nodeDegree[n.id] || 0;
             });
 
             return { nodes, links };
-        }
+        },
     };
 })();

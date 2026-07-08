@@ -35,8 +35,9 @@
 
         <!-- Left panel: commands -->
         <div class="content__panel--left">
-
             <h2 data-i18n="commandsLabels.title">Commandes</h2>
+
+            <p data-i18n="informationLabels.zoomHint" class="zoom-hint">Utilisez la molette pour zoomer, cliquez-glissez pour vous déplacer</p>
 
             <!-- File loader -->
             <div class="file-loader">
@@ -75,14 +76,8 @@
         <div class="content__panel--right">
 
             <h2 data-i18n="informationLabels.title">Informations</h2>
-
-            <!-- Graph stats -->
-            <div class="graph-stats">
-                <h3 data-i18n="informationLabels.general">Général</h3>
-                <p><span data-i18n="informationLabels.nodeCount">Nombre de classes :</span> <span id="nodeCount">0</span></p>
-                <p><span data-i18n="informationLabels.linkCount">Nombre de relations :</span> <span id="linkCount">0</span></p>
-                <p data-i18n="informationLabels.zoomHint">Utilisez la molette pour zoomer, cliquez-glissez pour vous déplacer</p>
-            </div>
+            <!-- Graph stats (removed general title and simple counts per request) -->
+            <div class="graph-stats"></div>
 
             <!-- Graph legend: vertical stack, normal font size -->
             <div class="graph-legend">

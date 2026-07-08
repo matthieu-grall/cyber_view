@@ -14,7 +14,7 @@ const AppConfig = {
             securityProperty: '#9b59b6',
             severityLevel: '#9b59b6',
             likelihoodLevel: '#2ecc71',
-            'ontology-class': '#f7b6d2'
+            'ontology-class': '#7f7f7f'
         },
         nodeSeverity: {
             '1. Minimale': '#a6cee3',

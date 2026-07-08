@@ -26,20 +26,29 @@ const NodeDetailsModule = (() => {
         state.allLinks.forEach(link => {
             let connectedNode = null;
             let relationshipType = null;
+            let direction = null;
 
             if (link.source.id === node.id) {
                 connectedNode = link.target;
                 relationshipType = link.type;
+                direction = 'outgoing';
             } else if (link.target.id === node.id) {
                 connectedNode = link.source;
-                // Reverse relationship direction for clarity
                 relationshipType = link.type;
+                direction = 'incoming';
+            }
+
+            // Do not display reverse subclass relationships with the same label,
+            // because they would appear as false relations in the details panel.
+            if (relationshipType === 'subClassOf' && direction === 'outgoing') {
+                return;
             }
 
             if (connectedNode && !processedIds.has(connectedNode.id)) {
                 connected.push({
                     node: connectedNode,
-                    relationship: relationshipType
+                    relationship: relationshipType,
+                    direction
                 });
                 processedIds.add(connectedNode.id);
             }
@@ -92,11 +101,7 @@ const NodeDetailsModule = (() => {
 
         if (node.type === 'ontology-class') {
             html += `
-                <div class="node-details__section">
-                    <h3>${I18nModule.getTranslation('informationLabels.ontologyLabels')}</h3>
-                    <p><strong>${I18nModule.getTranslation('informationLabels.ontologyLabelFR') || 'Label FR'}:</strong> ${escapeHtml(node.labelFr || '')}</p>
-                    <p><strong>${I18nModule.getTranslation('informationLabels.ontologyLabelEN') || 'Label EN'}:</strong> ${escapeHtml(node.labelEn || '')}</p>
-                </div>
+                <!-- Ontology class label section hidden because the node title already provides the label -->
 
                 <!-- Ontology class definition omitted from UI (view in ontology directly) -->
             `;

@@ -211,8 +211,12 @@ const CyberViewApplication = (() => {
 
         if (viewBtnIndividuals && viewBtnOntology) {
             const setSource = async (source) => {
-                viewBtnIndividuals.classList.toggle('active', source === 'usecase');
-                viewBtnOntology.classList.toggle('active', source === 'ontology');
+                // Keep the CSS class consistent with HTML markup
+                viewBtnIndividuals.classList.toggle('view-toggle__btn--active', source === 'usecase');
+                viewBtnOntology.classList.toggle('view-toggle__btn--active', source === 'ontology');
+                // Update ARIA pressed state for accessibility
+                viewBtnIndividuals.setAttribute('aria-pressed', source === 'usecase');
+                viewBtnOntology.setAttribute('aria-pressed', source === 'ontology');
                 state.currentView = source === 'ontology' ? 'ontology' : 'usecase';
                 await renderCurrentView();
             };

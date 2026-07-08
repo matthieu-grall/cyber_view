@@ -1,7 +1,7 @@
 {
   "classes": [
     {
-      "id": "#class-cyber-data",
+      "uri": "#class-cyber-data",
       "label": {
         "fr": "Donnée cyber",
         "en": "Cyber data"
@@ -10,78 +10,55 @@
         "fr": "Classe racine des données du périmètre cyber.",
         "en": "Root class for cyber-related data."
       },
-      "versionInfo": "2026-06-05: add #cyber-data",
+      "versionInfo": [
+        {"date": "2026-06-05", "description": "Add #cyber-data"},
+        {"date": "2026-07-07", "description": "Add prefix class-, usecases, properties and relations, remove types"}
+      ],
+      "usecases": [
+        {"usecase": "Risk management"}
+      ],
       "properties": [
         {
-          "id": "#property-description",
-          "type": "datatype",
+          "uri": "#property-short-label",
           "label": {
-            "fr": "description",
-            "en": "description"
+            "fr": "libellé court",
+            "en": "short label"
           },
-          "range": "xsd:string"
+          "type": "xsd:normalizedString",
+          "naming-rules": ""
         },
         {
-          "id": "#property-generic-id",
-          "type": "datatype",
+          "uri": "#property-long-label",
           "label": {
-            "fr": "identifiant générique",
-            "en": "generic identifier"
+            "fr": "libellé long",
+            "en": "long label"
           },
-          "range": "xsd:normalizedString"
-        },
-        {
-          "id": "#property-generic-technical-id",
-          "type": "datatype",
-          "label": {
-            "fr": "identifiant technique générique",
-            "en": "generic technical identifier"
-          },
-          "range": "xsd:normalizedString"
+          "type": "xsd:string",
+          "naming-rules": ""
         }
       ],
       "relations": [
         {
-          "id": "#relation-includes",
-          "type": "object",
+          "uri": "#relation-is-superset-of",
           "label": {
-            "fr": "comprend",
-            "en": "includes"
+            "fr": "est un sur-ensemble de",
+            "en": "is superset of"
           },
-          "target": "#class-cyber-data"
+          "range": "#class-cyber-data"
         },
         {
-          "id": "#relation-is-composed-by",
-          "type": "object",
+          "uri": "#relation-is-subset-of",
           "label": {
-            "fr": "est composé de",
-            "en": "is composed by"
+            "fr": "est un sous-ensemble de",
+            "en": "is subset of"
           },
-          "target": "#class-cyber-data"
-        },
-        {
-          "id": "#relation-is-included-in",
-          "type": "object",
-          "label": {
-            "fr": "est compris dans",
-            "en": "is included in"
-          },
-          "target": "#class-cyber-data"
-        },
-        {
-          "id": "#relation-is-part-of",
-          "type": "object",
-          "label": {
-            "fr": "compose",
-            "en": "is part of"
-          },
-          "target": "#class-cyber-data"
+          "range": "#class-cyber-data"
         }
       ]
     },
 
     {
-      "id": "#class-anthropogenic-data",
+      "uri": "#class-anthropogenic-data",
       "subClassOf": "#class-cyber-data",
       "label": {
         "fr": "Donnée anthropique",
@@ -91,13 +68,23 @@
         "fr": "Donnée générée, manipulée ou utilisée par des acteurs humains dans le contexte d'une étude de risque cyber.",
         "en": "Data generated, manipulated or used by human actors in the context of a cyber risk study."
       },
-      "versionInfo": "2026-06-05: add #anthropogenic-data",
-      "properties": [],
-      "relations": []
+      "versionInfo": [
+        {"date": "2026-06-05", "description": "Add #anthropogenic-data"},
+        {"date": "2026-07-07", "description": "Add prefix class-, usecases, properties and relations, remove types"}
+      ],
+      "usecases": [
+        {"usecase": "Risk management"}
+      ],
+      "properties": [
+
+      ],
+      "relations": [
+
+      ]
     },
 
     {
-      "id": "#class-risk",
+      "uri": "#class-risk",
       "subClassOf": "#class-anthropogenic-data",
       "label": {
         "fr": "Risque",
@@ -107,45 +94,50 @@
         "fr": "(source : [ISO/IEC 27000])\nEffet de l'incertitude sur les objectifs.",
         "en": "(source: [ISO/IEC 27000])\nEffect of uncertainty on objectives."
       },
-      "versionInfo": "2025-04-11: add #risk, 2025-07-10: move",
+      "versionInfo": [
+        {"date": "2026-06-05", "description": "Add #risk"},
+        {"date": "2026-07-07", "description": "Add prefix class-, usecases, properties and relations, remove types"}
+      ],
+      "usecases": [
+        {"usecase": "Risk management"}
+      ],
       "properties": [
         {
-          "id": "#property-reference",
-          "type": "datatype",
+          "uri": "#property-reference",
           "label": {
             "fr": "référence",
             "en": "reference"
           },
-          "range": "xsd:normalizedString"
+          "type": "xsd:normalizedString",
+          "naming-rules": ""
         },
         {
-          "id": "#property-likelihood",
-          "type": "datatype",
+          "uri": "#property-likelihood",
           "label": {
             "fr": "vraisemblance",
             "en": "likelihood"
           },
-          "range": "xsd:normalizedString"
+          "type": "xsd:normalizedString",
+          "naming-rules": ""
         },
         {
-          "id": "#property-severity",
-          "type": "datatype",
+          "uri": "#property-severity",
           "label": {
             "fr": "gravité",
             "en": "severity"
           },
-          "range": "xsd:normalizedString"
+          "type": "xsd:normalizedString",
+          "naming-rules": ""
         }
       ],
       "relations": [
         {
-          "id": "#relation-is-risk-that-includes",
-          "type": "object",
+          "uri": "#relation-is-risk-that-includes",
           "label": {
             "fr": "est un risque qui comprend",
             "en": "is a risk that includes"
           },
-          "target": [
+          "range": [
             "#class-attack-path",
             "#class-feared-event"
           ]
@@ -154,7 +146,7 @@
     },
 
     {
-      "id": "#class-feared-event",
+      "uri": "#class-feared-event",
       "subClassOf": "#class-anthropogenic-data",
       "label": {
         "fr": "Evénement redouté",
@@ -164,60 +156,62 @@
         "fr": "(source : [EBIOS Risk Manager])\nUn événement redouté est associé à une valeur métier et porte atteinte à un critère ou besoin de sécurité de la valeur métier (exemples : indisponibilité d'un service, modification illégitime du seuil de température haute d'un processus industriel, divulgation de données classifiées, modification d'une base de données). Les événements redoutés à exploiter sont ceux des scénarios stratégiques et se rapportent à l'impact d'une attaque sur une valeur métier. Chaque événement redouté est évalué selon le niveau de gravité des conséquences, à partir d'une métrique.",
         "en": "(source: [EBIOS Risk Manager])\nA feared event is associated with a business asset and harms a security need or criterion of the business asset (examples: unavailability of a service, illegitimate modification of a high temperature threshold of an industrial process, disclosure of classified data, modification of a database). The feared events to be exploited are those of the strategic scenarios and relate to the impact of an attack on a business asset. Each feared event is assessed according to the level of severity of the consequences, using metrics."
       },
-      "versionInfo": "2025-04-11: add #feared-event, 2025-07-10: move",
+      "versionInfo": [
+        {"date": "2026-06-05", "description": "Add #feared-event"},
+        {"date": "2026-07-07", "description": "Add prefix class-, usecases, properties and relations, remove types"}
+      ],
+      "usecases": [
+        {"usecase": "Risk management"}
+      ],
       "properties": [
         {
-          "id": "#property-severity",
-          "type": "datatype",
+          "uri": "#property-severity",
           "label": {
             "fr": "gravité",
             "en": "severity"
           },
-          "range": "xsd:normalizedString"
+          "type": "xsd:normalizedString",
+          "naming-rules": ""
         }
       ],
       "relations": [
         {
-          "id": "#relation-affects",
-          "type": "object",
+          "uri": "#relation-affects",
           "label": {
             "fr": "affecte",
             "en": "affects"
           },
-          "target": "#class-security-property"
+          "range": "#class-security-property"
         },
         {
-          "id": "#relation-causes-consequence",
-          "type": "object",
+          "uri": "#relation-causes-consequence",
           "label": {
             "fr": "cause comme impact",
             "en": "causes consequence"
           },
-          "target": "#class-consequence"
+          "range": "#class-consequence"
         },
         {
-          "id": "#relation-impacts",
-          "type": "object",
+          "uri": "#relation-impacts",
           "label": {
             "fr": "impacte",
             "en": "impacts"
           },
-          "target": "#class-business-asset"
+          "range": "#class-business-asset"
         },
         {
-          "id": "#relation-is-included-in-risk",
-          "type": "object",
+          "uri": "#relation-is-included-in-risk",
           "label": {
             "fr": "est compris dans un risque",
             "en": "is included in risk"
           },
-          "target": "#class-risk"
+          "range": "#class-risk"
         }
       ]
     },
 
     {
-      "id": "#class-security-property",
+      "uri": "#class-security-property",
       "subClassOf": "#class-anthropogenic-data",
       "label": {
         "fr": "Propriété de sécurité",
@@ -227,32 +221,36 @@
         "fr": "Caractéristique d'un bien lui permettant d'atteindre les objectifs de sécurité définis.",
         "en": "Characteristic of an asset allowing it to achieve the defined security objectives."
       },
-      "versionInfo": "2025-04-11: add #security-property, 2025-07-10: move",
+      "versionInfo": [
+        {"date": "2026-06-05", "description": "Add #security-property"},
+        {"date": "2026-07-07", "description": "Add prefix class-, usecases, properties and relations, remove types"}
+      ],
+      "usecases": [
+        {"usecase": "Risk management"}
+      ],
       "properties": [],
       "relations": [
         {
-          "id": "#relation-is-the-subject-of",
-          "type": "object",
+          "uri": "#relation-is-the-subject-of",
           "label": {
             "fr": "fait l'objet de",
             "en": "is the subject of"
           },
-          "target": "#class-control"
+          "range": "#class-control"
         },
         {
-          "id": "#relation-is-affected-by",
-          "type": "object",
+          "uri": "#relation-is-affected-by",
           "label": {
             "fr": "est affectée par",
             "en": "is affected by"
           },
-          "target": "#class-feared-event"
+          "range": "#class-feared-event"
         }
       ]
     },
 
     {
-      "id": "#class-business-asset",
+      "uri": "#class-business-asset",
       "subClassOf": "#class-anthropogenic-data",
       "label": {
         "fr": "Valeur métier",
@@ -262,29 +260,35 @@
         "fr": "(source : [EBIOS Risk Manager])\nDans le cadre de l'étude, composante importante pour l'organisation dans l'accomplissement de sa mission. Cela peut être un service, une fonction support, une étape dans un projet et toute information ou savoir-faire associé.\nEx : service d'annulation de réservations en ligne ou de sauvegarde, informations clients, service de supervision, résultats de travaux de R&D, données à caractère personnel, phase de déploiement d'un projet, savoir-faire en conception de pièces aéronautiques.\nSynonyme(s) : bien essentiel, actif primordial, élément à protéger.",
         "en": "(source: [EBIOS Risk Manager])\nIn the framework of the study, an important component for the organisation accomplishing its mission. This can be a service, a support function, a step in a project and any related information or know-how.\nE.g.: on-line back-up or reservation cancellation service, client information, supervision service, results of R&D work, personal data, deployment phase of a project, know-how in designing aeronautical parts."
       },
-      "versionInfo": "2024-12-07: add #business-asset, 2025-07-10: move",
-      "properties": [],
+      "versionInfo": [
+        {"date": "2026-06-05", "description": "Add #business-asset"},
+        {"date": "2026-07-07", "description": "Add prefix class-, usecases, properties and relations, remove types"}
+      ],
+      "usecases": [
+        {"usecase": "Risk management"}
+      ],
+      "properties": [
+
+      ],
       "relations": [
         {
-          "id": "#relation-is-impacted-by",
-          "type": "object",
+          "uri": "#relation-is-impacted-by",
           "label": {
             "fr": "est impactée par",
             "en": "is impacted by"
           },
-          "target": [
+          "range": [
             "#class-feared-event",
             "#class-strategic-scenario"
           ]
         },
         {
-          "id": "#relation-relies-on",
-          "type": "object",
+          "uri": "#relation-relies-on",
           "label": {
             "fr": "repose sur",
             "en": "relies on"
           },
-          "target": [
+          "range": [
             "#class-information-system",
             "#class-supporting-asset"
           ]
@@ -293,7 +297,7 @@
     },
 
     {
-      "id": "#class-risk-source",
+      "uri": "#class-risk-source",
       "subClassOf": "#class-anthropogenic-data",
       "label": {
         "fr": "Source de risque",
@@ -303,36 +307,40 @@
         "fr": "(source : [EBIOS Risk Manager])\nElément, personne, groupe de personnes ou organisation susceptible d'engendrer un risque. Une source de risque peut être caractérisée par sa motivation, ses ressources, ses compétences, ses modes opératoires (de prédilection).\nEx : services étatiques, hacktivistes, concurrents, employés vengeurs.",
         "en": "(source: [EBIOS Risk Manager])\nElement, person, group of persons or an organisation that can generate a risk. A risk origin can be characterised by its motivation, its resources, its skills, its preferred methods of attack.\nE.g.: state services, hacktivists, competitors, vengeful employees."
       },
-      "versionInfo": "2025-04-11: add #risk-source",
+      "versionInfo": [
+        {"date": "2026-06-05", "description": "Add #risk-source"},
+        {"date": "2026-07-07", "description": "Add prefix class-, usecases, properties and relations, remove types"}
+      ],
+      "usecases": [
+        {"usecase": "Risk management"}
+      ],
       "properties": [
         {
-          "id": "#property-relevance",
-          "type": "datatype",
+          "uri": "#property-relevance",
           "label": {
             "fr": "pertinence",
             "en": "relevance"
           },
-          "range": "xsd:normalizedString"
+          "type": "xsd:normalizedString",
+          "naming-rules": ""
         }
       ],
       "relations": [
         {
-          "id": "#relation-is-included-in-strategic-scenario",
-          "type": "object",
+          "uri": "#relation-is-included-in-strategic-scenario",
           "label": {
             "fr": "est compris dans un scénario stratégique",
             "en": "is included in strategic scenario"
           },
-          "target": "#class-strategic-scenario"
+          "range": "#class-strategic-scenario"
         },
         {
-          "id": "#relation-has-goal",
-          "type": "object",
+          "uri": "#relation-has-goal",
           "label": {
             "fr": "a comme objectif",
             "en": "has goal"
           },
-          "target": "#class-target-objective"
+          "range": "#class-target-objective"
         }
       ]
     }

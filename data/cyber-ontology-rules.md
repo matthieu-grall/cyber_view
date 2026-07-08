@@ -23,90 +23,34 @@ The ontology is designed to be:
 
 ## 3. Core Structure
 
-The ontology is composed of:
-
-- **Classes** (`#class-*`)
-- **Properties** (datatype attributes)
-- **Relations** (links between objects)
+The ontology is a JSON file with a root `classes` array. Each entry is a class.
 
 Each class may define:
-- `properties`
-- `relations`
+- `properties` — datatype attributes (literal values)
+- `relations` — links to other classes
 
 ---
 
-## 4. Typing Rules
+## 4. Naming Conventions
 
-Each attribute must declare a type.
+### 4.1 Classes
 
-### 4.1 Datatype properties
+- Format: `#class-*` (kebab-case)
+- Examples: `#class-risk`, `#class-business-asset`
 
-- Use:
-  "type": "datatype"
+The `#class-` prefix is the sole type indicator. No separate `"type"` field is needed.
 
-- Represent literal values (string, number, etc.)
-- Must define a `range`
+### 4.2 Properties
 
-Example:
-{
-  "id": "#severity",
-  "type": "datatype",
-  "range": "xsd:string"
-}
+- Format: `#property-*` (kebab-case)
+- Examples: `#property-severity`, `#property-short-label`
 
----
+### 4.3 Relations
 
-### 4.2 Object relations
+- Format: `#relation-*` (kebab-case)
+- Examples: `#relation-impacts`, `#relation-relies-on`
 
-- Use:
-  "type": "object"
-
-- Represent links to another object
-- Must define a `target`
-
-Example:
-{
-  "id": "#targets",
-  "type": "object",
-  "target": "#class-business-asset"
-}
-
----
-
-## 5. Range and Target Rules
-
-- `range` is used ONLY for datatype properties
-- `target` is used ONLY for object relations
-
-Rules:
-- A `datatype` MUST have a `range`
-- An `object` MUST have a `target`
-- A `target` MUST reference an existing class
-
----
-
-## 6. Naming Conventions
-
-### 6.1 Classes
-
-- Format: `#class-*`
-- Examples:
-  - `#class-risk`
-  - `#class-business-asset`
-
----
-
-### 6.2 Properties and relations
-
-- Format: `#kebab-case`
-- Examples:
-  - `#severity`
-  - `#likelihood`
-  - `#targets`
-
----
-
-### 6.3 General rules
+### 4.4 General rules
 
 - Use lowercase
 - Use hyphen-separated words (kebab-case)
@@ -114,91 +58,162 @@ Rules:
 
 ---
 
-## 7. Labels
+## 5. Class Structure
 
-Each element must define:
+Each class must follow this template:
 
+```json
+{
+  "uri": "#class-xxxx",
+  "subClassOf": "#class-yyyy",
+  "label": {
+    "fr": "...",
+    "en": "..."
+  },
+  "isDefinedBy": {
+    "fr": "...",
+    "en": "..."
+  },
+  "versionInfo": "YYYY-MM-DD: description",
+  "usecases": ["Use case name"],
+  "properties": [...],
+  "relations": [...]
+}
+```
+
+`subClassOf` is optional (omit for root classes).
+
+---
+
+## 6. Properties
+
+Each property defines a datatype attribute (literal value).
+
+```json
+{
+  "uri": "#property-xxxx",
+  "label": {
+    "fr": "...",
+    "en": "..."
+  },
+  "type": "xsd:string",
+  "naming-rules": "Optional human-readable guidance"
+}
+```
+
+- `type` uses XSD vocabulary: `xsd:string`, `xsd:normalizedString`, `xsd:integer`, `xsd:boolean`, etc.
+- `naming-rules` is optional — provides human-readable guidance, not enforced programmatically
+
+---
+
+## 7. Relations
+
+Each relation defines a link to one or more other classes.
+
+```json
+{
+  "uri": "#relation-xxxx",
+  "label": {
+    "fr": "...",
+    "en": "..."
+  },
+  "range": "#class-yyyy"
+}
+```
+
+- `range` references the target class URI
+- `range` may be a single string or an array of strings when multiple target classes are valid
+- `range` must reference a declared class
+
+---
+
+## 8. Labels
+
+Every class, property, and relation must define:
+
+```json
 "label": {
   "fr": "...",
   "en": "..."
 }
+```
 
-Rules:
 - Labels must be human-readable
 - Labels must be provided in both French and English
 
 ---
 
-## 8. Definitions
+## 9. Definitions
 
-Each class must define:
+Every class must define:
 
+```json
 "isDefinedBy": {
   "fr": "...",
   "en": "..."
 }
+```
 
-Rules:
 - Must describe the concept clearly
 - Must not duplicate the label
-
----
-
-## 9. Naming Rules (Business Guidance)
-
-Optional field:
-
-"namingRule": {
-  "fr": "...",
-  "en": "..."
-}
-
-Rules:
-- Provides human-readable guidance
-- Not enforced programmatically
-- Used instead of strict constraints (regex, required, etc.)
+- May cite a source, e.g.: `"(source: [ISO/IEC 27000]) Effect of uncertainty on objectives."`
 
 ---
 
 ## 10. Versioning
 
-Each element must define:
+Each class must define:
 
+```json
 "versionInfo": "YYYY-MM-DD: description"
+```
 
-Rules:
-- Must track creation or modification
+- Tracks creation or last significant modification
+- Use a comma-separated string for multiple entries: `"2026-01-01: add, 2026-07-07: update"`
 - Must be explicit and readable
 
 ---
 
-## 11. Relations Rules
+## 11. Use Cases
 
-- Relations must always define a `target`
-- The target must be a declared class
-- Relations with undefined targets must be:
-  - either completed
-  - or removed
+Each class must declare which use cases it belongs to:
+
+```json
+"usecases": ["Risk management"]
+```
+
+- Plain string array — no wrapper object needed
+- Allows filtering classes by scope
+- A class may belong to multiple use cases: `["Risk management", "Compliance"]`
 
 ---
 
-## 12. Modeling Rules from Use Cases
+## 12. Instances (Data Objects)
 
-Some attributes represent references to structured entities, not simple values.
+Individual data objects (not part of the ontology file) must:
 
-These must be modeled as object relations.
+- Declare a `classRef` referencing a class URI
+- Use property keys matching the `#property-*` URIs defined in that class
+- Reference other objects via their identifiers for object relations
 
-Examples:
-- `severity` → should target a severity-level class
-- `likelihood` → should target a likelihood-level class
-- `security-criterion` → should target a dedicated class
+Example:
+```json
+{
+  "id": "risk-001",
+  "classRef": "#class-risk",
+  "label": { "fr": "Risque R01", "en": "Risk R01" },
+  "properties": {
+    "#property-severity": "3. Important",
+    "#property-likelihood": "2. Limited"
+  }
+}
+```
 
 ---
 
 ## 13. Flexibility Principles
 
 The model intentionally avoids:
-
 - cardinality constraints
 - mandatory fields (`required`)
 - strict validation rules
@@ -210,47 +225,18 @@ This allows:
 
 ---
 
-## 14. Instances (Data Objects)
-
-Rules for individual objects:
-
-- Each object must define a `type` referencing a class
-- Relations must reference valid object identifiers
-- Datatypes should respect their intended type when possible
-
-Example:
-{
-  "id": "#risk-001",
-  "type": "#class-risk",
-  "severity": "high"
-}
-
----
-
-## 15. Design Decisions
-
-Key choices:
-
-- OWL complexity is intentionally avoided
-- JSON is the primary representation format
-- Object/datatype distinction is simplified via `type`
-- Human readability is prioritized over formal rigor
-
----
-
-## 16. Evolution Guidelines
+## 14. Evolution Guidelines
 
 - The ontology evolves incrementally
 - New classes must be justified by real use cases
 - Avoid breaking changes when possible
-- Regularly clean undefined or unused references
+- Regularly clean undefined or unused references (e.g. relations pointing to undeclared classes)
 
 ---
 
-## 17. Future Extensions (Optional)
+## 15. Future Extensions (Optional)
 
 Possible improvements:
-
 - JSON Schema generation
 - API auto-generation
 - Graph database integration (e.g. Neo4j)
@@ -258,10 +244,9 @@ Possible improvements:
 
 ---
 
-## 18. Summary
+## 16. Summary
 
 This ontology is:
-
 - simple but structured
 - flexible but consistent
 - pragmatic and use-case driven
