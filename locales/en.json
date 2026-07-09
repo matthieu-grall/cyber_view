@@ -34,7 +34,8 @@
     "ontologyLabelEN": "Label EN",
     "ontologyDefinition": "Definition",
     "ontologyDefinitionFR": "Definition FR",
-    "ontologyDefinitionEN": "Definition EN"
+    "ontologyDefinitionEN": "Definition EN",
+    "types": "Types"
   },
   "footerLabels": {
     "license": "Site under license",

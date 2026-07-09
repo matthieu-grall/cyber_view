@@ -11,11 +11,11 @@
         "en": "Root class for cyber-related data."
       },
       "versionInfo": [
-        {"date": "2026-06-05", "description": "Add #cyber-data"},
-        {"date": "2026-07-07", "description": "Add prefix class-, usecases, properties and relations, remove types"}
+        "2026-06-05: Add #class-cyber-data",
+        "2026-07-07: Add prefix class-, usecases, properties and relations, remove types"
       ],
       "usecases": [
-        {"usecase": "Risk management"}
+        "Risk management"
       ],
       "properties": [
         {
@@ -69,11 +69,11 @@
         "en": "Data generated, manipulated or used by human actors in the context of a cyber risk study."
       },
       "versionInfo": [
-        {"date": "2026-06-05", "description": "Add #anthropogenic-data"},
-        {"date": "2026-07-07", "description": "Add prefix class-, usecases, properties and relations, remove types"}
+        "2026-06-05: Add #class-anthropogenic-data",
+        "2026-07-07: Add prefix class-, usecases, properties and relations, remove types"
       ],
       "usecases": [
-        {"usecase": "Risk management"}
+        "Risk management"
       ],
       "properties": [
 
@@ -95,11 +95,11 @@
         "en": "(source: [ISO/IEC 27000])\nEffect of uncertainty on objectives."
       },
       "versionInfo": [
-        {"date": "2026-06-05", "description": "Add #risk"},
-        {"date": "2026-07-07", "description": "Add prefix class-, usecases, properties and relations, remove types"}
+        "2026-06-05: Add #class-risk",
+        "2026-07-07: Add prefix class-, usecases, properties and relations, remove types"
       ],
       "usecases": [
-        {"usecase": "Risk management"}
+        "Risk management"
       ],
       "properties": [
         {
@@ -139,29 +139,46 @@
           },
           "range": [
             "#class-attack-path",
-            "#class-feared-event"
+            "#class-effect"
           ]
+        },
+        {
+          "uri": "#relation-has-effect",
+          "label": {
+            "fr": "a pour effet",
+            "en": "has effect"
+          },
+          "range": "#class-effect"
+        },
+        {
+          "uri": "#relation-has-action",
+          "label": {
+            "fr": "a pour action",
+            "en": "has action"
+          },
+          "range": "#class-action"
         }
       ]
     },
 
     {
-      "uri": "#class-feared-event",
+      "uri": "#class-effect",
       "subClassOf": "#class-anthropogenic-data",
       "label": {
-        "fr": "Evénement redouté",
-        "en": "Feared event"
+        "fr": "Effet",
+        "en": "Effect"
       },
       "isDefinedBy": {
         "fr": "(source : [EBIOS Risk Manager])\nUn événement redouté est associé à une valeur métier et porte atteinte à un critère ou besoin de sécurité de la valeur métier (exemples : indisponibilité d'un service, modification illégitime du seuil de température haute d'un processus industriel, divulgation de données classifiées, modification d'une base de données). Les événements redoutés à exploiter sont ceux des scénarios stratégiques et se rapportent à l'impact d'une attaque sur une valeur métier. Chaque événement redouté est évalué selon le niveau de gravité des conséquences, à partir d'une métrique.",
         "en": "(source: [EBIOS Risk Manager])\nA feared event is associated with a business asset and harms a security need or criterion of the business asset (examples: unavailability of a service, illegitimate modification of a high temperature threshold of an industrial process, disclosure of classified data, modification of a database). The feared events to be exploited are those of the strategic scenarios and relate to the impact of an attack on a business asset. Each feared event is assessed according to the level of severity of the consequences, using metrics."
       },
       "versionInfo": [
-        {"date": "2026-06-05", "description": "Add #feared-event"},
-        {"date": "2026-07-07", "description": "Add prefix class-, usecases, properties and relations, remove types"}
+        "2026-06-05: Add #class-feared-event",
+        "2026-07-07: Add prefix class-, usecases, properties and relations, remove types",
+        "2026-07-09: Rename #class-feared-event to #class-effect"
       ],
       "usecases": [
-        {"usecase": "Risk management"}
+        "Risk management"
       ],
       "properties": [
         {
@@ -181,7 +198,7 @@
             "fr": "affecte",
             "en": "affects"
           },
-          "range": "#class-security-property"
+          "range": "#class-dimension"
         },
         {
           "uri": "#relation-causes-consequence",
@@ -206,27 +223,36 @@
             "en": "is included in risk"
           },
           "range": "#class-risk"
+        },
+        {
+          "uri": "#relation-is-triggered-by",
+          "label": {
+            "fr": "est déclenché par",
+            "en": "is triggered by"
+          },
+          "range": "#class-action"
         }
       ]
     },
 
     {
-      "uri": "#class-security-property",
+      "uri": "#class-dimension",
       "subClassOf": "#class-anthropogenic-data",
       "label": {
-        "fr": "Propriété de sécurité",
-        "en": "Security property"
+        "fr": "Dimension",
+        "en": "Dimension"
       },
       "isDefinedBy": {
         "fr": "Caractéristique d'un bien lui permettant d'atteindre les objectifs de sécurité définis.",
         "en": "Characteristic of an asset allowing it to achieve the defined security objectives."
       },
       "versionInfo": [
-        {"date": "2026-06-05", "description": "Add #security-property"},
-        {"date": "2026-07-07", "description": "Add prefix class-, usecases, properties and relations, remove types"}
+        "2026-06-05: Add #class-security-property",
+        "2026-07-07: Add prefix class-, usecases, properties and relations, remove types",
+        "2026-07-09: Rename #class-security-property to #class-dimension"
       ],
       "usecases": [
-        {"usecase": "Risk management"}
+        "Risk management"
       ],
       "properties": [],
       "relations": [
@@ -244,7 +270,7 @@
             "fr": "est affectée par",
             "en": "is affected by"
           },
-          "range": "#class-feared-event"
+          "range": "#class-effect"
         }
       ]
     },
@@ -261,11 +287,11 @@
         "en": "(source: [EBIOS Risk Manager])\nIn the framework of the study, an important component for the organisation accomplishing its mission. This can be a service, a support function, a step in a project and any related information or know-how.\nE.g.: on-line back-up or reservation cancellation service, client information, supervision service, results of R&D work, personal data, deployment phase of a project, know-how in designing aeronautical parts."
       },
       "versionInfo": [
-        {"date": "2026-06-05", "description": "Add #business-asset"},
-        {"date": "2026-07-07", "description": "Add prefix class-, usecases, properties and relations, remove types"}
+        "2026-06-05: Add #class-business-asset",
+        "2026-07-07: Add prefix class-, usecases, properties and relations, remove types"
       ],
       "usecases": [
-        {"usecase": "Risk management"}
+        "Risk management"
       ],
       "properties": [
 
@@ -278,7 +304,7 @@
             "en": "is impacted by"
           },
           "range": [
-            "#class-feared-event",
+            "#class-effect",
             "#class-strategic-scenario"
           ]
         },
@@ -297,22 +323,23 @@
     },
 
     {
-      "uri": "#class-risk-source",
+      "uri": "#class-actor",
       "subClassOf": "#class-anthropogenic-data",
       "label": {
-        "fr": "Source de risque",
-        "en": "Risk source"
+        "fr": "Acteur",
+        "en": "Actor"
       },
       "isDefinedBy": {
-        "fr": "(source : [EBIOS Risk Manager])\nElément, personne, groupe de personnes ou organisation susceptible d'engendrer un risque. Une source de risque peut être caractérisée par sa motivation, ses ressources, ses compétences, ses modes opératoires (de prédilection).\nEx : services étatiques, hacktivistes, concurrents, employés vengeurs.",
-        "en": "(source: [EBIOS Risk Manager])\nElement, person, group of persons or an organisation that can generate a risk. A risk origin can be characterised by its motivation, its resources, its skills, its preferred methods of attack.\nE.g.: state services, hacktivists, competitors, vengeful employees."
+        "fr": "(source : [EBIOS Risk Manager])\nElément, personne, groupe de personnes ou organisation susceptible d'engendrer un risque. Une source de risque peut être caractérisée par sa motivation, ses ressources, ses compétences, ses modes opératoires (de prédilection).\nSynonyme(s) : source de risque\nEx : services étatiques, hacktivistes, concurrents, employés vengeurs.",
+        "en": "(source: [EBIOS Risk Manager])\nElement, person, group of persons or an organisation that can generate a risk. A risk origin can be characterised by its motivation, its resources, its skills, its preferred methods of attack.\nSynonym(s): risk source\nE.g.: state services, hacktivists, competitors, vengeful employees."
       },
       "versionInfo": [
-        {"date": "2026-06-05", "description": "Add #risk-source"},
-        {"date": "2026-07-07", "description": "Add prefix class-, usecases, properties and relations, remove types"}
+        "2026-06-05: Add #class-risk-source",
+        "2026-07-07: Add prefix class-, usecases, properties and relations, remove types",
+        "2026-07-07: Rename #class-risk-source to #class-actor"
       ],
       "usecases": [
-        {"usecase": "Risk management"}
+        "Risk management"
       ],
       "properties": [
         {
@@ -340,7 +367,289 @@
             "fr": "a comme objectif",
             "en": "has goal"
           },
-          "range": "#class-target-objective"
+          "range": "#class-objective"
+        },
+        {
+          "uri": "#relation-implements",
+          "label": {
+            "fr": "met en œuvre",
+            "en": "implements"
+          },
+          "range": "#class-action"
+        },
+        {
+          "uri": "#relation-is-involved-in",
+          "label": {
+            "fr": "est impliqué dans",
+            "en": "is involved in"
+          },
+          "range": "#class-action"
+        },
+        {
+          "uri": "#relation-specifies",
+          "label": {
+            "fr": "précise",
+            "en": "specifies"
+          },
+          "range": "#class-actor"
+        },
+        {
+          "uri": "#relation-is-specified-by",
+          "label": {
+            "fr": "est précisé par",
+            "en": "is specified by"
+          },
+          "range": "#class-actor"
+        }
+      ]
+    },
+
+    {
+      "uri": "#class-action",
+      "subClassOf": "#class-anthropogenic-data",
+      "label": {
+        "fr": "Action",
+        "en": "Action"
+      },
+      "isDefinedBy": {
+        "fr": "Séquence d'opérations menées par un acteur en vue d'atteindre un objectif dans le contexte d'une étude de risque cyber.\nSynonyme(s) : attaque, chaîne d'attaque, scénario stratégique, chemin d'attaque, scénario opérationnel, action unitaire",
+        "en": "Sequence of operations carried out by an actor in order to achieve an objective in the context of a cyber risk study.\nSynonym(s): attack, attack chain, strategic scenario, attack path, operational scenario, unit action"
+      },
+      "versionInfo": [
+        "2026-07-07: Add #class-action"
+      ],
+      "usecases": [
+        "Risk management"
+      ],
+      "properties": [
+
+      ],
+      "relations": [
+        {
+          "uri": "#relation-is-superset-of",
+          "label": {
+            "fr": "est un sur-ensemble de",
+            "en": "is superset of"
+          },
+          "range": "#class-action"
+        },
+        {
+          "uri": "#relation-is-subset-of",
+          "label": {
+            "fr": "est un sous-ensemble de",
+            "en": "is subset of"
+          },
+          "range": "#class-action"
+        },
+        {
+          "uri": "#relation-precedes",
+          "label": {
+            "fr": "précède",
+            "en": "precedes"
+          },
+          "range": "#class-action"
+        },
+        {
+          "uri": "#relation-follows",
+          "label": {
+            "fr": "suit",
+            "en": "follows"
+          },
+          "range": "#class-action"
+        },
+        {
+          "uri": "#relation-is-implemented-by",
+          "label": {
+            "fr": "est mise en œuvre par",
+            "en": "is implemented by"
+          },
+          "range": "#class-actor"
+        },
+        {
+          "uri": "#relation-involves",
+          "label": {
+            "fr": "implique",
+            "en": "involves"
+          },
+          "range": "#class-actor"
+        },
+        {
+          "uri": "#relation-triggers",
+          "label": {
+            "fr": "déclenche",
+            "en": "triggers"
+          },
+          "range": "#class-effect"
+        },
+        {
+          "uri": "#relation-has-likelihood-level",
+          "label": {
+            "fr": "a pour niveau de vraisemblance",
+            "en": "has likelihood level"
+          },
+          "range": "#class-likelihood-level"
+        },
+        {
+          "uri": "#relation-uses",
+          "label": {
+            "fr": "utilise",
+            "en": "uses"
+          },
+          "range": "#class-supporting-asset"
+        }
+      ]
+    },
+
+    {
+      "uri": "#class-objective",
+      "subClassOf": "#class-anthropogenic-data",
+      "label": {
+        "fr": "Objectif visé",
+        "en": "Target objective"
+      },
+      "isDefinedBy": {
+        "fr": "(source : [EBIOS Risk Manager])\nFinalité visée par une source de risque, selon ses motivations.\nSynonyme(s) : effet final recherché (EFR)",
+        "en": "(source: [EBIOS Risk Manager])\nEnd purpose targeted by a risk source, according to its motivation."
+      },
+      "versionInfo": [
+        "2026-07-09: Add #class-objective"
+      ],
+      "usecases": [
+        "Risk management"
+      ],
+      "properties": [
+
+      ],
+      "relations": [
+        {
+          "uri": "#relation-is-goal-of",
+          "label": {
+            "fr": "est un objectif de",
+            "en": "is goal of"
+          },
+          "range": "#class-actor"
+        }
+      ]
+    },
+
+    {
+      "uri": "#class-consequence",
+      "subClassOf": "#class-anthropogenic-data",
+      "label": {
+        "fr": "Conséquence",
+        "en": "Consequence"
+      },
+      "isDefinedBy": {
+        "fr": "",
+        "en": ""
+      },
+      "versionInfo": [
+        "2026-07-09: Add #class-consequence"
+      ],
+      "usecases": [
+        "Risk management"
+      ],
+      "properties": [
+
+      ],
+      "relations": [
+        {
+          "uri": "#relation-follows",
+          "label": {
+            "fr": "suit",
+            "en": "follows"
+          },
+          "range": "#class-consequence"
+        },
+        {
+          "uri": "#relation-has-consequence-level",
+          "label": {
+            "fr": "a pour niveau de conséquence",
+            "en": "has consequence level"
+          },
+          "range": "#class-consequence-level"
+        }
+      ]
+    },
+
+    {
+      "uri": "#class-consequence-level",
+      "subClassOf": "#class-anthropogenic-data",
+      "label": {
+        "fr": "Niveau de conséquence",
+        "en": "Consequence level"
+      },
+      "isDefinedBy": {
+        "fr": "",
+        "en": ""
+      },
+      "versionInfo": [
+        "2026-07-09: Add #class-consequence-level"
+      ],
+      "usecases": [
+        "Risk management"
+      ],
+      "properties": [
+
+      ],
+      "relations": [
+
+      ]
+    },
+
+    {
+      "uri": "#class-likelihood-level",
+      "subClassOf": "#class-anthropogenic-data",
+      "label": {
+        "fr": "Niveau de vraisemblance",
+        "en": "Likelihood level"
+      },
+      "isDefinedBy": {
+        "fr": "",
+        "en": ""
+      },
+      "versionInfo": [
+        "2026-07-09: Add #class-likelihood-level"
+      ],
+      "usecases": [
+        "Risk management"
+      ],
+      "properties": [
+
+      ],
+      "relations": [
+
+      ]
+    },
+
+    {
+      "uri": "#class-supporting-asset",
+      "subClassOf": "#class-anthropogenic-data",
+      "label": {
+        "fr": "Support",
+        "en": "Supporting asset"
+      },
+      "isDefinedBy": {
+        "fr": "",
+        "en": ""
+      },
+      "versionInfo": [
+        "2026-07-09: Add #class-supporting-asset"
+      ],
+      "usecases": [
+        "Risk management"
+      ],
+      "properties": [
+
+      ],
+      "relations": [
+        {
+          "uri": "#relation-is-used-by",
+          "label": {
+            "fr": "est utilisé par",
+            "en": "is used by"
+          },
+          "range": "#class-action"
         }
       ]
     }

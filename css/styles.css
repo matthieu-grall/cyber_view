@@ -339,7 +339,6 @@ svg {
 }
 
 .link {
-    stroke: #666;
     stroke-opacity: 0.8;
     stroke-width: 2px;
     pointer-events: none;

@@ -29,6 +29,7 @@ const AppConfig = {
             'has-severity': '#9b59b6',
             'has-likelihood': '#2ecc71',
             'subClassOf': '#7f7f7f',
+            'ontology-relation': '#8b0000',
             'default': '#999'
         }
     },

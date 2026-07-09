@@ -127,7 +127,7 @@ const OntologyModule = (() => {
                 <span class="key-line" style="
                     width: 24px;
                     height: 2px;
-                    background: #888;
+                    background: ${AppConfig.colors.linkType['ontology-relation'] || '#8b0000'};
                     display: inline-block;
                     vertical-align: middle;
                     margin-left: 8px;
@@ -137,6 +137,21 @@ const OntologyModule = (() => {
             classesContainer.innerHTML = '';
             relationsContainer.innerHTML = '';
             classesContainer.appendChild(classDot);
+
+            const typesLine = document.createElement('div');
+            typesLine.className = 'key-item';
+            typesLine.innerHTML = `
+                <span>${I18nModule.getTranslation('informationLabels.types') || 'Types'}</span>
+                <span class="key-line" style="
+                    width: 24px;
+                    height: 2px;
+                    background: ${AppConfig.colors.linkType.subClassOf || '#7f7f7f'};
+                    display: inline-block;
+                    vertical-align: middle;
+                    margin-left: 8px;
+                "></span>
+            `;
+            classesContainer.appendChild(typesLine);
             relationsContainer.appendChild(relationLine);
         }
     };

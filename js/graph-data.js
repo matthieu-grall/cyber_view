@@ -215,21 +215,77 @@ const GraphDataModule = (() => {
                 if (!childId) return;
 
                 const rawParent = ontologyClass.subClassOf;
-                if (!rawParent) return;
+                if (rawParent) {
+                    const parents = Array.isArray(rawParent) ? rawParent : [rawParent];
+                    parents.forEach(p => {
+                        const parentId = (typeof p === 'string') ? p : (p.id || p.uri || p['@id'] || null);
+                        if (!parentId || !classMap.has(parentId)) return;
 
-                // Accept string or array of parents
-                const parents = Array.isArray(rawParent) ? rawParent : [rawParent];
-                parents.forEach(p => {
-                    // p may be a uri string or an object; try to extract id
-                    const parentId = (typeof p === 'string') ? p : (p.id || p.uri || p['@id'] || null);
-                    if (!parentId) return;
+                        links.push({
+                            source: parentId,
+                            target: childId,
+                            type: 'subClassOf'
+                        });
+                    });
+                }
 
-                    links.push({
-                        source: parentId,
-                        target: childId,
-                        type: 'subClassOf'
+                const relations = ontologyClass.relations || [];
+                relations.forEach(rel => {
+                    const relationType = rel.uri ? String(rel.uri).replace(/^.*[#\/]/, '').replace(/^relation-/, '') : null;
+                    const relationTargets = Array.isArray(rel.range) ? rel.range : [rel.range];
+
+                    relationTargets.forEach(target => {
+                        const targetId = (typeof target === 'string') ? target : (target.id || target.uri || target['@id'] || null);
+                        if (!targetId || !classMap.has(targetId)) return;
+
+                        links.push({
+                            source: childId,
+                            target: targetId,
+                            type: 'ontology-relation',
+                            relationType: relationType || rel.uri || 'relation',
+                            label: rel.label || null,
+                            rawData: rel
+                        });
                     });
                 });
+            });
+
+            // Group parallel links for curve separation
+            const parallelLinkGroups = new Map();
+            links.forEach(link => {
+                const orderedPair = [link.source, link.target].slice().sort().join('|');
+                const group = parallelLinkGroups.get(orderedPair) || [];
+                group.push(link);
+                parallelLinkGroups.set(orderedPair, group);
+            });
+
+            parallelLinkGroups.forEach(group => {
+                if (group.length <= 1) return;
+
+                const baseOffset = 24;
+                const middleIndex = (group.length - 1) / 2;
+                group.forEach((link, index) => {
+                    let offsetIndex = index - middleIndex;
+                    if (offsetIndex === 0) {
+                        offsetIndex = 0.5;
+                    } else {
+                        offsetIndex += Math.sign(offsetIndex) * 0.5;
+                    }
+                    link.curveOffset = offsetIndex * baseOffset;
+                });
+            });
+
+            // Mark bidirectional links so their reverse edges curve in opposite directions
+            const linkKeyMap = new Map();
+            links.forEach(link => {
+                const key = `${link.source}|${link.target}`;
+                linkKeyMap.set(key, link);
+            });
+            links.forEach(link => {
+                const reverseKey = `${link.target}|${link.source}`;
+                if (linkKeyMap.has(reverseKey)) {
+                    link.isBidirectional = true;
+                }
             });
 
             // Compute degrees safely (initialize missing nodes to 0)

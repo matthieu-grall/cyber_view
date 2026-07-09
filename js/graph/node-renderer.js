@@ -9,6 +9,11 @@ const NodeRendererModule = (() => {
     // ==================== PRIVATE CONSTANTS ====================
     const TOOLTIP_DELAY = 200; // milliseconds
 
+    // State for node selection highlight persistence
+    const state = {
+        selectedNodeId: null
+    };
+
     // ==================== PRIVATE FUNCTIONS ====================
 
     /**
@@ -20,6 +25,48 @@ const NodeRendererModule = (() => {
         const baseRadius = AppConfig.nodeSizes.baseRadius[node.type] || 8;
         const boost = Math.min(node.degree * AppConfig.nodeSizes.degreeBoost.factor, AppConfig.nodeSizes.degreeBoost.max);
         return baseRadius + boost;
+    }
+
+    function resetGraphHighlight() {
+        d3.selectAll('.node-circle')
+            .style('opacity', 1)
+            .attr('stroke-width', 2);
+
+        d3.selectAll('.link')
+            .style('stroke-opacity', 0.6)
+            .style('stroke-width', 1);
+    }
+
+    function getConnectedNodeIds(nodeId) {
+        const connectedIds = new Set();
+        d3.selectAll('.link').each(link => {
+            if (!link.source || !link.target) return;
+            if (link.source.id === nodeId || link.target.id === nodeId) {
+                connectedIds.add(link.source.id);
+                connectedIds.add(link.target.id);
+            }
+        });
+        return connectedIds;
+    }
+
+    function applySelectionHighlight(nodeId) {
+        resetGraphHighlight();
+        const connectedIds = getConnectedNodeIds(nodeId);
+
+        d3.selectAll('.node-circle')
+            .style('opacity', node => connectedIds.has(node.id) ? 1 : 0.4)
+            .attr('stroke-width', node => node.id === nodeId ? 4 : 2);
+
+        d3.selectAll('.link')
+            .style('stroke-opacity', link => (link.source.id === nodeId || link.target.id === nodeId) ? 0.8 : 0.2)
+            .style('stroke-width', link => (link.source.id === nodeId || link.target.id === nodeId) ? 3 : 1);
+
+        state.selectedNodeId = nodeId;
+    }
+
+    function clearSelectionHighlight() {
+        state.selectedNodeId = null;
+        resetGraphHighlight();
     }
 
     /**
@@ -41,17 +88,33 @@ const NodeRendererModule = (() => {
      * @returns {string} Formatted tooltip text
      */
     function createNodeTooltip(node) {
-        const typeLabel = OntologyModule.getNodeTypeLabel(node.type, I18nModule.getLanguage());
-        let tooltip = `${node.label}\n[${typeLabel}]`;
-        
-        if (node.severity) {
-            tooltip += `\nSeverity: ${node.severity}`;
+        const language = I18nModule.getLanguage();
+        const nodeLabel = node.label;
+        const definition = node.rawData?.isDefinedBy;
+        let tooltip = `${nodeLabel}`;
+
+        const typeLabel = OntologyModule.getNodeTypeLabel(node.type, language);
+        if (node.type === 'ontology-class' && definition) {
+            const definitionText = typeof definition === 'string'
+                ? definition
+                : definition[language] || definition.fr || definition.en || '';
+            if (definitionText) {
+                tooltip += `\n${definitionText}`;
+            } else {
+                tooltip += `\n[${typeLabel}]`;
+            }
+        } else {
+            tooltip += `\n[${typeLabel}]`;
+
+            if (node.severity) {
+                tooltip += `\nSeverity: ${node.severity}`;
+            }
+
+            if (node.degree) {
+                tooltip += `\nConnections: ${node.degree}`;
+            }
         }
-        
-        if (node.degree) {
-            tooltip += `\nConnections: ${node.degree}`;
-        }
-        
+
         return tooltip;
     }
 
@@ -118,6 +181,10 @@ const NodeRendererModule = (() => {
             // Add hover effects
             nodeGroup
                 .on('mouseenter', function(event, d) {
+                    if (state.selectedNodeId) {
+                        return;
+                    }
+
                     // Highlight connected nodes and links
                     d3.select(this).select('circle')
                         .attr('r', node => calculateNodeRadius(node) + 4)
@@ -142,20 +209,21 @@ const NodeRendererModule = (() => {
                         );
                 })
                 .on('mouseleave', function(event, d) {
+                    if (state.selectedNodeId) {
+                        return;
+                    }
+
                     // Reset styles
                     d3.select(this).select('circle')
                         .attr('r', node => calculateNodeRadius(node))
                         .attr('stroke-width', 2)
                         .attr('filter', 'none');
                     
-                    d3.selectAll('.link')
-                        .style('stroke-opacity', 0.6)
-                        .style('stroke-width', 1);
-                    
-                    d3.selectAll('.node-circle')
-                        .style('opacity', 1);
+                    resetGraphHighlight();
                 })
                 .on('click', function(event, d) {
+                    applySelectionHighlight(d.id);
+
                     // Directly display node details if the module is available
                     if (typeof NodeDetailsModule !== 'undefined' && NodeDetailsModule.displayNodeDetails) {
                         NodeDetailsModule.displayNodeDetails(d);
@@ -166,6 +234,14 @@ const NodeRendererModule = (() => {
                 });
 
             return nodeGroup;
+        },
+
+        selectNode(nodeId) {
+            applySelectionHighlight(nodeId);
+        },
+
+        clearSelection() {
+            clearSelectionHighlight();
         },
 
         /**

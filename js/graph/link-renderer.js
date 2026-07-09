@@ -12,7 +12,13 @@ const LinkRendererModule = (() => {
      * @returns {string} Color hex code or RGB value
      */
     function getLinkColor(link) {
-        return AppConfig.colors.linkType[link.type] || '#cccccc';
+        if (link.type === 'subClassOf') {
+            return AppConfig.colors.linkType.subClassOf || '#7f7f7f';
+        }
+        if (link.type === 'ontology-relation') {
+            return AppConfig.colors.linkType['ontology-relation'] || '#8b0000';
+        }
+        return AppConfig.colors.linkType[link.type] || AppConfig.colors.linkType['default'] || '#999';
     }
 
     /**
@@ -33,14 +39,52 @@ const LinkRendererModule = (() => {
      * @returns {string} Formatted relationship description
      */
     function createLinkTooltip(link) {
+        const label = getLinkLabel(link);
+        const sourceLabel = link.source && typeof link.source === 'object' ? link.source.label : link.source;
+        const targetLabel = link.target && typeof link.target === 'object' ? link.target.label : link.target;
+
+        return `${sourceLabel || ''} → ${label} → ${targetLabel || ''}`;
+    }
+
+    function getLinkLabel(link) {
         const relationshipLabels = AppConfig.relationships[link.type];
-        if (!relationshipLabels) {
-            return link.type;
+        const language = I18nModule.getLanguage();
+
+        if (relationshipLabels) {
+            return relationshipLabels[language] || relationshipLabels.en;
+        }
+        if (link.label) {
+            return link.label[language] || link.label.fr || link.label.en || String(link.type);
+        }
+        return String(link.type);
+    }
+
+    function getLinkPath(link) {
+        const source = link.source;
+        const target = link.target;
+        const x1 = source.x;
+        const y1 = source.y;
+        const x2 = target.x;
+        const y2 = target.y;
+
+        if (!link.curveOffset && !link.isBidirectional) {
+            return `M${x1},${y1} L${x2},${y2}`;
         }
 
-        const language = I18nModule.getLanguage();
-        const label = relationshipLabels[language] || relationshipLabels.en;
-        return `${link.source.label} → ${label} → ${link.target.label}`;
+        const mx = (x1 + x2) / 2;
+        const my = (y1 + y2) / 2;
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const nx = -dy;
+        const ny = dx;
+        const norm = Math.sqrt(nx * nx + ny * ny) || 1;
+        const baseOffset = 20;
+        const directionSign = source.id < target.id ? 1 : -1;
+        const offset = link.curveOffset || (baseOffset * directionSign);
+        const cx = mx + (nx / norm) * offset;
+        const cy = my + (ny / norm) * offset;
+
+        return `M${x1},${y1} Q${cx},${cy} ${x2},${y2}`;
     }
 
     // ==================== PUBLIC API ====================
@@ -66,42 +110,33 @@ const LinkRendererModule = (() => {
                     .attr('markerUnits', 'strokeWidth')
                     .append('path')
                     .attr('d', 'M0,-5 L10,0 L0,5')
-                    .attr('fill', '#999');
+                    .attr('fill', 'currentColor')
+                    .attr('stroke', 'currentColor');
             }
 
-            // Create line elements for each link (directed: show arrowheads)
-            const lines = linkGroup
-                .append('line')
-                .attr('stroke', link => getLinkColor(link))
+            const paths = linkGroup
+                .append('path')
+                .attr('d', link => getLinkPath(link))
+                .style('stroke', link => getLinkColor(link))
+                .style('color', link => getLinkColor(link))
                 .attr('stroke-width', link => getLinkStrokeWidth(link))
                 .attr('stroke-opacity', 0.6)
+                .attr('fill', 'none')
                 .attr('class', 'link')
                 .attr('marker-end', 'url(#arrow)');
 
-            // Add SVG title element for native browser tooltips
-            // Shows relationship name and connected nodes
-            lines.append('title')
+            paths.append('title')
                 .text(link => createLinkTooltip(link));
 
-            // Add text labels on link midpoints
-            // Only show for critical relationships to avoid clutter
-            const criticalTypes = ['has-criteria', 'affects-asset', 'from-source'];
-            
             const labels = linkGroup
-                .filter(link => criticalTypes.includes(link.type))
                 .append('text')
                 .attr('font-size', '11px')
                 .attr('text-anchor', 'middle')
-                .attr('fill', '#666')
+                .attr('fill', link => getLinkColor(link))
                 .attr('pointer-events', 'none')
                 .attr('class', 'link-label')
                 .attr('dy', '-4px')
-                .text(link => {
-                    const relationshipLabels = AppConfig.relationships[link.type];
-                    if (!relationshipLabels) return '';
-                    const language = I18nModule.getLanguage();
-                    return relationshipLabels[language] || relationshipLabels.en;
-                });
+                .text(link => getLinkLabel(link));
 
             return linkGroup;
         },
@@ -112,11 +147,8 @@ const LinkRendererModule = (() => {
          * @param {d3.Selection} linkGroup - D3 selection for link group
          */
         updateLinkPositions(linkGroup) {
-            linkGroup.selectAll('line')
-                .attr('x1', d => d.source.x)
-                .attr('y1', d => d.source.y)
-                .attr('x2', d => d.target.x)
-                .attr('y2', d => d.target.y);
+            linkGroup.selectAll('path')
+                .attr('d', d => getLinkPath(d));
 
             linkGroup.selectAll('text')
                 .attr('x', d => (d.source.x + d.target.x) / 2)
@@ -137,9 +169,14 @@ const LinkRendererModule = (() => {
             linkGroup.selectAll('text')
                 .text(link => {
                     const relationshipLabels = AppConfig.relationships[link.type];
-                    if (!relationshipLabels) return '';
                     const language = I18nModule.getLanguage();
-                    return relationshipLabels[language] || relationshipLabels.en;
+                    if (relationshipLabels) {
+                        return relationshipLabels[language] || relationshipLabels.en;
+                    }
+                    if (link.label) {
+                        return link.label[language] || link.label.fr || link.label.en || String(link.type);
+                    }
+                    return String(link.type);
                 });
         }
     };

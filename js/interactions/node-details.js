@@ -21,7 +21,7 @@ const NodeDetailsModule = (() => {
      */
     function getConnectedNodes(node) {
         const connected = [];
-        const processedIds = new Set();
+        const processedKeys = new Set();
 
         state.allLinks.forEach(link => {
             let connectedNode = null;
@@ -38,19 +38,32 @@ const NodeDetailsModule = (() => {
                 direction = 'incoming';
             }
 
-            // Do not display reverse subclass relationships with the same label,
-            // because they would appear as false relations in the details panel.
-            if (relationshipType === 'subClassOf' && direction === 'outgoing') {
+            if (!connectedNode) {
                 return;
             }
 
-            if (connectedNode && !processedIds.has(connectedNode.id)) {
+            if (relationshipType === 'subClassOf') {
+                // Only show subclass relation from the child node perspective
+                // (incoming edge means this node is subclass of another).
+                if (direction !== 'incoming') {
+                    return;
+                }
+            } else {
+                // For other relations, show only those declared on the selected class.
+                if (direction !== 'outgoing') {
+                    return;
+                }
+            }
+
+            const key = `${connectedNode.id}|${relationshipType}|${direction}`;
+            if (!processedKeys.has(key)) {
                 connected.push({
                     node: connectedNode,
                     relationship: relationshipType,
-                    direction
+                    direction,
+                    link
                 });
-                processedIds.add(connectedNode.id);
+                processedKeys.add(key);
             }
         });
 
@@ -106,15 +119,6 @@ const NodeDetailsModule = (() => {
                 <!-- Ontology class definition omitted from UI (view in ontology directly) -->
             `;
 
-            if (parentClassId) {
-                html += `
-                    <div class="node-details__section">
-                        <h3>${I18nModule.getTranslation('informationLabels.ontologyParentClass') || 'Super-classe'}</h3>
-                        <p>${escapeHtml(parentClassLabel)}</p>
-                    </div>
-                `;
-            }
-
             const properties = node.rawData?.properties || [];
             if (properties.length > 0) {
                 html += `
@@ -133,23 +137,6 @@ const NodeDetailsModule = (() => {
                 `;
             }
 
-            const relations = node.rawData?.relations || [];
-            if (relations.length > 0) {
-                html += `
-                    <div class="node-details__section">
-                        <h3>${I18nModule.getTranslation('informationLabels.relations') || 'Relations'}</h3>
-                        <ul class="node-details__properties">
-                `;
-                relations.forEach(rel => {
-                    const relLabel = rel.label?.[I18nModule.getLanguage()] || rel.label?.fr || rel.id || '';
-                    const relRange = rel.range ? ` (${escapeHtml(rel.range)})` : '';
-                    html += `<li><strong>${escapeHtml(relLabel)}</strong>${relRange}</li>`;
-                });
-                html += `
-                        </ul>
-                    </div>
-                `;
-            }
         }
 
         // Severity display removed (shown in Relations when applicable)
@@ -172,10 +159,17 @@ const NodeDetailsModule = (() => {
             `;
 
             connected.forEach(conn => {
+                const language = I18nModule.getLanguage();
+                let relationText = '';
+
                 const relationLabel = AppConfig.relationships[conn.relationship];
-                const relationText = relationLabel 
-                    ? relationLabel[I18nModule.getLanguage()] || relationLabel.en
-                    : conn.relationship;
+                if (relationLabel) {
+                    relationText = relationLabel[language] || relationLabel.en;
+                } else if (conn.link && conn.link.label) {
+                    relationText = conn.link.label[language] || conn.link.label.fr || conn.link.label.en || conn.relationship;
+                } else {
+                    relationText = conn.relationship || '';
+                }
 
                 html += `
                     <li>
@@ -256,10 +250,14 @@ const NodeDetailsModule = (() => {
             infoPanel.html(createNodeDetailsHTML(node))
                 .style('display', 'block');
 
-            // Highlight selected node in graph
-            d3.selectAll('.node-circle')
-                .style('opacity', n => n.id === node.id ? 1 : 0.4)
-                .attr('stroke-width', n => n.id === node.id ? 4 : 2);
+            // Keep selected node highlighted
+            if (typeof NodeRendererModule !== 'undefined' && NodeRendererModule.selectNode) {
+                NodeRendererModule.selectNode(node.id);
+            } else {
+                d3.selectAll('.node-circle')
+                    .style('opacity', n => n.id === node.id ? 1 : 0.4)
+                    .attr('stroke-width', n => n.id === node.id ? 4 : 2);
+            }
         },
 
         /**
@@ -272,9 +270,13 @@ const NodeDetailsModule = (() => {
             infoPanel.html('')
                 .style('display', 'none');
 
-            d3.selectAll('.node-circle')
-                .style('opacity', 1)
-                .attr('stroke-width', 2);
+            if (typeof NodeRendererModule !== 'undefined' && NodeRendererModule.clearSelection) {
+                NodeRendererModule.clearSelection();
+            } else {
+                d3.selectAll('.node-circle')
+                    .style('opacity', 1)
+                    .attr('stroke-width', 2);
+            }
         },
 
         /**
@@ -296,14 +298,21 @@ const NodeDetailsModule = (() => {
                 NodeDetailsModule.displayNodeDetails(event.detail);
             });
 
-            // Listen for click on graph background to clear details
-            d3.select(AppConfig.selectors.svgContainer)
-                .on('click', function(event) {
-                    // Only clear if clicking on empty space, not on node
-                    if (event.target === this) {
-                        NodeDetailsModule.clearNodeDetails();
-                    }
+            // Listen for click on graph background rectangle to clear details
+            const svgBackground = d3.select(AppConfig.selectors.svgContainer).select('.svg-background');
+            if (!svgBackground.empty()) {
+                svgBackground.on('click', function(event) {
+                    NodeDetailsModule.clearNodeDetails();
+                    event.stopPropagation();
                 });
+            } else {
+                d3.select(AppConfig.selectors.svgContainer)
+                    .on('click', function(event) {
+                        if (event.target === this) {
+                            NodeDetailsModule.clearNodeDetails();
+                        }
+                    });
+            }
         }
     };
 })();
