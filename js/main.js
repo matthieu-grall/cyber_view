@@ -242,15 +242,8 @@ const CyberViewApplication = (() => {
             await loadUseCaseData(AppConfig.defaultUseCaseId);
         }
 
-        const allData = state.currentUsecaseData;
-        const graphData = GraphDataModule.createGraphData(
-            allData.risks,
-            allData.riskSources,
-            allData.businessAssets,
-            allData.securityCriteria,
-            allData.severityLevels,
-            allData.likelihoodLevels
-        );
+        const rawUsecase = state.currentUsecaseData?.currentUsecaseRaw || state.currentUsecaseData;
+        const graphData = GraphDataModule.createGraphData(rawUsecase);
 
         state.currentData = graphData;
         renderGraph(graphData.nodes, graphData.links, state.renderWidth, state.renderHeight);

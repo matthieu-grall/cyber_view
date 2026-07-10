@@ -12,7 +12,8 @@ const DataLoaderModule = (() => {
         securityCriteria: [],
         severityLevels: [],
         likelihoodLevels: [],
-        currentUsecase: null
+        currentUsecase: null,
+        currentUsecaseRaw: null
     };
 
     // ==================== PRIVATE METHODS ====================
@@ -51,6 +52,7 @@ const DataLoaderModule = (() => {
                 data.securityCriteria = useCaseData.securityCriteria || [];
                 data.severityLevels = useCaseData.severityLevels || [];
                 data.likelihoodLevels = useCaseData.likelihoodLevels || [];
+                data.currentUsecaseRaw = useCaseData;
                 data.currentUsecase = {
                     id: useCaseData.id || null,
                     name: useCaseData.name || null,
@@ -87,6 +89,7 @@ const DataLoaderModule = (() => {
                 data.securityCriteria = useCaseData.securityCriteria || [];
                 data.severityLevels = useCaseData.severityLevels || [];
                 data.likelihoodLevels = useCaseData.likelihoodLevels || [];
+                data.currentUsecaseRaw = useCaseData;
                 data.currentUsecase = {
                     id: useCaseData.id || null,
                     name: useCaseData.name || null,
@@ -107,6 +110,14 @@ const DataLoaderModule = (() => {
          */
         getCurrentUsecase() {
             return data.currentUsecase;
+        },
+
+        /**
+         * Get raw use case payload loaded from file or from data store
+         * @returns {Object|null}
+         */
+        getCurrentUsecaseRaw() {
+            return data.currentUsecaseRaw;
         },
 
         /**

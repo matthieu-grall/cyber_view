@@ -8,13 +8,14 @@ const AppConfig = {
     colors: {
         nodeType: {
             risk: '#a6cee3',
-            fearedEvent: '#ffb6c1',
-            businessAsset: '#87ceeb',
-            riskSource: '#4ecdc4',
-            securityProperty: '#9b59b6',
-            severityLevel: '#9b59b6',
-            likelihoodLevel: '#2ecc71',
-            'ontology-class': '#7f7f7f'
+            'feared-event': '#ffb6c1',
+            'business-asset': '#87ceeb',
+            'risk-source': '#4ecdc4',
+            'security-criteria': '#9b59b6',
+            'severity-level': '#9b59b6',
+            'likelihood-level': '#2ecc71',
+            'ontology-class': '#7f7f7f',
+            undefined: '#d3d3d3'
         },
         nodeSeverity: {
             '1. Minimale': '#a6cee3',
@@ -63,6 +64,13 @@ const AppConfig = {
         'from-source': { fr: 'provient de la source', en: 'comes from source' },
         'has-severity': { fr: 'a pour gravité', en: 'has severity' },
         'has-likelihood': { fr: 'a pour vraisemblance', en: 'has likelihood' },
+        'risk-source': { fr: 'source du risque', en: 'risk source' },
+        'security-criteria': { fr: 'critère de sécurité', en: 'security criterion' },
+        'business-asset': { fr: 'actif métier', en: 'business asset' },
+        'severity': { fr: 'gravité', en: 'severity' },
+        'likelihood': { fr: 'vraisemblance', en: 'likelihood' },
+        'related-to': { fr: 'lié à', en: 'related to' },
+        'feared-event': { fr: 'événement redouté', en: 'feared event' },
         'subClassOf': { fr: 'est sous-classe de', en: 'is subclass of' }
     },
     dataFiles: {

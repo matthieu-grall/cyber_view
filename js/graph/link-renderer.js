@@ -47,15 +47,22 @@ const LinkRendererModule = (() => {
     }
 
     function getLinkLabel(link) {
-        const relationshipLabels = AppConfig.relationships[link.type];
         const language = I18nModule.getLanguage();
+        const relationshipLabels = AppConfig.relationships[link.type];
 
         if (relationshipLabels) {
             return relationshipLabels[language] || relationshipLabels.en;
         }
+
         if (link.label) {
             return link.label[language] || link.label.fr || link.label.en || String(link.type);
         }
+
+        const ontologyLabel = OntologyModule.getRelationLabel(link.relationType || link.type, language);
+        if (ontologyLabel) {
+            return ontologyLabel;
+        }
+
         return String(link.type);
     }
 
@@ -337,17 +344,7 @@ const LinkRendererModule = (() => {
             // Update text labels (subClassOf links have no <text> element,
             // so selectAll('text') on them simply returns an empty selection)
             linkGroup.selectAll('text')
-                .text(link => {
-                    const relationshipLabels = AppConfig.relationships[link.type];
-                    const language = I18nModule.getLanguage();
-                    if (relationshipLabels) {
-                        return relationshipLabels[language] || relationshipLabels.en;
-                    }
-                    if (link.label) {
-                        return link.label[language] || link.label.fr || link.label.en || String(link.type);
-                    }
-                    return String(link.type);
-                });
+                .text(link => getLinkLabel(link));
         }
     };
 })();

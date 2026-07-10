@@ -16,150 +16,274 @@ const GraphDataModule = (() => {
          * @param {Array} likelihoodLevels - Likelihood level reference data
          * @returns {Object} Object containing nodes and links arrays
          */
-        createGraphData(riskData, riskSources, businessAssets, securityCriteria, severityLevels, likelihoodLevels) {
+        createGraphData(usecasePayload, riskSources, businessAssets, securityCriteria, severityLevels, likelihoodLevels) {
+            if (Array.isArray(usecasePayload) && arguments.length > 1) {
+                // Backward compatible signature: separate arrays from older call sites.
+                return GraphDataModule.createGraphDataFromCollections(
+                    { risks: usecasePayload },
+                    riskSources,
+                    businessAssets,
+                    securityCriteria,
+                    severityLevels,
+                    likelihoodLevels
+                );
+            }
+            return GraphDataModule.createGraphDataFromPayload(usecasePayload);
+        },
+
+        createGraphDataFromCollections(risks, riskSources, businessAssets, securityCriteria, severityLevels, likelihoodLevels) {
+            const payload = {
+                risks: risks || [],
+                riskSources: riskSources || [],
+                businessAssets: businessAssets || [],
+                securityCriteria: securityCriteria || [],
+                severityLevels: severityLevels || [],
+                likelihoodLevels: likelihoodLevels || []
+            };
+            return GraphDataModule.createGraphDataFromPayload(payload);
+        },
+
+        createGraphDataFromPayload(usecasePayload) {
             const nodes = [];
             const nodeMap = new Map();
             const links = [];
+            const visitedIds = new Set();
 
-            // ==================== ADD RISK NODES ====================
-            riskData.forEach(risk => {
-                const nodeId = risk['generic-id'];
-                const severityLabel = DataLoaderModule.resolveIdToLabel(
-                    risk['feared-event']['severity-id'],
-                    'severityLevels'
-                );
+            function normalizeTypeName(name) {
+                if (!name) return 'unknown';
+                const normalized = name
+                    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+                    .replace(/[_\.]/g, '-')
+                    .replace(/s$/, '')
+                    .toLowerCase();
+                return normalized;
+            }
 
-                nodes.push({
-                    id: nodeId,
-                    label: risk['generic-short-label'],
-                    type: 'risk',
-                    severity: severityLabel,
-                    description: risk.description,
-                    degree: 0
+            function inferLabel(item) {
+                if (!item || typeof item !== 'object') return String(item || '');
+                const candidates = [
+                    'generic-short-label',
+                    'generic-long-label',
+                    'shortLabel',
+                    'longLabel',
+                    'label',
+                    'name',
+                    'id',
+                    'description'
+                ];
+                for (const key of candidates) {
+                    if (item[key]) {
+                        return String(item[key]);
+                    }
+                }
+                return item.id || item.uri || item['@id'] || '';
+            }
+
+            function getItemId(item) {
+                if (!item || typeof item !== 'object') return null;
+                return item.id || item.uri || item['@id'] || item['generic-id'] || item['generic-technical-id'] || null;
+            }
+
+            function inferNodeTypeFromFieldName(fieldName) {
+                if (!fieldName || typeof fieldName !== 'string') return 'undefined';
+                const cleaned = fieldName
+                    .replace(/[-_]?id$/i, '')
+                    .replace(/[-_]+$/g, '');
+                const normalized = normalizeTypeName(cleaned);
+                const mapping = {
+                    'risk-source': 'risk-source',
+                    'risksource': 'risk-source',
+                    'security-criteria': 'security-criteria',
+                    'securitycriteria': 'security-criteria',
+                    'business-asset': 'business-asset',
+                    'businessasset': 'business-asset',
+                    'severity': 'severity-level',
+                    'likelihood': 'likelihood-level',
+                    'feared-event': 'feared-event',
+                    'risk-scenario': 'risk-scenario'
+                };
+                return mapping[normalized] || normalized || 'undefined';
+            }
+
+            function addNode(id, type, label, rawData) {
+                if (!id) return null;
+                if (nodeMap.has(id)) {
+                    const existing = nodeMap.get(id);
+                    const preferredType = type && existing.type === 'undefined' ? type : existing.type;
+                    existing.type = preferredType || existing.type;
+                    if (label && existing.label === existing.id) {
+                        existing.label = label;
+                    }
+                    if (!existing.rawData && rawData) {
+                        existing.rawData = rawData;
+                    }
+                    existing.description = existing.description || rawData?.description || existing.description;
+                    existing.severity = existing.severity || rawData?.severity || existing.severity;
+                    existing.isUndefined = existing.type === 'undefined';
+                    return existing;
+                }
+                const node = {
+                    id,
+                    type: type || 'undefined',
+                    label: label || id,
+                    rawData: rawData || null,
+                    severity: rawData?.severity || null,
+                    description: rawData?.description || null,
+                    degree: 0,
+                    isUndefined: type === 'undefined'
+                };
+                nodeMap.set(id, node);
+                nodes.push(node);
+                return node;
+            }
+
+            function addLink(sourceId, targetId, relationType) {
+                if (!sourceId || !targetId || sourceId === targetId) return;
+                links.push({
+                    source: sourceId,
+                    target: targetId,
+                    type: relationType || 'related-to',
+                    relationType: relationType || 'related-to'
                 });
-                nodeMap.set(nodeId, risk);
+            }
+
+            const ignoredReferenceFields = new Set(['generic-id', 'generic-technical-id']);
+
+            function isIgnoredReferenceField(fieldName) {
+                if (!fieldName || typeof fieldName !== 'string') return false;
+                return ignoredReferenceFields.has(fieldName.toLowerCase());
+            }
+
+            function handleReference(sourceId, fieldName, value) {
+                if (isIgnoredReferenceField(fieldName)) {
+                    return;
+                }
+                const relationType = normalizeTypeName(fieldName.replace(/[-_]?id$/i, '').replace(/[-_]+$/g, '')) || 'related-to';
+                const targetId = typeof value === 'string' ? value : getItemId(value);
+                if (!targetId) return;
+                const targetLabel = typeof value === 'object' ? inferLabel(value) : targetId;
+                const targetType = inferNodeTypeFromFieldName(fieldName);
+                addNode(targetId, targetType, targetLabel, typeof value === 'object' ? value : null);
+                addLink(sourceId, targetId, relationType);
+            }
+
+            function scanObject(sourceId, obj, prefix = '') {
+                if (!obj || typeof obj !== 'object') return;
+                if (Array.isArray(obj)) {
+                    obj.forEach(item => scanObject(sourceId, item, prefix));
+                    return;
+                }
+                Object.entries(obj).forEach(([key, value]) => {
+                    if (value == null) return;
+                    const fullKey = prefix ? `${prefix}.${key}` : key;
+
+                    if (typeof value === 'string' && /(?:[-_]?id)$/i.test(key)) {
+                        handleReference(sourceId, key, value);
+                        return;
+                    }
+
+                    if (typeof value === 'object' && getItemId(value)) {
+                        // Nested object with an id is likely a referenced resource.
+                        handleReference(sourceId, key, value);
+                        return;
+                    }
+
+                    if (Array.isArray(value)) {
+                        value.forEach(item => {
+                            if (typeof item === 'string') {
+                                handleReference(sourceId, key, item);
+                            } else if (typeof item === 'object') {
+                                if (getItemId(item)) {
+                                    handleReference(sourceId, key, item);
+                                } else {
+                                    scanObject(sourceId, item, fullKey);
+                                }
+                            }
+                        });
+                        return;
+                    }
+
+                    if (typeof value === 'object') {
+                        scanObject(sourceId, value, fullKey);
+                    }
+                });
+            }
+
+            const internalPayloadKeys = new Set(['currentUsecase', 'currentUsecaseRaw', 'ontology', 'dataFiles']);
+
+            function isIgnoredCollectionName(collectionName) {
+                return internalPayloadKeys.has(collectionName);
+            }
+
+            function collectNodesFromCollection(collectionName, items) {
+                if (!Array.isArray(items) || isIgnoredCollectionName(collectionName)) return;
+                const nodeType = normalizeTypeName(collectionName);
+                items.forEach(item => {
+                    const id = getItemId(item);
+                    if (!id) return;
+                    const label = inferLabel(item);
+                    addNode(id, nodeType, label, item);
+                    visitedIds.add(id);
+                });
+            }
+
+            function collectDefaultNodes() {
+                const nodeType = 'individual';
+                Object.entries(usecasePayload).forEach(([collectionName, items]) => {
+                    if (!Array.isArray(items) || isIgnoredCollectionName(collectionName)) return;
+                    items.forEach(item => {
+                        const id = getItemId(item);
+                        if (!id) return;
+                        if (!nodeMap.has(id)) {
+                            const label = inferLabel(item);
+                            addNode(id, nodeType, label, item);
+                        }
+                    });
+                });
+            }
+
+            if (!usecasePayload || typeof usecasePayload !== 'object') {
+                return { nodes, links };
+            }
+
+            if (usecasePayload.currentUsecaseRaw) {
+                usecasePayload = usecasePayload.currentUsecaseRaw;
+            }
+
+            Object.entries(usecasePayload).forEach(([collectionName, items]) => {
+                collectNodesFromCollection(collectionName, items);
             });
 
-            // ==================== ADD SECURITY CRITERIA NODES ====================
-            securityCriteria.forEach(criterion => {
-                if (!nodeMap.has(criterion.id)) {
-                    nodes.push({
-                        id: criterion.id,
-                        label: criterion.label,
-                        type: 'security-criteria',
-                        severity: null,
-                        degree: 0
-                    });
-                    nodeMap.set(criterion.id, criterion);
+            Object.entries(usecasePayload).forEach(([collectionName, items]) => {
+                if (!Array.isArray(items)) return;
+                items.forEach(item => {
+                    const sourceId = getItemId(item);
+                    if (!sourceId) return;
+                    scanObject(sourceId, item);
+                });
+            });
+
+            collectDefaultNodes();
+
+            // Normalize link endpoints to node references for D3
+            links.forEach(link => {
+                link.source = nodeMap.get(link.source) || { id: link.source };
+                link.target = nodeMap.get(link.target) || { id: link.target };
+                if (link.relationType && !link.label) {
+                    link.label = { fr: link.relationType, en: link.relationType };
                 }
             });
 
-            // ==================== ADD BUSINESS ASSET NODES ====================
-            businessAssets.forEach(asset => {
-                if (!nodeMap.has(asset.id)) {
-                    nodes.push({
-                        id: asset.id,
-                        label: asset.label,
-                        type: 'business-asset',
-                        severity: null,
-                        degree: 0
-                    });
-                    nodeMap.set(asset.id, asset);
-                }
-            });
-
-            // ==================== ADD RISK SOURCE NODES ====================
-            riskSources.forEach(source => {
-                if (!nodeMap.has(source.id)) {
-                    nodes.push({
-                        id: source.id,
-                        label: source.label,
-                        type: 'risk-source',
-                        severity: null,
-                        degree: 0
-                    });
-                    nodeMap.set(source.id, source);
-                }
-            });
-
-            // ==================== ADD SEVERITY LEVEL NODES ====================
-            severityLevels.forEach(level => {
-                if (!nodeMap.has(level.id)) {
-                    nodes.push({
-                        id: level.id,
-                        label: level.label,
-                        type: 'severity-level',
-                        severity: level.label,
-                        degree: 0
-                    });
-                    nodeMap.set(level.id, level);
-                }
-            });
-
-            // ==================== ADD LIKELIHOOD LEVEL NODES ====================
-            likelihoodLevels.forEach(level => {
-                if (!nodeMap.has(level.id)) {
-                    nodes.push({
-                        id: level.id,
-                        label: level.label,
-                        type: 'likelihood-level',
-                        severity: null,
-                        degree: 0
-                    });
-                    nodeMap.set(level.id, level);
-                }
-            });
-
-            // ==================== CREATE LINKS ====================
-            riskData.forEach(risk => {
-                const riskId = risk['generic-id'];
-
-                // Link to security criteria
-                links.push({
-                    source: riskId,
-                    target: risk['feared-event']['security-criteria-id'],
-                    type: 'has-criteria'
-                });
-
-                // Link to business asset
-                links.push({
-                    source: riskId,
-                    target: risk['feared-event']['business-asset-id'],
-                    type: 'affects-asset'
-                });
-
-                // Link to risk source
-                links.push({
-                    source: riskId,
-                    target: risk['risk-scenario']['risk-source-id'],
-                    type: 'from-source'
-                });
-
-                // Link to severity level
-                links.push({
-                    source: riskId,
-                    target: risk['feared-event']['severity-id'],
-                    type: 'has-severity'
-                });
-
-                // Link to likelihood level
-                links.push({
-                    source: riskId,
-                    target: risk['risk-scenario']['likelihood-id'],
-                    type: 'has-likelihood'
-                });
-            });
-
-            // ==================== CALCULATE NODE DEGREES ====================
             const nodeDegree = {};
             nodes.forEach(n => nodeDegree[n.id] = 0);
             links.forEach(l => {
-                nodeDegree[l.source]++;
-                nodeDegree[l.target]++;
+                const sourceId = l.source.id || l.source;
+                const targetId = l.target.id || l.target;
+                nodeDegree[sourceId] = (nodeDegree[sourceId] || 0) + 1;
+                nodeDegree[targetId] = (nodeDegree[targetId] || 0) + 1;
             });
-
             nodes.forEach(n => {
-                n.degree = nodeDegree[n.id];
+                n.degree = nodeDegree[n.id] || 0;
             });
 
             return { nodes, links };
