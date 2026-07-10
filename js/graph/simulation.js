@@ -34,14 +34,16 @@ const SimulationModule = (() => {
      * @param {number} nodeCount - Total number of nodes in graph
      * @param {number} svgWidth - SVG container width
      * @param {number} svgHeight - SVG container height
+     * @param {number} [linkDistance] - Optional override for link distance
+     *   (e.g. a larger value for the Ontology view, see AppConfig.simulationForces.link.distanceOntology)
      * @returns {Object} Force parameters object
      */
-    function getForceParameters(nodeCount, svgWidth, svgHeight) {
+    function getForceParameters(nodeCount, svgWidth, svgHeight, linkDistance) {
         const config = AppConfig.simulationForces;
-        
+
         return {
             charge: config.charge.strength * Math.max(1, Math.sqrt(nodeCount)),
-            linkDistance: config.link.distance,
+            linkDistance: linkDistance || config.link.distance,
             collideRadius: config.collide.radius,
             centerX: svgWidth / 2,
             centerY: svgHeight / 2,
@@ -57,10 +59,11 @@ const SimulationModule = (() => {
          * @param {Array} links - Array of link objects
          * @param {number} svgWidth - SVG container width
          * @param {number} svgHeight - SVG container height
+         * @param {number} [linkDistance] - Optional override for link distance
          * @returns {d3.Simulation} Configured simulation object
          */
-        createSimulation(nodes, links, svgWidth, svgHeight) {
-            const params = getForceParameters(nodes.length, svgWidth, svgHeight);
+        createSimulation(nodes, links, svgWidth, svgHeight, linkDistance) {
+            const params = getForceParameters(nodes.length, svgWidth, svgHeight, linkDistance);
 
             // Create simulation with forces
             simulation = d3.forceSimulation(nodes)
@@ -163,13 +166,14 @@ const SimulationModule = (() => {
          * @param {Array} links - New links array
          * @param {number} svgWidth - SVG width
          * @param {number} svgHeight - SVG height
+         * @param {number} [linkDistance] - Optional override for link distance
          * @returns {d3.Simulation} New simulation instance
          */
-        reset(nodes, links, svgWidth, svgHeight) {
+        reset(nodes, links, svgWidth, svgHeight, linkDistance) {
             if (simulation) {
                 simulation.stop();
             }
-            return this.createSimulation(nodes, links, svgWidth, svgHeight);
+            return this.createSimulation(nodes, links, svgWidth, svgHeight, linkDistance);
         }
     };
 })();

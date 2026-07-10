@@ -123,6 +123,10 @@ const AppConfig = {
         },
         link: {
             distance: 150,
+            // FIX (D): dedicated, larger link distance for the Ontology
+            // view, giving curved parallel/bidirectional links more room
+            // to breathe around highly-connected nodes.
+            distanceOntology: 220,
             strength: 0.7
         },
         collide: {

@@ -59,7 +59,15 @@ const LinkRendererModule = (() => {
         return String(link.type);
     }
 
-    function getLinkPath(link) {
+    /**
+     * Compute the shared geometry (endpoints and, if curved, control point)
+     * used both to draw the link path and to position its label.
+     * Centralizing this avoids the path and the label drifting apart
+     * when links are curved (parallel / bidirectional relations).
+     * @param {Object} link - D3 link object
+     * @returns {Object} Geometry descriptor: {x1, y1, x2, y2, curved, cx?, cy?}
+     */
+    function getLinkGeometry(link) {
         const source = link.source;
         const target = link.target;
         const x1 = source.x;
@@ -67,8 +75,8 @@ const LinkRendererModule = (() => {
         const x2 = target.x;
         const y2 = target.y;
 
-        if (!link.curveOffset && !link.isBidirectional) {
-            return `M${x1},${y1} L${x2},${y2}`;
+        if (link.curveOffset === undefined && !link.isBidirectional) {
+            return { x1, y1, x2, y2, curved: false };
         }
 
         const mx = (x1 + x2) / 2;
@@ -84,7 +92,39 @@ const LinkRendererModule = (() => {
         const cx = mx + (nx / norm) * offset;
         const cy = my + (ny / norm) * offset;
 
-        return `M${x1},${y1} Q${cx},${cy} ${x2},${y2}`;
+        return { x1, y1, x2, y2, cx, cy, curved: true };
+    }
+
+    /**
+     * Build the SVG path string for a link, straight or curved.
+     * @param {Object} link - D3 link object
+     * @returns {string} SVG path "d" attribute value
+     */
+    function getLinkPath(link) {
+        const g = getLinkGeometry(link);
+        if (!g.curved) {
+            return `M${g.x1},${g.y1} L${g.x2},${g.y2}`;
+        }
+        return `M${g.x1},${g.y1} Q${g.cx},${g.cy} ${g.x2},${g.y2}`;
+    }
+
+    /**
+     * Compute the actual midpoint of the rendered link (t=0.5 on the
+     * quadratic Bézier curve when curved), so the label sits exactly on
+     * the visible line instead of on the straight-line midpoint.
+     * @param {Object} link - D3 link object
+     * @returns {{x: number, y: number}} Midpoint coordinates
+     */
+    function getLinkMidpoint(link) {
+        const g = getLinkGeometry(link);
+        if (!g.curved) {
+            return { x: (g.x1 + g.x2) / 2, y: (g.y1 + g.y2) / 2 };
+        }
+        // Quadratic Bézier at t=0.5: B(0.5) = 0.25*P0 + 0.5*P1 + 0.25*P2
+        return {
+            x: 0.25 * g.x1 + 0.5 * g.cx + 0.25 * g.x2,
+            y: 0.25 * g.y1 + 0.5 * g.cy + 0.25 * g.y2
+        };
     }
 
     // ==================== PUBLIC API ====================
@@ -128,7 +168,11 @@ const LinkRendererModule = (() => {
             paths.append('title')
                 .text(link => createLinkTooltip(link));
 
+            // FIX (A): "subClassOf" labels are redundant with the legend
+            // (grey arrow = subclass relation), so we skip creating a
+            // <text> element for them entirely, reducing visual clutter.
             const labels = linkGroup
+                .filter(link => link.type !== 'subClassOf')
                 .append('text')
                 .attr('font-size', '11px')
                 .attr('text-anchor', 'middle')
@@ -150,9 +194,12 @@ const LinkRendererModule = (() => {
             linkGroup.selectAll('path')
                 .attr('d', d => getLinkPath(d));
 
+            // FIX (B): use the real curve midpoint instead of the
+            // straight-line midpoint, so labels of parallel/bidirectional
+            // (curved) relations no longer overlap each other.
             linkGroup.selectAll('text')
-                .attr('x', d => (d.source.x + d.target.x) / 2)
-                .attr('y', d => (d.source.y + d.target.y) / 2);
+                .attr('x', d => getLinkMidpoint(d).x)
+                .attr('y', d => getLinkMidpoint(d).y);
         },
 
         /**
@@ -165,7 +212,8 @@ const LinkRendererModule = (() => {
             linkGroup.selectAll('title')
                 .text(link => createLinkTooltip(link));
 
-            // Update text labels
+            // Update text labels (subClassOf links have no <text> element,
+            // so selectAll('text') on them simply returns an empty selection)
             linkGroup.selectAll('text')
                 .text(link => {
                     const relationshipLabels = AppConfig.relationships[link.type];

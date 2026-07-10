@@ -262,14 +262,12 @@ const GraphDataModule = (() => {
             parallelLinkGroups.forEach(group => {
                 if (group.length <= 1) return;
 
-                const baseOffset = 24;
+                const baseOffset = 32;
                 const middleIndex = (group.length - 1) / 2;
                 group.forEach((link, index) => {
                     let offsetIndex = index - middleIndex;
                     if (offsetIndex === 0) {
                         offsetIndex = 0.5;
-                    } else {
-                        offsetIndex += Math.sign(offsetIndex) * 0.5;
                     }
                     link.curveOffset = offsetIndex * baseOffset;
                 });

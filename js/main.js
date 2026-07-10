@@ -95,10 +95,13 @@ const CyberViewApplication = (() => {
      * @param {Array} links - Processed links array
      * @param {number} svgWidth - SVG width
      * @param {number} svgHeight - SVG height
+     * @param {number} [linkDistance] - Optional override for the force-simulation
+     *   link distance (used by the Ontology view to give curved parallel/
+     *   bidirectional links more room; see AppConfig.simulationForces.link.distanceOntology)
      */
-    function renderGraph(nodes, links, svgWidth, svgHeight) {
+    function renderGraph(nodes, links, svgWidth, svgHeight, linkDistance) {
         // Create force simulation
-        const simulation = SimulationModule.createSimulation(nodes, links, svgWidth, svgHeight);
+        const simulation = SimulationModule.createSimulation(nodes, links, svgWidth, svgHeight, linkDistance);
         state.simulation = simulation;
 
         // Create D3 selections for data binding
@@ -264,7 +267,16 @@ const CyberViewApplication = (() => {
         const graphData = GraphDataModule.createOntologyGraph(ontologyData, I18nModule.getLanguage());
 
         state.currentData = graphData;
-        renderGraph(graphData.nodes, graphData.links, state.renderWidth, state.renderHeight);
+        // FIX (D): use a dedicated, larger link distance for the Ontology
+        // view so curved parallel/bidirectional relations have more room
+        // around highly-connected nodes.
+        renderGraph(
+            graphData.nodes,
+            graphData.links,
+            state.renderWidth,
+            state.renderHeight,
+            AppConfig.simulationForces.link.distanceOntology
+        );
         NodeDetailsModule.initialize(graphData.nodes, graphData.links);
         NodeDetailsModule.attachEventHandlers();
         document.getElementById('filters').style.display = 'none';
