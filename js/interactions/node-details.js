@@ -254,7 +254,7 @@ const NodeDetailsModule = (() => {
             if (typeof NodeRendererModule !== 'undefined' && NodeRendererModule.selectNode) {
                 NodeRendererModule.selectNode(node.id);
             } else {
-                d3.selectAll('.node-circle')
+                d3.selectAll('.node-bg')
                     .style('opacity', n => n.id === node.id ? 1 : 0.4)
                     .attr('stroke-width', n => n.id === node.id ? 4 : 2);
             }
@@ -273,9 +273,9 @@ const NodeDetailsModule = (() => {
             if (typeof NodeRendererModule !== 'undefined' && NodeRendererModule.clearSelection) {
                 NodeRendererModule.clearSelection();
             } else {
-                d3.selectAll('.node-circle')
+                d3.selectAll('.node-bg')
                     .style('opacity', 1)
-                    .attr('stroke-width', 2);
+                    .attr('stroke-width', 1);
             }
         },
 

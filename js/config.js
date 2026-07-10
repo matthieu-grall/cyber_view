@@ -122,15 +122,15 @@ const AppConfig = {
             strength: -100  // Negative = repulsive force
         },
         link: {
-            distance: 150,
+            distance: 180,
             // FIX (D): dedicated, larger link distance for the Ontology
             // view, giving curved parallel/bidirectional links more room
             // to breathe around highly-connected nodes.
-            distanceOntology: 220,
+            distanceOntology: 260,
             strength: 0.7
         },
         collide: {
-            radius: 8  // Additional collision padding
+            radius: 12  // Additional collision padding
         },
         center: {
             strength: 0.1  // Gentle centering force

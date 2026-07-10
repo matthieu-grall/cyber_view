@@ -28,9 +28,9 @@ const NodeRendererModule = (() => {
     }
 
     function resetGraphHighlight() {
-        d3.selectAll('.node-circle')
+        d3.selectAll('.node-bg')
             .style('opacity', 1)
-            .attr('stroke-width', 2);
+            .attr('stroke-width', 1);
 
         d3.selectAll('.link')
             .style('stroke-opacity', 0.6)
@@ -53,9 +53,9 @@ const NodeRendererModule = (() => {
         resetGraphHighlight();
         const connectedIds = getConnectedNodeIds(nodeId);
 
-        d3.selectAll('.node-circle')
+        d3.selectAll('.node-bg')
             .style('opacity', node => connectedIds.has(node.id) ? 1 : 0.4)
-            .attr('stroke-width', node => node.id === nodeId ? 4 : 2);
+            .attr('stroke-width', node => node.id === nodeId ? 3 : 1);
 
         d3.selectAll('.link')
             .style('stroke-opacity', link => (link.source.id === nodeId || link.target.id === nodeId) ? 0.8 : 0.2)
@@ -127,37 +127,47 @@ const NodeRendererModule = (() => {
          * @returns {d3.Selection} Updated node selection with event handlers
          */
         renderNodes(nodeGroup, simulation) {
-            // Create circle elements for each node
-            const circles = nodeGroup
-                .append('circle')
-                .attr('r', node => calculateNodeRadius(node))
-                .attr('fill', node => getNodeColor(node))
-                .attr('stroke', '#333')
-                .attr('stroke-width', 2)
-                .attr('class', 'node-circle');
+            // Create a shape for each node: rectangle background with a label.
+            const backgrounds = nodeGroup
+                .append('rect')
+                .attr('class', 'node-bg')
+                .attr('fill', '#ffffff')
+                .attr('fill-opacity', 1)
+                .attr('stroke', node => getNodeColor(node))
+                .attr('stroke-width', 1)
+                .attr('rx', 8)
+                .attr('ry', 8)
+                .attr('pointer-events', 'all')
+                .style('cursor', 'pointer');
 
-            // FIX: Add SVG title element for native browser tooltips
-            // This replaces the ineffective data-tooltip attribute
-            circles.append('title')
+            nodeGroup.append('title')
                 .text(node => createNodeTooltip(node));
 
-            // Add text labels on nodes
             const labels = nodeGroup
                 .append('text')
-                .attr('dy', '0.3em')
+                .attr('x', 0)
+                .attr('dy', '0.35em')
                 .attr('text-anchor', 'middle')
                 .attr('font-size', '12px')
                 .attr('font-weight', 'bold')
-                .attr('fill', '#333')
+                .attr('fill', '#111')
                 .attr('pointer-events', 'none')
                 .attr('class', 'node-label')
-                .text(node => {
-                    // Truncate long labels
-                    const maxLength = 15;
-                    return node.label.length > maxLength 
-                        ? node.label.substring(0, maxLength) + '...' 
-                        : node.label;
-                });
+                .text(node => node.label);
+
+            labels.each(function() {
+                const bbox = this.getBBox();
+                const paddingX = 10;
+                const paddingY = 6;
+                const node = d3.select(this.parentNode).datum();
+                node.rectWidth = bbox.width + paddingX * 2;
+                node.rectHeight = bbox.height + paddingY * 2;
+                d3.select(this.parentNode).select('rect.node-bg')
+                    .attr('x', bbox.x - paddingX)
+                    .attr('y', bbox.y - paddingY)
+                    .attr('width', node.rectWidth)
+                    .attr('height', node.rectHeight);
+            });
 
             // Add drag behavior to nodes
             const drag = d3.drag()
@@ -186,8 +196,7 @@ const NodeRendererModule = (() => {
                     }
 
                     // Highlight connected nodes and links
-                    d3.select(this).select('circle')
-                        .attr('r', node => calculateNodeRadius(node) + 4)
+                    d3.select(this).select('rect.node-bg')
                         .attr('stroke-width', 3)
                         .attr('filter', 'drop-shadow(0 0 6px rgba(0,0,0,0.3))');
                     
@@ -199,7 +208,7 @@ const NodeRendererModule = (() => {
                             (link.source.id === d.id || link.target.id === d.id) ? 3 : 1
                         );
                     
-                    d3.selectAll('.node-circle')
+                    d3.selectAll('.node-bg')
                         .style('opacity', node => 
                             (node.id === d.id || 
                              d3.selectAll('.link').filter(l => 
@@ -214,9 +223,8 @@ const NodeRendererModule = (() => {
                     }
 
                     // Reset styles
-                    d3.select(this).select('circle')
-                        .attr('r', node => calculateNodeRadius(node))
-                        .attr('stroke-width', 2)
+                    d3.select(this).select('rect.node-bg')
+                        .attr('stroke-width', 1)
                         .attr('filter', 'none');
                     
                     resetGraphHighlight();
@@ -251,20 +259,31 @@ const NodeRendererModule = (() => {
          */
         updateNodeLabels(nodeGroup) {
             // Update labels for nodes that carry both French and English forms
-            nodeGroup.selectAll('text')
+            nodeGroup.selectAll('text.node-label')
                 .text(node => {
                     if (node.labelFr && node.labelEn) {
                         node.label = I18nModule.getLanguage() === 'en' ? node.labelEn : node.labelFr;
                     }
-                    const maxLength = 15;
-                    return node.label.length > maxLength
-                        ? node.label.substring(0, maxLength) + '...'
-                        : node.label;
+                    return node.label;
                 });
 
             // Update tooltips with new language
             nodeGroup.selectAll('title')
                 .text(node => createNodeTooltip(node));
+
+            nodeGroup.selectAll('text.node-label').each(function() {
+                const bbox = this.getBBox();
+                const paddingX = 10;
+                const paddingY = 6;
+                const node = d3.select(this.parentNode).datum();
+                node.rectWidth = bbox.width + paddingX * 2;
+                node.rectHeight = bbox.height + paddingY * 2;
+                d3.select(this.parentNode).select('rect.node-bg')
+                    .attr('x', bbox.x - paddingX)
+                    .attr('y', bbox.y - paddingY)
+                    .attr('width', node.rectWidth)
+                    .attr('height', node.rectHeight);
+            });
         }
     };
 })();

@@ -59,21 +59,89 @@ const LinkRendererModule = (() => {
         return String(link.type);
     }
 
+    function getNodeBorderPoint(node, targetX, targetY) {
+        const width = node.rectWidth || (AppConfig.nodeSizes.baseRadius[node.type] || 8) * 2;
+        const height = node.rectHeight || (AppConfig.nodeSizes.baseRadius[node.type] || 8) * 2;
+        const halfWidth = width / 2;
+        const halfHeight = height / 2;
+        const dx = targetX - node.x;
+        const dy = targetY - node.y;
+
+        if (dx === 0 && dy === 0) {
+            return { x: node.x, y: node.y };
+        }
+
+        const tx = dx === 0 ? Infinity : halfWidth / Math.abs(dx);
+        const ty = dy === 0 ? Infinity : halfHeight / Math.abs(dy);
+        const t = Math.min(tx, ty);
+
+        return {
+            x: node.x + dx * t,
+            y: node.y + dy * t
+        };
+    }
+
     /**
-     * Compute the shared geometry (endpoints and, if curved, control point)
+     * Compute the shared geometry (endpoints and, if curved, control point(s))
      * used both to draw the link path and to position its label.
      * Centralizing this avoids the path and the label drifting apart
-     * when links are curved (parallel / bidirectional relations).
+     * when links are curved (parallel / bidirectional relations), and
+     * handles self-referencing relations (source === target) as a small
+     * loop instead of a degenerate zero-length line.
      * @param {Object} link - D3 link object
-     * @returns {Object} Geometry descriptor: {x1, y1, x2, y2, curved, cx?, cy?}
+     * @returns {Object} Geometry descriptor
      */
     function getLinkGeometry(link) {
         const source = link.source;
         const target = link.target;
-        const x1 = source.x;
-        const y1 = source.y;
-        const x2 = target.x;
-        const y2 = target.y;
+        const sourcePoint = getNodeBorderPoint(source, target.x, target.y);
+        const targetPoint = getNodeBorderPoint(target, source.x, source.y);
+
+        const x1 = sourcePoint.x;
+        const y1 = sourcePoint.y;
+        const x2 = targetPoint.x;
+        const y2 = targetPoint.y;
+        const centerX = source.x;
+        const centerY = source.y;
+
+        const isSelfLoop = source.id === target.id;
+
+        if (isSelfLoop) {
+            const offset = link.curveOffset || 24;
+            const baseRadius = Math.max(source.rectWidth || 48, source.rectHeight || 48) / 2;
+            const loopRadius = baseRadius + Math.abs(offset) * 0.25 + 16;
+            const directionSign = Math.sign(offset) || 1;
+            const angle = -Math.PI / 2 + directionSign * 0.6;
+            const spread = 0.9;
+            const startAngle = angle - spread;
+            const endAngle = angle + spread;
+            const startX = centerX + Math.cos(startAngle) * baseRadius;
+            const startY = centerY + Math.sin(startAngle) * baseRadius;
+            const endX = centerX + Math.cos(endAngle) * baseRadius;
+            const endY = centerY + Math.sin(endAngle) * baseRadius;
+            const controlDistance = loopRadius * 1.2;
+            const cx1 = centerX + Math.cos(angle - 0.35) * controlDistance;
+            const cy1 = centerY + Math.sin(angle - 0.35) * controlDistance;
+            const cx2 = centerX + Math.cos(angle + 0.35) * controlDistance;
+            const cy2 = centerY + Math.sin(angle + 0.35) * controlDistance;
+
+            const labelX = (startX + 3 * cx1 + 3 * cx2 + endX) / 8;
+            const labelY = (startY + 3 * cy1 + 3 * cy2 + endY) / 8;
+
+            return {
+                x1: startX,
+                y1: startY,
+                x2: endX,
+                y2: endY,
+                selfLoop: true,
+                cx1,
+                cy1,
+                cx2,
+                cy2,
+                labelX,
+                labelY
+            };
+        }
 
         if (link.curveOffset === undefined && !link.isBidirectional) {
             return { x1, y1, x2, y2, curved: false };
@@ -96,12 +164,16 @@ const LinkRendererModule = (() => {
     }
 
     /**
-     * Build the SVG path string for a link, straight or curved.
+     * Build the SVG path string for a link: straight, curved, or a small
+     * loop for self-referencing relations.
      * @param {Object} link - D3 link object
      * @returns {string} SVG path "d" attribute value
      */
     function getLinkPath(link) {
         const g = getLinkGeometry(link);
+        if (g.selfLoop) {
+            return `M${g.x1},${g.y1} C${g.cx1},${g.cy1} ${g.cx2},${g.cy2} ${g.x2},${g.y2}`;
+        }
         if (!g.curved) {
             return `M${g.x1},${g.y1} L${g.x2},${g.y2}`;
         }
@@ -109,14 +181,18 @@ const LinkRendererModule = (() => {
     }
 
     /**
-     * Compute the actual midpoint of the rendered link (t=0.5 on the
-     * quadratic Bézier curve when curved), so the label sits exactly on
-     * the visible line instead of on the straight-line midpoint.
+     * Compute the "natural" label anchor for a link: the actual midpoint
+     * of the rendered curve (t=0.5 on the quadratic Bézier) for curved
+     * links, or the loop anchor for self-loops, so the label sits on (or
+     * right next to) the visible line instead of on an unrelated point.
      * @param {Object} link - D3 link object
-     * @returns {{x: number, y: number}} Midpoint coordinates
+     * @returns {{x: number, y: number}} Anchor coordinates
      */
     function getLinkMidpoint(link) {
         const g = getLinkGeometry(link);
+        if (g.selfLoop) {
+            return { x: g.labelX, y: g.labelY };
+        }
         if (!g.curved) {
             return { x: (g.x1 + g.x2) / 2, y: (g.y1 + g.y2) / 2 };
         }
@@ -163,14 +239,14 @@ const LinkRendererModule = (() => {
                 .attr('stroke-opacity', 0.6)
                 .attr('fill', 'none')
                 .attr('class', 'link')
-                .attr('marker-end', 'url(#arrow)');
+                .attr('marker-end', link => (link.source.id === link.target.id ? null : 'url(#arrow)'))
+                .style('cursor', 'pointer');
 
             paths.append('title')
                 .text(link => createLinkTooltip(link));
 
-            // FIX (A): "subClassOf" labels are redundant with the legend
-            // (grey arrow = subclass relation), so we skip creating a
-            // <text> element for them entirely, reducing visual clutter.
+            // "subClassOf" labels are redundant with the legend (grey arrow
+            // = subclass relation), so we skip creating a <text> for them.
             const labels = linkGroup
                 .filter(link => link.type !== 'subClassOf')
                 .append('text')
@@ -194,12 +270,58 @@ const LinkRendererModule = (() => {
             linkGroup.selectAll('path')
                 .attr('d', d => getLinkPath(d));
 
-            // FIX (B): use the real curve midpoint instead of the
-            // straight-line midpoint, so labels of parallel/bidirectional
-            // (curved) relations no longer overlap each other.
-            linkGroup.selectAll('text')
-                .attr('x', d => getLinkMidpoint(d).x)
-                .attr('y', d => getLinkMidpoint(d).y);
+            // Gather the "natural" label position (curve midpoint, or loop
+            // anchor for self-loops) for every link that has a visible label.
+            const entries = [];
+            linkGroup.each(function(d) {
+                const textSelection = d3.select(this).select('text');
+                if (textSelection.empty()) return; // subClassOf links have no label
+                const pos = getLinkMidpoint(d);
+                entries.push({ textSelection, x: pos.x, y: pos.y, datum: d });
+            });
+
+            // FIX: distinct relations can end up with near-identical label
+            // positions purely by coincidence of the force layout (e.g.
+            // several relations converging on the same hub node), even
+            // though each one individually follows its own curve correctly.
+            // Group labels landing within a small tolerance of each other
+            // and spread them out vertically — the axis on which the
+            // stacking is actually visible — instead of trying to fix the
+            // underlying graph layout itself.
+            const cellSize = 42; // px tolerance to consider two labels "at the same spot"
+            const lineHeight = 15;
+            const groups = new Map();
+            entries.forEach(entry => {
+                const key = `${Math.round(entry.x / cellSize)}|${Math.round(entry.y / cellSize)}`;
+                if (!groups.has(key)) groups.set(key, []);
+                groups.get(key).push(entry);
+            });
+
+            groups.forEach(group => {
+                if (group.length === 1) {
+                    const entry = group[0];
+                    entry.textSelection
+                        .attr('x', entry.x)
+                        .attr('y', entry.y)
+                        .attr('stroke', '#fff')
+                        .attr('stroke-width', 2)
+                        .attr('paint-order', 'stroke fill');
+                    return;
+                }
+                // Stable order across ticks (by relation label text) so
+                // labels don't swap position / jitter as nodes keep moving.
+                group.sort((a, b) => getLinkLabel(a.datum).localeCompare(getLinkLabel(b.datum)));
+                const middle = (group.length - 1) / 2;
+                group.forEach((entry, index) => {
+                    const verticalOffset = (index - middle) * (lineHeight + 4);
+                    entry.textSelection
+                        .attr('x', entry.x)
+                        .attr('y', entry.y + verticalOffset)
+                        .attr('stroke', '#fff')
+                        .attr('stroke-width', 2)
+                        .attr('paint-order', 'stroke fill');
+                });
+            });
         },
 
         /**

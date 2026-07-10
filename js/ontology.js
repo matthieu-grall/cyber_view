@@ -108,13 +108,12 @@ const OntologyModule = (() => {
             classDot.className = 'key-item';
             classDot.innerHTML = `
                 <span>${I18nModule.getTranslation('informationLabels.classes')}</span>
-                <span class="key-color-dot" style="
-                    width: 12px;
+                <span class="key-color-square" style="
+                    width: 16px;
                     height: 12px;
-                    background: ${AppConfig.colors.nodeType['ontology-class'] || '#4b91d6'};
-                    border: 1px solid #666;
+                    background: #ffffff;
+                    border: 2px solid ${AppConfig.colors.nodeType['ontology-class'] || '#4b91d6'};
                     display: inline-block;
-                    border-radius: 50%;
                     vertical-align: middle;
                     margin-left: 8px;
                 "></span>
