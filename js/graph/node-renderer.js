@@ -131,10 +131,11 @@ const NodeRendererModule = (() => {
             const backgrounds = nodeGroup
                 .append('rect')
                 .attr('class', 'node-bg')
-                .attr('fill', '#ffffff')
+                .attr('fill', node => node.isUndefined ? '#f7f7f7' : '#ffffff')
                 .attr('fill-opacity', 1)
                 .attr('stroke', node => getNodeColor(node))
                 .attr('stroke-width', 1)
+                .attr('stroke-dasharray', node => node.isUndefined ? '4 3' : null)
                 .attr('rx', 8)
                 .attr('ry', 8)
                 .attr('pointer-events', 'all')

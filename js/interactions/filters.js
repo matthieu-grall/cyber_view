@@ -94,6 +94,8 @@ const FiltersModule = (() => {
         initialize(nodes, links) {
             state.currentNodes = nodes;
             state.currentLinks = links;
+            state.activeSeverityFilter = null;
+            state.activeTypeFilters.clear();
             state.visibleNodeIds = new Set(nodes.map(n => n.id));
         },
 
