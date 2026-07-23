@@ -5,7 +5,80 @@
  */
 
 const LinkRendererModule = (() => {
+    // ==================== PRIVATE STATE ====================
+    /** Datum of the currently selected link, or null. */
+    const state = { selectedLink: null };
+
     // ==================== PRIVATE FUNCTIONS ====================
+
+    /**
+     * Apply red-selection styling to one link and restore defaults on all others.
+     * The arrowhead inherits the colour automatically because the marker definition
+     * uses `currentColor` (driven by the CSS `color` property on the path element).
+     * @param {Object} datum - Link datum to select
+     */
+    function selectLink(datum) {
+        state.selectedLink = datum;
+        d3.selectAll('.link-group-item').each(function(d) {
+            const path = d3.select(this).select('path.link');
+            if (d === datum) {
+                path.style('stroke', GRAPH_CONFIG.SELECTED_LINK_COLOR)
+                    .style('color', GRAPH_CONFIG.SELECTED_LINK_COLOR)
+                    .style('stroke-opacity', '1')
+                    .style('stroke-width', GRAPH_CONFIG.SELECTED_LINK_STROKE_WIDTH + 'px');
+            } else {
+                path.style('stroke', getLinkColor(d))
+                    .style('color', getLinkColor(d))
+                    .style('stroke-opacity', null)
+                    .style('stroke-width', null);
+            }
+        });
+    }
+
+    /**
+     * Remove link selection and restore default styles for all links.
+     */
+    function clearLinkSelection() {
+        state.selectedLink = null;
+        d3.selectAll('.link-group-item').each(function(d) {
+            const path = d3.select(this).select('path.link');
+            path.style('stroke', getLinkColor(d))
+                .style('color', getLinkColor(d))
+                .style('stroke-opacity', null)
+                .style('stroke-width', null);
+        });
+    }
+
+    /**
+     * Position a label entry (text + background rect) at (x, y).
+     * Extracted from updateLinkPositions so the stacking logic stays lean.
+     * @param {Object} entry - {textSelection, bgSelection, datum}
+     * @param {number} x
+     * @param {number} y
+     */
+    function setLabelEntryPosition(entry, x, y) {
+        entry.textSelection
+            .attr('x', x)
+            .attr('y', y)
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 2)
+            .attr('paint-order', 'stroke fill');
+
+        if (!entry.bgSelection || entry.bgSelection.empty()) return;
+        const d = entry.datum;
+        const w = d._labelWidth || 0;
+        const h = d._labelHeight || 0;
+        if (!w || !h) return;
+        const px = GRAPH_CONFIG.LABEL_PADDING_X;
+        const py = GRAPH_CONFIG.LABEL_PADDING_Y;
+        // _labelRelX / _labelRelY are relative bbox offsets from the text anchor
+        // measured once at render time (text at its origin), used every tick.
+        entry.bgSelection
+            .attr('x', x + (d._labelRelX || -w / 2) - px)
+            .attr('y', y + (d._labelRelY || -h) - py)
+            .attr('width', w + px * 2)
+            .attr('height', h + py * 2);
+    }
 
     /**
      * Get color for link based on relationship type
@@ -115,18 +188,22 @@ const LinkRendererModule = (() => {
         const isSelfLoop = source.id === target.id;
 
         if (isSelfLoop) {
-            const offset = link.curveOffset || 24;
-            const baseRadius = Math.max(source.rectWidth || 48, source.rectHeight || 48) / 2;
-            const loopRadius = baseRadius + Math.abs(offset) * 0.25 + 16;
+            const offset = link.curveOffset || 32;
+            // Compute loop radius from the node's bounding-box half-diagonal
+            // so the loop always clears the rectangle and stays fully visible.
+            const hw = (source.rectWidth || 80) / 2;
+            const hh = (source.rectHeight || 28) / 2;
+            const halfDiag = Math.sqrt(hw * hw + hh * hh);
+            const loopRadius = halfDiag * GRAPH_CONFIG.SELF_LOOP_RADIUS_FACTOR;
             const directionSign = Math.sign(offset) || 1;
             const angle = -Math.PI / 2 + directionSign * 0.6;
             const spread = 0.9;
             const startAngle = angle - spread;
             const endAngle = angle + spread;
-            const startX = centerX + Math.cos(startAngle) * baseRadius;
-            const startY = centerY + Math.sin(startAngle) * baseRadius;
-            const endX = centerX + Math.cos(endAngle) * baseRadius;
-            const endY = centerY + Math.sin(endAngle) * baseRadius;
+            const startX = centerX + Math.cos(startAngle) * loopRadius;
+            const startY = centerY + Math.sin(startAngle) * loopRadius;
+            const endX = centerX + Math.cos(endAngle) * loopRadius;
+            const endY = centerY + Math.sin(endAngle) * loopRadius;
             const controlDistance = loopRadius * 1.2;
             const cx1 = centerX + Math.cos(angle - 0.35) * controlDistance;
             const cy1 = centerY + Math.sin(angle - 0.35) * controlDistance;
@@ -162,9 +239,9 @@ const LinkRendererModule = (() => {
         const nx = -dy;
         const ny = dx;
         const norm = Math.sqrt(nx * nx + ny * ny) || 1;
-        const baseOffset = 20;
+        const baseOffset = GRAPH_CONFIG.BASE_CURVE_OFFSET;
         const directionSign = source.id < target.id ? 1 : -1;
-        const offset = link.curveOffset || (baseOffset * directionSign);
+        const offset = link.curveOffset !== undefined ? link.curveOffset : (baseOffset * directionSign);
         const cx = mx + (nx / norm) * offset;
         const cy = my + (ny / norm) * offset;
 
@@ -219,7 +296,9 @@ const LinkRendererModule = (() => {
          * @returns {d3.Selection} Updated link selection with styling and tooltips
          */
         renderLinks(linkGroup) {
-            // Ensure an SVG marker for directed edges exists
+            // Ensure the SVG <defs> block with the arrowhead marker exists.
+            // The marker uses `currentColor` so it inherits the path stroke colour
+            // automatically — including the red colour on selection.
             const svg = d3.select(AppConfig.selectors.svgContainer).select('svg');
             if (!svg.select('defs').node()) {
                 const defs = svg.append('defs');
@@ -238,96 +317,122 @@ const LinkRendererModule = (() => {
                     .attr('stroke', 'currentColor');
             }
 
+            // 1. Visual edge path (pointer-events disabled via CSS .link)
             const paths = linkGroup
                 .append('path')
                 .attr('d', link => getLinkPath(link))
                 .style('stroke', link => getLinkColor(link))
                 .style('color', link => getLinkColor(link))
                 .attr('stroke-width', link => getLinkStrokeWidth(link))
-                .attr('stroke-opacity', 0.6)
                 .attr('fill', 'none')
                 .attr('class', 'link')
-                .attr('marker-end', link => (link.source.id === link.target.id ? null : 'url(#arrow)'))
-                .style('cursor', 'pointer');
+                .attr('marker-end', link => (link.source.id === link.target.id ? null : 'url(#arrow)'));
 
             paths.append('title')
                 .text(link => createLinkTooltip(link));
 
-            // "subClassOf" labels are redundant with the legend (grey arrow
-            // = subclass relation), so we skip creating a <text> for them.
-            const labels = linkGroup
-                .filter(link => link.type !== 'subClassOf')
+            // 2. Label background rectangles (non-subClassOf links only).
+            //    Appended before the label text so they render underneath it.
+            const labelGroups = linkGroup.filter(link => link.type !== 'subClassOf');
+
+            labelGroups.append('rect')
+                .attr('class', 'link-label-bg')
+                .attr('fill', 'white')
+                .attr('fill-opacity', GRAPH_CONFIG.LABEL_BG_OPACITY)
+                .attr('rx', GRAPH_CONFIG.LABEL_CORNER_RADIUS)
+                .attr('ry', GRAPH_CONFIG.LABEL_CORNER_RADIUS)
+                .attr('x', -9999)  // off-screen until the first tick positions it
+                .attr('y', -9999)
+                .attr('width', 0)
+                .attr('height', 0)
+                .attr('pointer-events', 'none');
+
+            // 3. Label text
+            const labels = labelGroups
                 .append('text')
                 .attr('font-size', '11px')
                 .attr('text-anchor', 'middle')
-                .attr('fill', link => getLinkColor(link))
+                .attr('fill', '#444')
                 .attr('pointer-events', 'none')
                 .attr('class', 'link-label')
                 .attr('dy', '-4px')
                 .text(link => getLinkLabel(link));
 
+            // Measure each label's bounding box at render time (text at origin)
+            // and store the relative offsets for use in updateLinkPositions.
+            labels.each(function(d) {
+                const bbox = this.getBBox();
+                if (bbox.width > 0) {
+                    d._labelRelX = bbox.x;        // relative x offset from the text anchor
+                    d._labelRelY = bbox.y;        // relative y offset from the text anchor
+                    d._labelWidth = bbox.width;
+                    d._labelHeight = bbox.height;
+                }
+            });
+
+            // 4. Invisible wider hit area for click-to-select.
+            //    Appended last so it sits on top and captures pointer events.
+            linkGroup.append('path')
+                .attr('class', 'link-hit')
+                .attr('d', link => getLinkPath(link))
+                .attr('fill', 'none')
+                .attr('stroke', 'transparent')
+                .attr('stroke-width', 14)
+                .on('click', (event, d) => {
+                    event.stopPropagation();
+                    // Toggle: clicking the same link again deselects it
+                    if (state.selectedLink === d) {
+                        clearLinkSelection();
+                    } else {
+                        selectLink(d);
+                    }
+                });
+
             return linkGroup;
         },
 
         /**
-         * Update link positions based on node positions
-         * Called during force simulation tick event
-         * @param {d3.Selection} linkGroup - D3 selection for link group
+         * Update link positions based on node positions.
+         * Called on every simulation tick.
+         * @param {d3.Selection} linkGroup - D3 selection for all link group elements
          */
         updateLinkPositions(linkGroup) {
+            // Update all paths (visual + hit) to reflect current node positions
             linkGroup.selectAll('path')
                 .attr('d', d => getLinkPath(d));
 
-            // Gather the "natural" label position (curve midpoint, or loop
-            // anchor for self-loops) for every link that has a visible label.
+            // Build an entry list for every label (text + its background rect)
             const entries = [];
             linkGroup.each(function(d) {
-                const textSelection = d3.select(this).select('text');
-                if (textSelection.empty()) return; // subClassOf links have no label
+                const textSelection = d3.select(this).select('text.link-label');
+                if (textSelection.empty()) return;  // subClassOf links carry no label
+                const bgSelection = d3.select(this).select('rect.link-label-bg');
                 const pos = getLinkMidpoint(d);
-                entries.push({ textSelection, x: pos.x, y: pos.y, datum: d });
+                entries.push({ textSelection, bgSelection, x: pos.x, y: pos.y, datum: d });
             });
 
-            // FIX: distinct relations can end up with near-identical label
-            // positions purely by coincidence of the force layout (e.g.
-            // several relations converging on the same hub node), even
-            // though each one individually follows its own curve correctly.
-            // Group labels landing within a small tolerance of each other
-            // and spread them out vertically — the axis on which the
-            // stacking is actually visible — instead of trying to fix the
-            // underlying graph layout itself.
-            const cellSize = 42; // px tolerance to consider two labels "at the same spot"
-            const lineHeight = 15;
+            // Group labels that fall within a tolerance window and stack them
+            // vertically so overlapping labels from co-located relations remain legible.
+            const CELL_SIZE = 42;
+            const LINE_HEIGHT = 15;
             const groups = new Map();
             entries.forEach(entry => {
-                const key = `${Math.round(entry.x / cellSize)}|${Math.round(entry.y / cellSize)}`;
+                const key = `${Math.round(entry.x / CELL_SIZE)}|${Math.round(entry.y / CELL_SIZE)}`;
                 if (!groups.has(key)) groups.set(key, []);
                 groups.get(key).push(entry);
             });
 
             groups.forEach(group => {
                 if (group.length === 1) {
-                    const entry = group[0];
-                    entry.textSelection
-                        .attr('x', entry.x)
-                        .attr('y', entry.y)
-                        .attr('stroke', '#fff')
-                        .attr('stroke-width', 2)
-                        .attr('paint-order', 'stroke fill');
+                    setLabelEntryPosition(group[0], group[0].x, group[0].y);
                     return;
                 }
-                // Stable order across ticks (by relation label text) so
-                // labels don't swap position / jitter as nodes keep moving.
+                // Sort by label text for a stable order across ticks (prevents jitter)
                 group.sort((a, b) => getLinkLabel(a.datum).localeCompare(getLinkLabel(b.datum)));
                 const middle = (group.length - 1) / 2;
                 group.forEach((entry, index) => {
-                    const verticalOffset = (index - middle) * (lineHeight + 4);
-                    entry.textSelection
-                        .attr('x', entry.x)
-                        .attr('y', entry.y + verticalOffset)
-                        .attr('stroke', '#fff')
-                        .attr('stroke-width', 2)
-                        .attr('paint-order', 'stroke fill');
+                    const verticalOffset = (index - middle) * (LINE_HEIGHT + 4);
+                    setLabelEntryPosition(entry, entry.x, entry.y + verticalOffset);
                 });
             });
         },
@@ -338,14 +443,35 @@ const LinkRendererModule = (() => {
          * @param {d3.Selection} linkGroup - D3 selection for link group
          */
         updateLinkLabels(linkGroup) {
-            // Update tooltips
             linkGroup.selectAll('title')
                 .text(link => createLinkTooltip(link));
 
-            // Update text labels (subClassOf links have no <text> element,
-            // so selectAll('text') on them simply returns an empty selection)
-            linkGroup.selectAll('text')
-                .text(link => getLinkLabel(link));
+            // Update label text and re-measure bounding boxes so the background
+            // rects are resized correctly after the text content changes.
+            linkGroup.each(function(d) {
+                const text = d3.select(this).select('text.link-label');
+                if (text.empty()) return;
+                text.text(getLinkLabel(d));
+                // Subtract current position to recover relative (origin-based) offsets.
+                const tx = parseFloat(text.attr('x')) || 0;
+                const ty = parseFloat(text.attr('y')) || 0;
+                const bbox = text.node().getBBox();
+                if (bbox.width > 0) {
+                    d._labelRelX = bbox.x - tx;
+                    d._labelRelY = bbox.y - ty;
+                    d._labelWidth = bbox.width;
+                    d._labelHeight = bbox.height;
+                }
+            });
+        },
+
+        /**
+         * Clear any active link selection and restore default link styles.
+         * Called by NodeRendererModule when a node is selected so that
+         * node and link selections do not coexist simultaneously.
+         */
+        clearSelection() {
+            clearLinkSelection();
         }
     };
 })();

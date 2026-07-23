@@ -39,15 +39,12 @@ const SimulationModule = (() => {
      * @returns {Object} Force parameters object
      */
     function getForceParameters(nodeCount, svgWidth, svgHeight, linkDistance) {
-        const config = AppConfig.simulationForces;
-
         return {
-            charge: config.charge.strength * Math.max(1, Math.sqrt(nodeCount)),
-            linkDistance: linkDistance || config.link.distance,
-            collideRadius: config.collide.radius,
+            charge: GRAPH_CONFIG.NODE_REPULSION * Math.max(1, Math.sqrt(nodeCount)),
+            linkDistance: linkDistance || GRAPH_CONFIG.DEFAULT_LINK_DISTANCE,
             centerX: svgWidth / 2,
             centerY: svgHeight / 2,
-            centerStrength: config.center.strength
+            centerStrength: AppConfig.simulationForces.center.strength
         };
     }
 
@@ -67,28 +64,32 @@ const SimulationModule = (() => {
 
             // Create simulation with forces
             simulation = d3.forceSimulation(nodes)
-                // Repulsive force between nodes (charge)
+                .alphaDecay(GRAPH_CONFIG.ALPHA_DECAY)
+                .velocityDecay(GRAPH_CONFIG.VELOCITY_DECAY)
+
+                // Repulsive charge: keeps nodes spread apart
                 .force('charge', d3.forceManyBody()
                     .strength(params.charge))
-                
-                // Attractive force along links
+
+                // Attractive link force: pulls connected nodes toward their target distance
                 .force('link', d3.forceLink(links)
                     .id(d => d.id)
                     .distance(params.linkDistance)
                     .strength(0.7))
-                
-                // Center the graph
+
+                // Centering force: keeps the graph inside the viewport
                 .force('center', d3.forceCenter(params.centerX, params.centerY)
                     .strength(params.centerStrength))
-                
-                // Collision avoidance between nodes
+
+                // Collision avoidance using the node's actual bounding-box half-diagonal
+                // so rectangular nodes never visually overlap regardless of label length.
                 .force('collide', d3.forceCollide()
                     .radius(d => {
-                        const baseRadius = AppConfig.nodeSizes.baseRadius[d.type] || 8;
-                        const boost = Math.min(d.degree * AppConfig.nodeSizes.degreeBoost.factor, AppConfig.nodeSizes.degreeBoost.max);
-                        return baseRadius + boost + params.collideRadius;
+                        const hw = (d.rectWidth || 80) / 2;
+                        const hh = (d.rectHeight || 28) / 2;
+                        return Math.sqrt(hw * hw + hh * hh) + GRAPH_CONFIG.COLLISION_MARGIN;
                     })
-                    .iterations(1));
+                    .iterations(3));
 
             return simulation;
         },
@@ -155,7 +156,7 @@ const SimulationModule = (() => {
             if (simulation) {
                 simulation.force('link', d3.forceLink(links)
                     .id(d => d.id)
-                    .distance(AppConfig.simulationForces.link.distance)
+                    .distance(GRAPH_CONFIG.DEFAULT_LINK_DISTANCE)
                     .strength(0.7));
             }
         },

@@ -28,12 +28,13 @@ const NodeRendererModule = (() => {
 
     function resetGraphHighlight() {
         d3.selectAll('.node-bg')
-            .style('opacity', 1)
-            .attr('stroke-width', 1);
+            .style('opacity', null)        // revert to CSS / browser default (1)
+            .attr('stroke-width', 1)
+            .style('filter', null);        // revert to CSS base drop-shadow
 
         d3.selectAll('.link')
-            .style('stroke-opacity', 0.6)
-            .style('stroke-width', 1);
+            .style('stroke-opacity', null) // revert to CSS default
+            .style('stroke-width', null);
     }
 
     function getConnectedNodeIds(nodeId) {
@@ -52,13 +53,24 @@ const NodeRendererModule = (() => {
         resetGraphHighlight();
         const connectedIds = getConnectedNodeIds(nodeId);
 
+        // Dim all nodes except the selected node and its direct neighbours
         d3.selectAll('.node-bg')
-            .style('opacity', node => connectedIds.has(node.id) ? 1 : 0.4)
-            .attr('stroke-width', node => node.id === nodeId ? 3 : 1);
+            .style('opacity', node => connectedIds.has(node.id) ? null : GRAPH_CONFIG.DIM_OPACITY)
+            .attr('stroke-width', node => node.id === nodeId ? 2.5 : 1);
 
+        // Apply a selection halo to the focused node
+        d3.selectAll('.node-bg').filter(node => node.id === nodeId)
+            .style('filter', 'drop-shadow(0 0 8px rgba(75, 145, 214, 0.65))');
+
+        // Dim non-adjacent links; emphasise links that touch the selected node
         d3.selectAll('.link')
-            .style('stroke-opacity', link => (link.source.id === nodeId || link.target.id === nodeId) ? 0.8 : 0.2)
-            .style('stroke-width', link => (link.source.id === nodeId || link.target.id === nodeId) ? 3 : 1);
+            .style('stroke-opacity', link =>
+                (link.source.id === nodeId || link.target.id === nodeId)
+                    ? '0.85'
+                    : String(GRAPH_CONFIG.DIM_OPACITY))
+            .style('stroke-width', link =>
+                (link.source.id === nodeId || link.target.id === nodeId)
+                    ? '2.5px' : '1px');
 
         state.selectedNodeId = nodeId;
     }
@@ -182,8 +194,8 @@ const NodeRendererModule = (() => {
                 })
                 .on('end', (event, d) => {
                     if (!event.active) simulation.alphaTarget(0);
-                    d.fx = null;
-                    d.fy = null;
+                    // Keep the node pinned at its dropped position (fx/fy stay set).
+                    // Call NodeRendererModule.resetLayout() to unpin all nodes.
                 });
 
             nodeGroup.call(drag);
@@ -191,53 +203,47 @@ const NodeRendererModule = (() => {
             // Add hover effects
             nodeGroup
                 .on('mouseenter', function(event, d) {
-                    if (state.selectedNodeId) {
-                        return;
-                    }
+                    if (state.selectedNodeId) return;
 
-                    // Highlight connected nodes and links
                     d3.select(this).select('rect.node-bg')
-                        .attr('stroke-width', 3)
-                        .attr('filter', 'drop-shadow(0 0 6px rgba(0,0,0,0.3))');
-                    
+                        .attr('stroke-width', 2.5)
+                        .style('filter', 'drop-shadow(0 0 6px rgba(0,0,0,0.22))');
+
                     d3.selectAll('.link')
-                        .style('stroke-opacity', link => 
-                            (link.source.id === d.id || link.target.id === d.id) ? 0.8 : 0.2
-                        )
-                        .style('stroke-width', link => 
-                            (link.source.id === d.id || link.target.id === d.id) ? 3 : 1
-                        );
-                    
+                        .style('stroke-opacity', link =>
+                            (link.source.id === d.id || link.target.id === d.id) ? '0.85' : '0.10')
+                        .style('stroke-width', link =>
+                            (link.source.id === d.id || link.target.id === d.id) ? '2.5px' : '1px');
+
                     d3.selectAll('.node-bg')
-                        .style('opacity', node => 
-                            (node.id === d.id || 
-                             d3.selectAll('.link').filter(l => 
+                        .style('opacity', node =>
+                            (node.id === d.id ||
+                             d3.selectAll('.link').filter(l =>
                                 (l.source.id === d.id && l.target.id === node.id) ||
                                 (l.target.id === d.id && l.source.id === node.id)
-                            ).size() > 0) ? 1 : 0.4
-                        );
+                            ).size() > 0) ? null : GRAPH_CONFIG.DIM_OPACITY);
                 })
                 .on('mouseleave', function(event, d) {
-                    if (state.selectedNodeId) {
-                        return;
-                    }
+                    if (state.selectedNodeId) return;
 
-                    // Reset styles
                     d3.select(this).select('rect.node-bg')
                         .attr('stroke-width', 1)
-                        .attr('filter', 'none');
-                    
+                        .style('filter', null);  // revert to CSS base drop-shadow
+
                     resetGraphHighlight();
                 })
                 .on('click', function(event, d) {
                     applySelectionHighlight(d.id);
 
-                    // Directly display node details if the module is available
+                    // Clear any active link selection when a node is focused
+                    if (typeof LinkRendererModule !== 'undefined' && LinkRendererModule.clearSelection) {
+                        LinkRendererModule.clearSelection();
+                    }
+
                     if (typeof NodeDetailsModule !== 'undefined' && NodeDetailsModule.displayNodeDetails) {
                         NodeDetailsModule.displayNodeDetails(d);
                     }
 
-                    // Dispatch custom event for node selection as fallback
                     document.dispatchEvent(new CustomEvent('nodeSelected', { detail: d }));
                 });
 
@@ -284,6 +290,18 @@ const NodeRendererModule = (() => {
                     .attr('width', node.rectWidth)
                     .attr('height', node.rectHeight);
             });
+        },
+
+        /**
+         * Unpin all manually positioned nodes and restart the simulation.
+         * Call this to release pinned nodes after dragging them into position.
+         */
+        resetLayout() {
+            d3.selectAll('.node-group-item').each(d => {
+                d.fx = null;
+                d.fy = null;
+            });
+            SimulationModule.reheat();
         }
     };
 })();

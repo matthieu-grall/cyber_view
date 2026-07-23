@@ -275,6 +275,9 @@ const NodeDetailsModule = (() => {
             if (!svgBackground.empty()) {
                 svgBackground.on('click', function(event) {
                     NodeDetailsModule.clearNodeDetails();
+                    if (typeof LinkRendererModule !== 'undefined' && LinkRendererModule.clearSelection) {
+                        LinkRendererModule.clearSelection();
+                    }
                     event.stopPropagation();
                 });
             } else {

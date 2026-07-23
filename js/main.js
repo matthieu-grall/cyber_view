@@ -258,7 +258,7 @@ const CyberViewApplication = (() => {
             graphData.links,
             state.renderWidth,
             state.renderHeight,
-            AppConfig.simulationForces.link.distanceOntology
+            GRAPH_CONFIG.ONTOLOGY_LINK_DISTANCE
         );
         NodeDetailsModule.initialize(graphData.nodes, graphData.links);
         NodeDetailsModule.attachEventHandlers();
@@ -284,6 +284,16 @@ const CyberViewApplication = (() => {
                     updateLoadedStudyName();
                 } catch (error) {
                     console.error('Error loading use case from file:', error);
+                }
+            });
+        }
+
+        // Wire the layout reset button to NodeRendererModule.resetLayout()
+        const resetButton = document.getElementById('resetLayoutButton');
+        if (resetButton) {
+            resetButton.addEventListener('click', () => {
+                if (typeof NodeRendererModule !== 'undefined' && NodeRendererModule.resetLayout) {
+                    NodeRendererModule.resetLayout();
                 }
             });
         }

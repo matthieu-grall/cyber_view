@@ -227,6 +227,27 @@ a:has(.license-icon) {
     border-color: #3a6fa8;
 }
 
+/* Layout reset */
+
+.layout-reset {
+    margin-bottom: 15px;
+}
+
+.layout-reset__button {
+    width: 100%;
+    padding: 6px 10px;
+    background: #e8e8e8;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: normal;
+    color: #444;
+}
+
+.layout-reset__button:hover {
+    background: #d8d8d8;
+}
+
 /* Type filter */
 
 .type-filter {
@@ -385,10 +406,29 @@ svg {
     height: 100%;
 }
 
+/* Subtle drop-shadow and smooth transition on all node rectangles.
+   Selection / hover shadows are applied as inline styles by node-renderer.js
+   and cleared with style(prop, null) which reverts to this CSS baseline. */
+.node-bg {
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.10));
+    transition: filter 0.2s ease;
+}
+
 .link {
-    stroke-opacity: 0.8;
-    stroke-width: 2px;
+    stroke-opacity: 0.75;
     pointer-events: none;
+}
+
+/* Wider invisible hit area that captures click events on relation edges.
+   pointer-events: stroke means only the stroke region is interactive. */
+.link-hit {
+    pointer-events: stroke;
+    cursor: pointer;
+}
+
+/* White pill background for relation label text (sized/positioned by JS). */
+.link-label-bg {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.12));
 }
 
 

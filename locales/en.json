@@ -12,7 +12,8 @@
     "viewIndividuals": "Individuals",
     "viewOntology": "Ontology",
     "classFilter": "Classes",
-    "allClasses": "All"
+    "allClasses": "All",
+    "resetLayout": "Reset layout"
   },
   "informationLabels": {
     "title": "Information",
