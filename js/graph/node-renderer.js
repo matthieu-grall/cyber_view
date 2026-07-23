@@ -1,8 +1,7 @@
 /**
- * Node Renderer Module
- * Handles creation and styling of graph nodes with tooltips and interactions
- * 
- * FIXES HOVER ISSUE: Uses proper SVG <title> elements for browser tooltips
+ * Node rendering module.
+ * Author: Matthieu GRALL (DATA VISIONS)
+ * License: Creative Commons Attribution 4.0 International (CC BY 4.0)
  */
 
 const NodeRendererModule = (() => {

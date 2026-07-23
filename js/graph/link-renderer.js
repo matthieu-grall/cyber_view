@@ -1,6 +1,7 @@
 /**
- * Link Renderer Module
- * Handles creation and styling of graph links (edges) with relationship tooltips
+ * Link rendering module.
+ * Author: Matthieu GRALL (DATA VISIONS)
+ * License: Creative Commons Attribution 4.0 International (CC BY 4.0)
  */
 
 const LinkRendererModule = (() => {

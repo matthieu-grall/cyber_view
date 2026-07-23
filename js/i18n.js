@@ -1,6 +1,7 @@
 /**
- * Internationalization (i18n) module
- * Manages language switching and translation loading
+ * Internationalization module.
+ * Author: Matthieu GRALL (DATA VISIONS)
+ * License: Creative Commons Attribution 4.0 International (CC BY 4.0)
  */
 
 const I18nModule = (() => {

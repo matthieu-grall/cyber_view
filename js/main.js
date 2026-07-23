@@ -1,17 +1,7 @@
 /**
- * Main Application Module
- * Orchestrates initialization and coordination of all submodules
- * Entry point for the cyber risk visualization application
- * 
- * INITIALIZATION SEQUENCE:
- * 1. Load configuration
- * 2. Initialize i18n system
- * 3. Load all data files
- * 4. Load ontology
- * 5. Create graph data
- * 6. Initialize D3 visualization
- * 7. Set up event handlers
- * 8. Render initial state
+ * Main application module.
+ * Author: Matthieu GRALL (DATA VISIONS)
+ * License: Creative Commons Attribution 4.0 International (CC BY 4.0)
  */
 
 const CyberViewApplication = (() => {
@@ -275,38 +265,16 @@ const CyberViewApplication = (() => {
         document.getElementById('filters').style.display = 'none';
     }
 
-    function populateStudySelector() {
-        const studySelect = document.querySelector(AppConfig.selectors.studySelect);
-        if (studySelect) {
-            studySelect.innerHTML = '';
-            AppConfig.useCases.forEach(useCase => {
-                const option = document.createElement('option');
-                option.value = useCase.id;
-                option.textContent = useCase.label;
-                studySelect.appendChild(option);
-            });
+    function setupDataLoadingControls() {
+        const loadButton = document.getElementById('fileLoadButton');
+        const fileInput = document.getElementById('filut');
 
-            studySelect.value = AppConfig.defaultUseCaseId;
-            studySelect.addEventListener('change', async () => {
-                try {
-                    const allData = await loadUseCaseData(studySelect.value);
-                    if (state.currentView === 'usecase') {
-                        await renderUsecaseGraph();
-                    }
-                } catch (error) {
-                    console.error('Failed to load selected use case:', error);
-                }
-            });
-        }
-
-        // File load button and input wiring (always present)
-        const loadButton = document.getElementById('studyLoadButton');
-        const fileInput = document.getElementById('studyFileInput');
         if (loadButton && fileInput) {
             loadButton.addEventListener('click', () => fileInput.click());
-            fileInput.addEventListener('change', async (evt) => {
-                const file = evt.target.files && evt.target.files[0];
+            fileInput.addEventListener('change', async (event) => {
+                const file = event.target.files && event.target.files[0];
                 if (!file) return;
+
                 try {
                     const allData = await DataLoaderModule.loadFromFile(file);
                     state.currentUsecaseData = allData;
@@ -314,8 +282,8 @@ const CyberViewApplication = (() => {
                         await renderUsecaseGraph();
                     }
                     updateLoadedStudyName();
-                } catch (err) {
-                    console.error('Error loading use case from file:', err);
+                } catch (error) {
+                    console.error('Error loading use case from file:', error);
                 }
             });
         }
@@ -350,8 +318,8 @@ const CyberViewApplication = (() => {
                 I18nModule.applyTranslations();
                 logProgress('I18N', `Language set to: ${currentLanguage}`);
 
-                // ========== STAGE 3: Prepare study selection UI ==========
-                populateStudySelector();
+                // ========== STAGE 3: Initialize data loading controls ==========
+                setupDataLoadingControls();
 
                 // ========== STAGE 4: Initialize visualization ==========
                 const vizConfig = initializeVisualization();

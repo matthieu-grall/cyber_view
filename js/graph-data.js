@@ -1,6 +1,7 @@
 /**
- * Graph data structure module
- * Transforms raw data into nodes and links for D3 visualization
+ * Graph data structure module.
+ * Author: Matthieu GRALL (DATA VISIONS)
+ * License: Creative Commons Attribution 4.0 International (CC BY 4.0)
  */
 
 const GraphDataModule = (() => {

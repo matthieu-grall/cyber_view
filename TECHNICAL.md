@@ -20,7 +20,7 @@
 
 ### Modular Organization
 
-The application uses a modular architecture with 11 JavaScript files organized by responsibility:
+The application uses a modular architecture with 11 JavaScript files organized by responsibility. The latest cleanup also introduced a lightweight regression smoke check under the tests folder so the core assets and wiring stay consistent as the project evolves:
 
 ```
 js/
@@ -38,8 +38,10 @@ js/
 │   ├── filters.js              # Filtering logic
 │   └── node-details.js         # Details panel
 └── app.js                      # Legacy (reference only)
-```
 
+tests/
+└── smoke_check.py              # Regression checks for metadata and expected UI wiring
+```
 ### Module Dependencies
 
 ```
@@ -141,8 +143,9 @@ Node details panel:
 #### `main.js`
 Application orchestration:
 - Initialization sequence (config → i18n → data → ontology → graph → interactions)
-- Main event listeners
-- Error handling
+- File-based data loading for custom use case JSON files
+- Main event listeners and graph rendering lifecycle
+- Error handling and initialization guardrails
 - Auto-initialization on DOMContentLoaded
 - Methods: `initialize()`, `displayErrorMessage()`, `isReady()`, `getGraphData()`
 
@@ -216,6 +219,11 @@ CyberViewApplication.isReady()  // App ready?
 I18nModule.getLanguage()       // Current language
 FiltersModule.getFilterState() // Filter state
 CyberViewApplication.getGraphData()  // Graph data
+```
+
+Regression checks can be run locally with:
+```bash
+python tests/smoke_check.py
 ```
 
 ### Add a Translation

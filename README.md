@@ -42,16 +42,16 @@ This project is licensed under a
 
 ## Status and roadmap
 
-### ✅ Current version — 2026-06-05
+### ✅ Current version — 2026-07-23
 
-The application is functional: the graph visualization works for both the Individuals and Ontology views, filtering and node details are operational, and the multilingual interface is in place.
+The application is functional: the graph visualization works for both the Individuals and Ontology views, node details and graph interactions are operational, and the multilingual interface is in place. The latest cleanup pass also aligned the file loader wiring and added lightweight regression checks for the main assets.
 
 ### 🔄 Priorities
 
-1. **UI** — clean, optimize and fully document the HTML and CSS files
+1. **UI** — keep the HTML/CSS structure lean and documented while refining the visual polish
 1. **Data** — consolidate the JSON structure and formalize data management rules
 1. **Ontology** — enrich the cyber_ontology (new classes, properties, relations)
-1. **Features** — nodes behaviour, etc.
+1. **Features** — extend node interaction and graph exploration workflows
 
 ### ⭕ Later!
 

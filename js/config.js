@@ -1,6 +1,7 @@
 /**
- * Configuration centrale pour l'application cyber_view
- * Contient les constantes, les couleurs et les paramètres de base
+ * Central configuration for the cyber_view application.
+ * Author: Matthieu GRALL (DATA VISIONS)
+ * License: Creative Commons Attribution 4.0 International (CC BY 4.0)
  */
 
 const AppConfig = {

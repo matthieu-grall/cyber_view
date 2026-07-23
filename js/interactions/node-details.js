@@ -1,7 +1,7 @@
 /**
- * Node Details Module
- * Handles display of detailed node information in side panel
- * Shows node properties, connections, and semantic information
+ * Node details module.
+ * Author: Matthieu GRALL (DATA VISIONS)
+ * License: Creative Commons Attribution 4.0 International (CC BY 4.0)
  */
 
 const NodeDetailsModule = (() => {

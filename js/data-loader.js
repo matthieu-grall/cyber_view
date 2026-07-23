@@ -1,6 +1,7 @@
 /**
- * Data loader module
- * Handles loading all JSON data files for the graph visualization
+ * Data loader module.
+ * Author: Matthieu GRALL (DATA VISIONS)
+ * License: Creative Commons Attribution 4.0 International (CC BY 4.0)
  */
 
 const DataLoaderModule = (() => {

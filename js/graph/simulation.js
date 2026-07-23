@@ -1,7 +1,7 @@
 /**
- * Force Simulation Module
- * Manages D3 force-directed simulation for graph layout
- * Controls physics-based node positioning and collision avoidance
+ * Force simulation module.
+ * Author: Matthieu GRALL (DATA VISIONS)
+ * License: Creative Commons Attribution 4.0 International (CC BY 4.0)
  */
 
 const SimulationModule = (() => {

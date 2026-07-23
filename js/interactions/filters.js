@@ -1,7 +1,7 @@
 /**
- * Filters Module
- * Handles filtering logic for severity and node type
- * Coordinates between UI controls and graph visualization
+ * Filtering module.
+ * Author: Matthieu GRALL (DATA VISIONS)
+ * License: Creative Commons Attribution 4.0 International (CC BY 4.0)
  */
 
 const FiltersModule = (() => {
@@ -26,12 +26,10 @@ const FiltersModule = (() => {
         state.currentNodes.forEach(node => {
             let matches = true;
 
-            // Check severity filter
             if (state.activeSeverityFilter && node.severity !== state.activeSeverityFilter) {
                 matches = false;
             }
 
-            // Check type filters (multi-select). If none selected, allow all types.
             if (state.activeTypeFilters.size > 0 && !state.activeTypeFilters.has(node.type)) {
                 matches = false;
             }
@@ -104,67 +102,41 @@ const FiltersModule = (() => {
          * Called after data is loaded
          */
         populateFilterOptions() {
-            // Populate severity filter
-            const severityFilter = d3.select(AppConfig.selectors.severityFilter);
-            const severityLevels = DataLoaderModule.getReferenceData('severityLevels') || [];
+            const container = document.getElementById('typeFilterContainer');
+            if (!container) return;
 
-            severityFilter.selectAll('option').remove(); // Remove existing options
+            container.innerHTML = '';
 
-            severityFilter.append('option')
-                .attr('value', '')
-                .attr('data-i18n', 'commandsLabels.allClasses')
-                .text(I18nModule.getTranslation('commandsLabels.allClasses'));
-
-            severityLevels.forEach(level => {
-                severityFilter.append('option')
-                    .attr('value', level.label)
-                    .text(level.label);
+            const counts = {};
+            state.currentNodes.forEach(node => {
+                counts[node.type] = (counts[node.type] || 0) + 1;
             });
 
-            // Populate type filter as a list of buttons
-            const container = document.getElementById('typeFilterContainer');
-            if (container) {
-                container.innerHTML = '';
-
-                // Count nodes per type
-                const counts = {};
-                state.currentNodes.forEach(n => { counts[n.type] = (counts[n.type] || 0) + 1; });
-
-                const nodeTypes = [...new Set(state.currentNodes.map(n => n.type))];
-
-                nodeTypes.forEach(type => {
-                    const typeLabel = OntologyModule.getNodeTypeLabel(type, I18nModule.getLanguage());
-                    const btn = document.createElement('button');
-                    btn.className = 'type-filter__item';
-                    btn.setAttribute('data-type', type);
-                    btn.innerHTML = `<span class="label">${typeLabel}</span><span class="count">${counts[type] || 0}</span>`;
-                    container.appendChild(btn);
-                });
-            }
+            const nodeTypes = [...new Set(state.currentNodes.map(node => node.type))].sort();
+            nodeTypes.forEach(type => {
+                const typeLabel = OntologyModule.getNodeTypeLabel(type, I18nModule.getLanguage());
+                const button = document.createElement('button');
+                button.className = 'type-filter__item';
+                button.setAttribute('data-type', type);
+                button.innerHTML = `<span class="label">${typeLabel}</span><span class="count">${counts[type] || 0}</span>`;
+                container.appendChild(button);
+            });
         },
 
         /**
          * Update filter labels after language change
          */
         updateFilterLabels() {
-            const severityFilter = d3.select(AppConfig.selectors.severityFilter);
+            const container = document.getElementById('typeFilterContainer');
+            if (!container) return;
 
-                // Update type filter buttons labels if present
-                const container = document.getElementById('typeFilterContainer');
-                if (container) {
-                    container.querySelectorAll('.type-filter__item').forEach(btn => {
-                        const type = btn.getAttribute('data-type');
-                        const typeLabel = OntologyModule.getNodeTypeLabel(type, I18nModule.getLanguage());
-                        const count = btn.querySelector('.count') ? btn.querySelector('.count').textContent : '';
-                        btn.querySelector('.label').textContent = typeLabel;
-                        if (count) btn.querySelector('.count').textContent = count;
-                    });
-                }
-
-            // Severity labels are language-independent (numeric/descriptive)
-            severityFilter.selectAll('option[value=""]').text(
-                I18nModule.getTranslation('commandsLabels.allClasses')
-            );
+            container.querySelectorAll('.type-filter__item').forEach(button => {
+                const type = button.getAttribute('data-type');
+                const typeLabel = OntologyModule.getNodeTypeLabel(type, I18nModule.getLanguage());
+                const count = button.querySelector('.count')?.textContent || '';
+                button.querySelector('.label').textContent = typeLabel;
+                if (count) button.querySelector('.count').textContent = count;
+            });
         },
 
         /**
@@ -201,9 +173,12 @@ const FiltersModule = (() => {
             state.activeTypeFilters.clear();
             state.visibleNodeIds = new Set(state.currentNodes.map(n => n.id));
 
-            d3.select(AppConfig.selectors.severityFilter).property('value', '');
             const container = document.getElementById('typeFilterContainer');
-            if (container) container.querySelectorAll('.type-filter__item--active').forEach(b => b.classList.remove('type-filter__item--active'));
+            if (container) {
+                container.querySelectorAll('.type-filter__item--active').forEach(button => {
+                    button.classList.remove('type-filter__item--active');
+                });
+            }
 
             applyFiltersToVisualization();
         },
@@ -223,27 +198,25 @@ const FiltersModule = (() => {
          * Attach change event handlers to filter controls
          */
         attachEventHandlers() {
-            d3.select(AppConfig.selectors.severityFilter)
-                .on('change', function() {
-                    FiltersModule.setSeverityFilter(this.value);
-                });
-
-            // Type filter buttons click handling
             const container = document.getElementById('typeFilterContainer');
-            if (container) {
-                container.addEventListener('click', (e) => {
-                    const btn = e.target.closest('.type-filter__item');
-                    if (!btn) return;
-                    const type = btn.getAttribute('data-type');
-                    // toggle visual state
-                    const isActive = btn.classList.toggle('type-filter__item--active');
-                    // update state
-                    if (isActive) state.activeTypeFilters.add(type);
-                    else state.activeTypeFilters.delete(type);
-                    state.visibleNodeIds = calculateVisibleNodes();
-                    applyFiltersToVisualization();
-                });
-            }
+            if (!container) return;
+
+            container.addEventListener('click', (event) => {
+                const button = event.target.closest('.type-filter__item');
+                if (!button) return;
+
+                const type = button.getAttribute('data-type');
+                const isActive = button.classList.toggle('type-filter__item--active');
+
+                if (isActive) {
+                    state.activeTypeFilters.add(type);
+                } else {
+                    state.activeTypeFilters.delete(type);
+                }
+
+                state.visibleNodeIds = calculateVisibleNodes();
+                applyFiltersToVisualization();
+            });
         }
     };
 })();

@@ -1,4 +1,7 @@
-/* css/styles.css, Creative Commons Attribution 4.0 International (CC BY 4.0), Matthieu GRALL (DATA VISIONS) */
+/* css/styles.css
+   Author: Matthieu GRALL (DATA VISIONS)
+   License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+*/
 
 /* =============================================================================
    1. RESET
@@ -187,6 +190,10 @@ a:has(.license-icon) {
     border-radius: 4px;
     cursor: pointer;
     font-weight: bold;
+}
+
+.file-loader__input {
+    display: none;
 }
 
 .file-loader__button:hover {

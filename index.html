@@ -1,7 +1,13 @@
+<!--
+cyber_view
+Author: Matthieu GRALL (DATA VISIONS)
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+-->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>cyber_view</title>
     <link rel="stylesheet" type="text/css" href="css/styles.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -42,12 +48,11 @@
             <!-- File loader -->
             <div class="file-loader">
                 <h3 data-i18n="commandsLabels.file">Fichier de données</h3>
-                <!-- FIX: label shown statically; JS writes only the file name into #loadedFileName -->
                 <div class="file-loader__label">
                     <label data-i18n="commandsLabels.loadedFile">Fichier chargé</label> : <span id="loadedFileName"></span>
                 </div>
                 <button id="fileLoadButton" class="file-loader__button" data-i18n="commandsLabels.loadFileButton">Charger un fichier</button>
-                <input id="filut" type="file" accept=".json" style="display:none">
+                <input id="filut" class="file-loader__input" type="file" accept=".json" aria-label="Load a JSON use case file">
             </div>
 
             <!-- View toggle (Individuals vs Ontology) -->
@@ -76,7 +81,6 @@
         <div class="content__panel--right">
 
             <h2 data-i18n="informationLabels.title">Informations</h2>
-            <!-- Graph stats (removed general title and simple counts per request) -->
             <div class="graph-stats"></div>
 
             <!-- Graph legend: vertical stack, normal font size -->
