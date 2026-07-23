@@ -86,7 +86,6 @@ const NodeDetailsModule = (() => {
             if (Array.isArray(value)) {
                 return value.join(', ');
             }
-            // For nested objects, show stringified version
             return JSON.stringify(value);
         }
 
@@ -94,54 +93,51 @@ const NodeDetailsModule = (() => {
     }
 
     function createNodeDetailsHTML(node) {
-        const typeLabel = OntologyModule.getNodeTypeLabel(node.type, I18nModule.getLanguage());
-        const typeDefinition = OntologyModule.getNodeTypeDefinition(node.type, I18nModule.getLanguage());
+        const language = I18nModule.getLanguage();
+        const typeLabel = OntologyModule.getNodeTypeLabel(node.type, language);
         const connected = getConnectedNodes(node);
-        const parentClassId = node.rawData?.subClassOf;
-        const parentClassLabel = parentClassId
-            ? OntologyModule.getNodeTypeLabel(parentClassId, I18nModule.getLanguage()) || parentClassId
-            : null;
+        const rawData = node.rawData || {};
+        const definition = rawData.isDefinedBy?.[language] || rawData.isDefinedBy?.fr || rawData.isDefinedBy?.en || '';
+        const rationale = rawData.labelRationale?.[language] || rawData.labelRationale?.fr || rawData.labelRationale?.en || '';
+        const properties = Array.isArray(rawData.properties) ? rawData.properties : [];
+
+        const displayLabel = language === 'en' ? (node.labelEn || node.label) : (node.labelFr || node.label);
 
         let html = `
             <div class="node-details__body">
                 <div class="node-details__header">
-                    <h2>${escapeHtml(node.label)}</h2>
-                    <p class="node-details__type">${escapeHtml(typeLabel)}</p>
+                    <h2>${escapeHtml(displayLabel)}</h2>
+                    ${definition ? `<p class="node-details__definition">${escapeHtml(definition)}</p>` : ''}
                 </div>
-
-                <!-- Redundant 'Type' section removed: class is shown in header as node-type -->
         `;
 
         if (node.type === 'ontology-class') {
-            html += `
-                <!-- Ontology class label section hidden because the node title already provides the label -->
+            if (rationale) {
+                html += `
+                    <div class="node-details__section node-details__section--rationale">
+                        <p class="node-details__rationale">${escapeHtml(rationale)}</p>
+                    </div>
+                `;
+            }
 
-                <!-- Ontology class definition omitted from UI (view in ontology directly) -->
-            `;
-
-            const properties = node.rawData?.properties || [];
             if (properties.length > 0) {
                 html += `
                     <div class="node-details__section">
-                        <h3>${I18nModule.getTranslation('informationLabels.ontologyProperties')}</h3>
+                        <h3>${I18nModule.getTranslation('informationLabels.ontologyProperties')} (${properties.length})</h3>
                         <ul class="node-details__properties">
                 `;
                 properties.forEach(prop => {
-                    const propLabel = prop.label?.[I18nModule.getLanguage()] || prop.label?.fr || prop.id || '';
+                    const propLabel = prop.label?.[language] || prop.label?.fr || prop.id || '';
                     const propRange = prop.range ? ` (${escapeHtml(prop.range)})` : '';
-                    html += `<li><strong>${escapeHtml(propLabel)}</strong>${propRange}</li>`;
+                    html += `<li class="node-details__property-item"><span class="node-details__property-label">${escapeHtml(propLabel)}</span>${propRange}</li>`;
                 });
                 html += `
                         </ul>
                     </div>
                 `;
             }
-
         }
 
-        // Severity display removed (shown in Relations when applicable)
-
-        // Show description if available for other nodes
         if (node.description && node.type !== 'ontology-class') {
             html += `
                 <div class="node-details__section">
@@ -181,30 +177,6 @@ const NodeDetailsModule = (() => {
 
             html += `
                     </ul>
-                </div>
-            `;
-        }
-
-        const excludeKeys = ['id', 'label', 'type', 'severity', 'description', 'degree', 'labelFr', 'labelEn', 'rawData', 'subClassOf', 'index', 'x', 'y', 'vx', 'vy', 'fx', 'fy'];
-        const additionalProps = Object.keys(node).filter(k => !excludeKeys.includes(k));
-
-        if (additionalProps.length > 0) {
-            html += `
-                <div class="node-details__section">
-                    <h3>${I18nModule.getTranslation('informationLabels.ontologyProperties')}</h3>
-                    <dl class="node-details__properties">
-            `;
-
-            additionalProps.forEach(key => {
-                const value = formatPropertyValue(key, node[key]);
-                html += `
-                    <dt>${escapeHtml(key)}</dt>
-                    <dd>${escapeHtml(value)}</dd>
-                `;
-            });
-
-            html += `
-                    </dl>
                 </div>
             `;
         }

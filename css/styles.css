@@ -274,15 +274,6 @@ a:has(.license-icon) {
    ============================================================================= */
 
 /* Graph stats */
-
-.graph-stats {
-    flex: 0 0 auto;
-}
-
-.graph-stats p {
-    margin: 4px 0;
-}
-
 /* Graph legend */
 
 .graph-legend {
@@ -336,6 +327,55 @@ a:has(.license-icon) {
     margin: 4px 0;
 }
 
+.node-details__body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.node-details__header {
+    border-bottom: 2px solid #333;
+    padding-bottom: 8px;
+}
+
+.node-details__header h2 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.node-details__section {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.node-details__definition,
+.node-details__rationale {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #555;
+    font-style: italic;
+}
+
+.node-details__properties {
+    margin: 0;
+    padding-left: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.node-details__property-item {
+    font-size: 13px;
+    color: #333;
+}
+
+.node-details__property-label {
+    font-weight: normal;
+    color: #444;
+}
+
 /* =============================================================================
    8. SVG GRAPH
    ============================================================================= */
@@ -355,52 +395,6 @@ svg {
 /* =============================================================================
    9. NODE DETAILS — dynamic HTML injected by node-details.js
    ============================================================================= */
-
-.node-details__body {
-    font-size: 14px;
-    color: #333;
-}
-
-.node-details__header {
-    border-bottom: 2px solid #333;
-    padding-bottom: 8px;
-    margin-bottom: 10px;
-}
-
-.node-details__header h2 {
-    margin: 0 0 4px 0;
-    font-size: 16px;
-}
-
-.node-details__type {
-    margin: 0;
-    font-size: 12px;
-    color: #666;
-    font-style: italic;
-}
-
-.node-details__section {
-    margin-bottom: 12px;
-}
-
-.node-details__section h3 {
-    margin: 0 0 6px 0;
-    font-size: 13px;
-    font-weight: bold;
-    color: #444;
-}
-
-.node-details__properties {
-    margin: 0;
-    padding-left: 16px;
-    font-size: 13px;
-}
-
-.node-details__properties li,
-.node-details__properties dt,
-.node-details__properties dd {
-    margin: 3px 0;
-}
 
 .node-details__connections {
     list-style: none;

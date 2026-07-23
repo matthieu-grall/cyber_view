@@ -264,7 +264,7 @@ const OntologyModule = (() => {
             const typesLine = document.createElement('div');
             typesLine.className = 'key-item';
             typesLine.innerHTML = `
-                <span>${I18nModule.getTranslation('informationLabels.types') || 'Types'}</span>
+                <span>${I18nModule.getTranslation('informationLabels.types')}</span>
                 <span class="key-line" style="
                     width: 24px;
                     height: 2px;
