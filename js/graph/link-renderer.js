@@ -296,12 +296,14 @@ const LinkRendererModule = (() => {
          * @returns {d3.Selection} Updated link selection with styling and tooltips
          */
         renderLinks(linkGroup) {
-            // Ensure the SVG <defs> block with the arrowhead marker exists.
-            // The marker uses `currentColor` so it inherits the path stroke colour
+            // Ensure the SVG <defs> block with the arrowhead markers exists.
+            // The markers use `currentColor` so they inherit the path stroke colour
             // automatically — including the red colour on selection.
             const svg = d3.select(AppConfig.selectors.svgContainer).select('svg');
             if (!svg.select('defs').node()) {
                 const defs = svg.append('defs');
+                
+                // Standard filled arrow for most links
                 defs.append('marker')
                     .attr('id', 'arrow')
                     .attr('viewBox', '0 -5 10 10')
@@ -315,6 +317,22 @@ const LinkRendererModule = (() => {
                     .attr('d', 'M0,-5 L10,0 L0,5')
                     .attr('fill', 'currentColor')
                     .attr('stroke', 'currentColor');
+                
+                // Hollow (unfilled) arrow for subClassOf relations
+                defs.append('marker')
+                    .attr('id', 'arrow-hollow')
+                    .attr('viewBox', '0 -5 10 10')
+                    .attr('refX', -10)  // Reversed position for marker-start
+                    .attr('refY', 0)
+                    .attr('markerWidth', 6)
+                    .attr('markerHeight', 6)
+                    .attr('orient', 'auto')
+                    .attr('markerUnits', 'strokeWidth')
+                    .append('path')
+                    .attr('d', 'M10,-5 L0,0 L10,5')  // Reversed arrow direction
+                    .attr('fill', 'none')
+                    .attr('stroke', 'currentColor')
+                    .attr('stroke-width', '1.5');
             }
 
             // 1. Visual edge path (pointer-events disabled via CSS .link)
@@ -326,7 +344,8 @@ const LinkRendererModule = (() => {
                 .attr('stroke-width', link => getLinkStrokeWidth(link))
                 .attr('fill', 'none')
                 .attr('class', 'link')
-                .attr('marker-end', link => (link.source.id === link.target.id ? null : 'url(#arrow)'));
+                .attr('marker-start', link => (link.type === 'subClassOf' ? 'url(#arrow-hollow)' : null))
+                .attr('marker-end', link => (link.source.id === link.target.id || link.type === 'subClassOf' ? null : 'url(#arrow)'));
 
             paths.append('title')
                 .text(link => createLinkTooltip(link));
@@ -354,7 +373,16 @@ const LinkRendererModule = (() => {
                 .attr('text-anchor', 'middle')
                 .attr('fill', '#444')
                 .attr('pointer-events', 'none')
-                .attr('class', 'link-label')
+                .attr('class', link => {
+                    // Add 'link-label-adjacent' class if link is adjacent to selected node
+                    if (typeof NodeRendererModule !== 'undefined' && NodeRendererModule.getSelectedNodeId) {
+                        const selectedId = NodeRendererModule.getSelectedNodeId();
+                        if (selectedId && (link.source.id === selectedId || link.target.id === selectedId)) {
+                            return 'link-label link-label-adjacent';
+                        }
+                    }
+                    return 'link-label';
+                })
                 .attr('dy', '-4px')
                 .text(link => getLinkLabel(link));
 
@@ -400,6 +428,21 @@ const LinkRendererModule = (() => {
             // Update all paths (visual + hit) to reflect current node positions
             linkGroup.selectAll('path')
                 .attr('d', d => getLinkPath(d));
+
+            // Get currently selected node ID
+            const selectedNodeId = typeof NodeRendererModule !== 'undefined' && NodeRendererModule.getSelectedNodeId
+                ? NodeRendererModule.getSelectedNodeId()
+                : null;
+
+            // Update label classes by iterating each link group
+            linkGroup.each(function(linkDatum) {
+                const groupSelection = d3.select(this);
+                const isAdjacent = selectedNodeId && (linkDatum.source.id === selectedNodeId || linkDatum.target.id === selectedNodeId);
+                
+                groupSelection.selectAll('text').attr('class', () => {
+                    return isAdjacent ? 'link-label link-label-adjacent' : 'link-label';
+                });
+            });
 
             // Build an entry list for every label (text + its background rect)
             const entries = [];

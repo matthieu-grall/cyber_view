@@ -132,6 +132,13 @@ const NodeRendererModule = (() => {
     // ==================== PUBLIC API ====================
     return {
         /**
+         * Get the ID of the currently selected node
+         * @returns {string|null} Selected node ID or null
+         */
+        getSelectedNodeId() {
+            return state.selectedNodeId;
+        },
+        /**
          * Create and append node elements to D3 selection
          * @param {d3.Selection} nodeGroup - D3 selection for node group
          * @param {d3.Selection} simulation - D3 force simulation
