@@ -109,14 +109,33 @@ const OntologyModule = (() => {
      * @returns {string|null} Ontology class ID or null if not mapped
      */
     function mapNodeTypeToOntologyClass(nodeType) {
+        if (!nodeType) return null;
+
+        if (typeof nodeType === 'string' && nodeType.startsWith('#class-')) {
+            return nodeType;
+        }
+
+        const normalizedType = normalizeKey(nodeType);
+        if (classByLabel.has(normalizedType)) {
+            return classByLabel.get(normalizedType);
+        }
+
         const typeMap = {
-            'risk': 'risk',
-            'feared-event': 'feared-event',
-            'security-criteria': 'security-property',
-            'business-asset': 'business-asset',
-            'risk-source': 'risk-source',
-            'severity-level': null,
-            'likelihood-level': null
+            'risk': '#class-risk',
+            'feared-event': '#class-cyber-event',
+            'cyber-event': '#class-cyber-event',
+            'security-criteria': '#class-dimension',
+            'dimension': '#class-dimension',
+            'business-asset': '#class-information-object',
+            'information-object': '#class-information-object',
+            'risk-source': '#class-actor',
+            'actor': '#class-actor',
+            'severity-level': '#class-consequence-level',
+            'consequence-level': '#class-consequence-level',
+            'likelihood-level': '#class-likelihood-level',
+            'action': '#class-action',
+            'goal': '#class-goal',
+            'consequence': '#class-consequence'
         };
         return typeMap[nodeType] || null;
     }
@@ -166,8 +185,9 @@ const OntologyModule = (() => {
             const ontologyClass = mapNodeTypeToOntologyClass(nodeType);
             if (!ontologyClass) return nodeType;
 
-            const ontClass = ontologyData.classes.find(c => c.id === ontologyClass);
-            return ontClass ? ontClass.label[language] || ontClass.label.fr : nodeType;
+            const ontClass = getClassDefinitionByUri(ontologyClass)
+                || ontologyData.classes.find(c => c.id === ontologyClass);
+            return ontClass ? (ontClass.label?.[language] || ontClass.label?.fr || ontClass.label?.en || nodeType) : nodeType;
         },
 
         /**
@@ -186,8 +206,9 @@ const OntologyModule = (() => {
             const ontologyClass = mapNodeTypeToOntologyClass(nodeType);
             if (!ontologyClass) return '';
 
-            const ontClass = ontologyData.classes.find(c => c.id === ontologyClass);
-            return ontClass ? (ontClass.isDefinedBy[language] || ontClass.isDefinedBy.fr) : '';
+            const ontClass = getClassDefinitionByUri(ontologyClass)
+                || ontologyData.classes.find(c => c.id === ontologyClass);
+            return ontClass ? (ontClass.isDefinedBy?.[language] || ontClass.isDefinedBy?.fr || ontClass.isDefinedBy?.en || '') : '';
         },
 
         /**

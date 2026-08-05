@@ -156,14 +156,11 @@ const NodeDetailsModule = (() => {
 
             connected.forEach(conn => {
                 const language = I18nModule.getLanguage();
-                let relationText = '';
-
-                const relationLabel = AppConfig.relationships[conn.relationship];
-                if (relationLabel) {
-                    relationText = relationLabel[language] || relationLabel.en;
-                } else if (conn.link && conn.link.label) {
-                    relationText = conn.link.label[language] || conn.link.label.fr || conn.link.label.en || conn.relationship;
-                } else {
+                let relationText = OntologyModule.getRelationLabel(
+                    (conn.link && (conn.link.relationType || conn.link.type)) || conn.relationship,
+                    language
+                );
+                if (!relationText) {
                     relationText = conn.relationship || '';
                 }
 

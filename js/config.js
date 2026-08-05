@@ -15,6 +15,14 @@ const AppConfig = {
             'security-criteria': '#9b59b6',
             'severity-level': '#9b59b6',
             'likelihood-level': '#2ecc71',
+            action: '#f28e2b',
+            actor: '#4ecdc4',
+            'cyber-event': '#ffb6c1',
+            consequence: '#e15759',
+            'consequence-level': '#9b59b6',
+            dimension: '#9b59b6',
+            goal: '#76b7b2',
+            'information-object': '#87ceeb',
             'ontology-class': '#7f7f7f',
             undefined: '#d3d3d3'
         },
@@ -45,6 +53,14 @@ const AppConfig = {
             'risk-source': 9,
             'severity-level': 8,
             'likelihood-level': 8,
+            action: 9,
+            actor: 9,
+            'cyber-event': 10,
+            consequence: 10,
+            'consequence-level': 8,
+            dimension: 9,
+            goal: 8,
+            'information-object': 10,
             'ontology-class': 10,
             'default': 8
         },
@@ -54,26 +70,7 @@ const AppConfig = {
         }
     },
 
-    // ==================== RELATIONSHIP MAPPING ====================
-    /**
-     * Relationship type labels in French and English
-     * Used for link labels and tooltips
-     */
-    relationships: {
-        'has-criteria': { fr: 'affecte le critère', en: 'affects criterion' },
-        'affects-asset': { fr: 'affecte l\'actif', en: 'affects asset' },
-        'from-source': { fr: 'provient de la source', en: 'comes from source' },
-        'has-severity': { fr: 'a pour gravité', en: 'has severity' },
-        'has-likelihood': { fr: 'a pour vraisemblance', en: 'has likelihood' },
-        'risk-source': { fr: 'source du risque', en: 'risk source' },
-        'security-criteria': { fr: 'critère de sécurité', en: 'security criterion' },
-        'business-asset': { fr: 'actif métier', en: 'business asset' },
-        'severity': { fr: 'gravité', en: 'severity' },
-        'likelihood': { fr: 'vraisemblance', en: 'likelihood' },
-        'related-to': { fr: 'lié à', en: 'related to' },
-        'feared-event': { fr: 'événement redouté', en: 'feared event' },
-        'subClassOf': { fr: 'est sous-classe de', en: 'is subclass of' }
-    },
+    // Relationship labels are resolved dynamically from ontology definitions.
     dataFiles: {
         risks: 'data/risks.json',
         riskSources: 'data/risk-sources.json',
@@ -81,18 +78,23 @@ const AppConfig = {
         securityCriteria: 'data/security-criteria.json',
         severityLevels: 'data/severity-levels.json',
         likelihoodLevels: 'data/likelihood-levels.json',
-        useCase: 'data/usecase-2026-06-05.json',
+        useCase: 'data/usecase-2026-08-05.json',
         cyberOntology: 'data/cyber-ontology.json'
     },
 
     useCases: [
+        {
+            id: 'usecase-2026-08-05',
+            label: 'Use case 2026-08-05',
+            file: 'data/usecase-2026-08-05.json'
+        },
         {
             id: 'usecase-2026-06-05',
             label: 'Use case 2026-06-05',
             file: 'data/usecase-2026-06-05.json'
         }
     ],
-    defaultUseCaseId: 'usecase-2026-06-05',
+    defaultUseCaseId: 'usecase-2026-08-05',
 
     // ==================== TRANSLATION FILES ====================
     translationFiles: {

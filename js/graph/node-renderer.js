@@ -86,6 +86,12 @@ const NodeRendererModule = (() => {
      * @returns {string} Color hex code
      */
     function getNodeColor(node) {
+        // Use a uniform visual style for ontology-native individuals, matching
+        // the ontology view expectation.
+        if (node?.rawData?.class && typeof node.rawData.class === 'string' && node.rawData.class.startsWith('#class-')) {
+            return AppConfig.colors.nodeType['ontology-class'] || '#7f7f7f';
+        }
+
         if (node.severity && AppConfig.colors.nodeSeverity[node.severity]) {
             return AppConfig.colors.nodeSeverity[node.severity];
         }

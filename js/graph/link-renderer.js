@@ -122,22 +122,13 @@ const LinkRendererModule = (() => {
 
     function getLinkLabel(link) {
         const language = I18nModule.getLanguage();
-        const relationshipLabels = AppConfig.relationships[link.type];
-
-        if (relationshipLabels) {
-            return relationshipLabels[language] || relationshipLabels.en;
-        }
-
-        if (link.label) {
-            return link.label[language] || link.label.fr || link.label.en || String(link.type);
-        }
 
         const ontologyLabel = OntologyModule.getRelationLabel(link.relationType || link.type, language);
         if (ontologyLabel) {
             return ontologyLabel;
         }
 
-        return String(link.type);
+        return String(link.relationType || link.type || 'related-to');
     }
 
     function getNodeBorderPoint(node, targetX, targetY) {

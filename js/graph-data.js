@@ -50,6 +50,42 @@ const GraphDataModule = (() => {
             const links = [];
             const visitedIds = new Set();
 
+            function normalizeUriFragment(value, prefix) {
+                if (!value || typeof value !== 'string') return '';
+                return value
+                    .replace(/^.*[#/]/, '')
+                    .replace(new RegExp(`^${prefix}`), '')
+                    .toLowerCase();
+            }
+
+            function inferLabelFromIndividual(individual) {
+                const props = Array.isArray(individual?.properties) ? individual.properties : [];
+                const shortLabel = props.find(p => p && p.type === '#property-short-label' && typeof p.value === 'string');
+                if (shortLabel?.value) return shortLabel.value;
+
+                const longLabel = props.find(p => p && p.type === '#property-long-label' && typeof p.value === 'string');
+                if (longLabel?.value) return longLabel.value;
+
+                return individual?.label || individual?.name || individual?.id || '';
+            }
+
+            function normalizeIndividualType(classUri) {
+                if (!classUri || typeof classUri !== 'string') return 'individual';
+                return normalizeUriFragment(classUri, 'class-') || 'individual';
+            }
+
+            function normalizeRelationType(relationType) {
+                if (!relationType || typeof relationType !== 'string') return 'related-to';
+                return normalizeUriFragment(relationType, 'relation-') || 'related-to';
+            }
+
+            function isOntologyIndividualsPayload(payload) {
+                if (!payload || typeof payload !== 'object') return false;
+                if (!Array.isArray(payload.individuals) || payload.individuals.length === 0) return false;
+                return payload.individuals.some(item =>
+                    item && typeof item === 'object' && typeof item.id === 'string' && typeof item.class === 'string');
+            }
+
             function normalizeTypeName(name) {
                 if (!name) return 'unknown';
                 const normalized = name
@@ -138,13 +174,13 @@ const GraphDataModule = (() => {
                 return node;
             }
 
-            function addLink(sourceId, targetId, relationType) {
+            function addLink(sourceId, targetId, relationType, semanticRelationType = null) {
                 if (!sourceId || !targetId || sourceId === targetId) return;
                 links.push({
                     source: sourceId,
                     target: targetId,
                     type: relationType || 'related-to',
-                    relationType: relationType || 'related-to'
+                    relationType: semanticRelationType || relationType || 'related-to'
                 });
             }
 
@@ -251,6 +287,92 @@ const GraphDataModule = (() => {
                 usecasePayload = usecasePayload.currentUsecaseRaw;
             }
 
+            if (isOntologyIndividualsPayload(usecasePayload)) {
+                const individuals = usecasePayload.individuals;
+
+                individuals.forEach(individual => {
+                    const id = individual.id;
+                    if (!id) return;
+
+                    const type = normalizeIndividualType(individual.class);
+                    const label = inferLabelFromIndividual(individual);
+                    addNode(id, type, label, individual);
+                    visitedIds.add(id);
+                });
+
+                individuals.forEach(individual => {
+                    const sourceId = individual.id;
+                    if (!sourceId) return;
+
+                    const relations = Array.isArray(individual.relations) ? individual.relations : [];
+                    relations.forEach(relation => {
+                        const targetId = relation?.target;
+                        if (!targetId || !nodeMap.has(targetId)) return;
+                        const relationUri = relation.type || '#relation-related-to';
+                        // Render all use-case links as ontology relations (red) and keep
+                        // the semantic relation URI for i18n labels/tooltips.
+                        addLink(sourceId, targetId, 'ontology-relation', relationUri);
+                    });
+                });
+
+                // Group parallel links and separate them with curve offsets.
+                const parallelLinkGroups = new Map();
+                links.forEach(link => {
+                    const orderedPair = [link.source, link.target].slice().sort().join('|');
+                    const group = parallelLinkGroups.get(orderedPair) || [];
+                    group.push(link);
+                    parallelLinkGroups.set(orderedPair, group);
+                });
+
+                parallelLinkGroups.forEach(group => {
+                    if (group.length <= 1) return;
+
+                    const baseOffset = GRAPH_CONFIG.PARALLEL_OFFSET_STEP;
+                    const middleIndex = (group.length - 1) / 2;
+                    group.forEach((link, index) => {
+                        let offsetIndex = index - middleIndex;
+                        if (offsetIndex === 0) {
+                            offsetIndex = 0.5;
+                        }
+                        link.curveOffset = offsetIndex * baseOffset;
+                    });
+                });
+
+                // Mark reverse links so inverse relations are visibly distinct.
+                const linkKeyMap = new Map();
+                links.forEach(link => {
+                    const key = `${link.source}|${link.target}`;
+                    linkKeyMap.set(key, link);
+                });
+                links.forEach(link => {
+                    const reverseKey = `${link.target}|${link.source}`;
+                    if (linkKeyMap.has(reverseKey)) {
+                        link.isBidirectional = true;
+                    }
+                });
+
+                // Normalize link endpoints to node references for D3
+                links.forEach(link => {
+                    link.source = nodeMap.get(link.source) || { id: link.source };
+                    link.target = nodeMap.get(link.target) || { id: link.target };
+                });
+
+                const nodeDegree = {};
+                nodes.forEach(n => nodeDegree[n.id] = 0);
+                links.forEach(l => {
+                    const sourceId = l.source.id || l.source;
+                    const targetId = l.target.id || l.target;
+                    nodeDegree[sourceId] = (nodeDegree[sourceId] || 0) + 1;
+                    nodeDegree[targetId] = (nodeDegree[targetId] || 0) + 1;
+                });
+                nodes.forEach(n => {
+                    n.degree = nodeDegree[n.id] || 0;
+                    n.isUndefined = false;
+                });
+
+                return { nodes, links };
+            }
+
             Object.entries(usecasePayload).forEach(([collectionName, items]) => {
                 collectNodesFromCollection(collectionName, items);
             });
@@ -270,9 +392,6 @@ const GraphDataModule = (() => {
             links.forEach(link => {
                 link.source = nodeMap.get(link.source) || { id: link.source };
                 link.target = nodeMap.get(link.target) || { id: link.target };
-                if (link.relationType && !link.label) {
-                    link.label = { fr: link.relationType, en: link.relationType };
-                }
             });
 
             const nodeDegree = {};
