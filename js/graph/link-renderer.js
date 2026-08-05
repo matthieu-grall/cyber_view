@@ -9,6 +9,17 @@ const LinkRendererModule = (() => {
     /** Datum of the currently selected link, or null. */
     const state = { selectedLink: null };
 
+    // Self-loop layout tuning (second pass): distribute loops around a node,
+    // keep them attached to node borders, and increase visual separation.
+    const SELF_LOOP_PORT_COUNT = 8;
+    const SELF_LOOP_BASE_PADDING = 20;
+    const SELF_LOOP_LAYER_STEP = 14;
+    const SELF_LOOP_NODE_SPREAD = 0.34;
+    const SELF_LOOP_CONTROL_GAIN = 0.62;
+    const SELF_LOOP_ANCHOR_PHASE = Math.PI / 8;
+    const SELF_LOOP_ENDPOINT_GAP = 5;
+    const SELF_LOOP_LABEL_OFFSET = 8;
+
     // ==================== PRIVATE FUNCTIONS ====================
 
     /**
@@ -119,6 +130,11 @@ const LinkRendererModule = (() => {
         return `${sourceLabel || ''} → ${label} → ${targetLabel || ''}`;
     }
 
+    /**
+     * Resolve the localized display label of a relation.
+     * @param {Object} link - D3 link datum
+     * @returns {string} Relation label for UI usage
+     */
     function getLinkLabel(link) {
         const language = I18nModule.getLanguage();
 
@@ -130,6 +146,13 @@ const LinkRendererModule = (() => {
         return String(link.relationType || link.type || 'related-to');
     }
 
+    /**
+     * Determine whether a relation label should be visible under current context.
+     * @param {Object} link - D3 link datum
+     * @param {string|null} selectedNodeId
+     * @param {string|null} hoveredNodeId
+     * @returns {boolean}
+     */
     function shouldDisplayLabel(link, selectedNodeId, hoveredNodeId) {
         if (state.selectedLink) {
             return link === state.selectedLink;
@@ -143,6 +166,10 @@ const LinkRendererModule = (() => {
         return false;
     }
 
+    /**
+     * Apply contextual visibility to relation labels and their background pills.
+     * @param {d3.Selection} linkGroup - Selection of link group items
+     */
     function updateLabelVisibility(linkGroup) {
         const selectedNodeId = typeof NodeRendererModule !== 'undefined' && NodeRendererModule.getSelectedNodeId
             ? NodeRendererModule.getSelectedNodeId()
@@ -160,6 +187,50 @@ const LinkRendererModule = (() => {
         });
     }
 
+    /**
+     * Compute a per-node collective layout for self-loops.
+     * The computed index/count are attached to each self-loop datum and
+     * consumed by getLinkGeometry.
+     * @param {d3.Selection} linkGroup - Selection of link group items
+     */
+    function assignSelfLoopLayout(linkGroup) {
+        const loopsByNode = new Map();
+
+        linkGroup.each(function(link) {
+            if (!link?.source || !link?.target) return;
+            if (link.source.id !== link.target.id) return;
+            const key = link.source.id;
+            const bucket = loopsByNode.get(key) || [];
+            bucket.push(link);
+            loopsByNode.set(key, bucket);
+        });
+
+        loopsByNode.forEach(group => {
+            group.sort((a, b) => getLinkLabel(a).localeCompare(getLinkLabel(b), I18nModule.getLanguage()));
+            const total = group.length;
+            const portsPerLayer = SELF_LOOP_PORT_COUNT;
+            group.forEach((link, index) => {
+                const layer = Math.floor(index / portsPerLayer);
+                const indexInLayer = index % portsPerLayer;
+                const slotsInLayer = Math.min(portsPerLayer, total - (layer * portsPerLayer));
+                // Spread occupied ports across the wheel instead of packing
+                // them adjacently (example with 2 loops: ports 0 and 4).
+                const portIndex = Math.floor((indexInLayer * portsPerLayer) / slotsInLayer);
+                link._selfLoopIndex = index;
+                link._selfLoopCount = total;
+                link._selfLoopLayer = layer;
+                link._selfLoopPortIndex = portIndex;
+            });
+        });
+    }
+
+    /**
+     * Find the point where a ray from node center intersects node rectangle border.
+     * @param {Object} node - D3 node datum
+     * @param {number} targetX - Ray target x
+     * @param {number} targetY - Ray target y
+     * @returns {{x:number, y:number}}
+     */
     function getNodeBorderPoint(node, targetX, targetY) {
         const fallbackSize = GRAPH_CONFIG.NODE_FALLBACK_RECT_SIZE || 16;
         const width = node.rectWidth || fallbackSize;
@@ -209,41 +280,75 @@ const LinkRendererModule = (() => {
         const isSelfLoop = source.id === target.id;
 
         if (isSelfLoop) {
-            const offset = link.curveOffset || 32;
-            // Compute loop radius from the node's bounding-box half-diagonal
-            // so the loop always clears the rectangle and stays fully visible.
             const hw = (source.rectWidth || 80) / 2;
             const hh = (source.rectHeight || 28) / 2;
-            const halfDiag = Math.sqrt(hw * hw + hh * hh);
-            const loopRadius = halfDiag * GRAPH_CONFIG.SELF_LOOP_RADIUS_FACTOR;
-            const directionSign = Math.sign(offset) || 1;
-            const angle = -Math.PI / 2 + directionSign * 0.6;
-            const spread = 0.9;
-            const startAngle = angle - spread;
-            const endAngle = angle + spread;
-            const startX = centerX + Math.cos(startAngle) * loopRadius;
-            const startY = centerY + Math.sin(startAngle) * loopRadius;
-            const endX = centerX + Math.cos(endAngle) * loopRadius;
-            const endY = centerY + Math.sin(endAngle) * loopRadius;
-            const controlDistance = loopRadius * 1.2;
-            const cx1 = centerX + Math.cos(angle - 0.35) * controlDistance;
-            const cy1 = centerY + Math.sin(angle - 0.35) * controlDistance;
-            const cx2 = centerX + Math.cos(angle + 0.35) * controlDistance;
-            const cy2 = centerY + Math.sin(angle + 0.35) * controlDistance;
+            const nodeExtent = Math.max(hw, hh);
+            const loopIndex = Number.isInteger(link._selfLoopIndex) ? link._selfLoopIndex : 0;
+            const orbitLayer = Number.isInteger(link._selfLoopLayer)
+                ? link._selfLoopLayer
+                : Math.floor(loopIndex / SELF_LOOP_PORT_COUNT);
+            const portIndex = Number.isInteger(link._selfLoopPortIndex)
+                ? link._selfLoopPortIndex
+                : (loopIndex % SELF_LOOP_PORT_COUNT);
 
-            const labelX = (startX + 3 * cx1 + 3 * cx2 + endX) / 8;
-            const labelY = (startY + 3 * cy1 + 3 * cy2 + endY) / 8;
+            // Pick a side around the node and keep start/end anchored on the
+            // node border instead of floating detached from the shape.
+            const anchorAngle = (-Math.PI / 2)
+                + SELF_LOOP_ANCHOR_PHASE
+                + (portIndex * (2 * Math.PI / SELF_LOOP_PORT_COUNT));
+            const startDir = anchorAngle - SELF_LOOP_NODE_SPREAD;
+            const endDir = anchorAngle + SELF_LOOP_NODE_SPREAD;
+            const startPointRaw = getNodeBorderPoint(source,
+                centerX + Math.cos(startDir) * 1000,
+                centerY + Math.sin(startDir) * 1000);
+            const endPointRaw = getNodeBorderPoint(source,
+                centerX + Math.cos(endDir) * 1000,
+                centerY + Math.sin(endDir) * 1000);
+            const startPoint = {
+                x: startPointRaw.x + Math.cos(startDir) * SELF_LOOP_ENDPOINT_GAP,
+                y: startPointRaw.y + Math.sin(startDir) * SELF_LOOP_ENDPOINT_GAP
+            };
+            const endPoint = {
+                x: endPointRaw.x + Math.cos(endDir) * SELF_LOOP_ENDPOINT_GAP,
+                y: endPointRaw.y + Math.sin(endDir) * SELF_LOOP_ENDPOINT_GAP
+            };
+
+            const loopRadius = nodeExtent + SELF_LOOP_BASE_PADDING + (orbitLayer * SELF_LOOP_LAYER_STEP);
+            const apexDistance = loopRadius;
+            const apexX = centerX + Math.cos(anchorAngle) * apexDistance;
+            const apexY = centerY + Math.sin(anchorAngle) * apexDistance;
+
+            // Tangential control points shape a lobe-like loop and provide
+            // enough curvature to keep neighboring loops visually separated.
+            const tx = -Math.sin(anchorAngle);
+            const ty = Math.cos(anchorAngle);
+            const controlOffset = loopRadius * SELF_LOOP_CONTROL_GAIN;
+            const c1x = apexX + tx * controlOffset;
+            const c1y = apexY + ty * controlOffset;
+            const c2x = apexX - tx * controlOffset;
+            const c2y = apexY - ty * controlOffset;
+
+            // Place label around the curve midpoint (not at the remote apex)
+            // then nudge outward for readability.
+            const midX = 0.125 * startPoint.x + 0.375 * c1x + 0.375 * c2x + 0.125 * endPoint.x;
+            const midY = 0.125 * startPoint.y + 0.375 * c1y + 0.375 * c2y + 0.125 * endPoint.y;
+            const lx = midX - centerX;
+            const ly = midY - centerY;
+            const lnorm = Math.sqrt(lx * lx + ly * ly) || 1;
+            const labelX = midX + (lx / lnorm) * SELF_LOOP_LABEL_OFFSET;
+            const labelY = midY + (ly / lnorm) * SELF_LOOP_LABEL_OFFSET;
 
             return {
-                x1: startX,
-                y1: startY,
-                x2: endX,
-                y2: endY,
+                x1: startPoint.x,
+                y1: startPoint.y,
+                x2: endPoint.x,
+                y2: endPoint.y,
+                c1x,
+                c1y,
+                c2x,
+                c2y,
                 selfLoop: true,
-                cx1,
-                cy1,
-                cx2,
-                cy2,
+                curved: true,
                 labelX,
                 labelY
             };
@@ -278,7 +383,7 @@ const LinkRendererModule = (() => {
     function getLinkPath(link) {
         const g = getLinkGeometry(link);
         if (g.selfLoop) {
-            return `M${g.x1},${g.y1} C${g.cx1},${g.cy1} ${g.cx2},${g.cy2} ${g.x2},${g.y2}`;
+            return `M${g.x1},${g.y1} C${g.c1x},${g.c1y} ${g.c2x},${g.c2y} ${g.x2},${g.y2}`;
         }
         if (!g.curved) {
             return `M${g.x1},${g.y1} L${g.x2},${g.y2}`;
@@ -343,18 +448,35 @@ const LinkRendererModule = (() => {
                 defs.append('marker')
                     .attr('id', 'arrow-hollow')
                     .attr('viewBox', '0 -5 10 10')
-                    .attr('refX', -10)  // Reversed position for marker-start
+                    .attr('refX', 10)
                     .attr('refY', 0)
                     .attr('markerWidth', 6)
                     .attr('markerHeight', 6)
                     .attr('orient', 'auto')
                     .attr('markerUnits', 'strokeWidth')
                     .append('path')
-                    .attr('d', 'M10,-5 L0,0 L10,5')  // Reversed arrow direction
+                    .attr('d', 'M0,-5 L10,0 L0,5')
                     .attr('fill', 'none')
                     .attr('stroke', 'currentColor')
                     .attr('stroke-width', '1.5');
+
+                // Smaller arrow for self-loops to avoid heavy overlap near nodes.
+                defs.append('marker')
+                    .attr('id', 'arrow-loop')
+                    .attr('viewBox', '0 -5 10 10')
+                    .attr('refX', 9)
+                    .attr('refY', 0)
+                    .attr('markerWidth', 5)
+                    .attr('markerHeight', 5)
+                    .attr('orient', 'auto')
+                    .attr('markerUnits', 'strokeWidth')
+                    .append('path')
+                    .attr('d', 'M0,-5 L10,0 L0,5')
+                    .attr('fill', 'currentColor')
+                    .attr('stroke', 'currentColor');
             }
+
+            assignSelfLoopLayout(linkGroup);
 
             // 1. Visual edge path (pointer-events disabled via CSS .link)
             const paths = linkGroup
@@ -365,8 +487,12 @@ const LinkRendererModule = (() => {
                 .attr('stroke-width', link => getLinkStrokeWidth(link))
                 .attr('fill', 'none')
                 .attr('class', 'link')
-                .attr('marker-start', link => (link.type === 'subClassOf' ? 'url(#arrow-hollow)' : null))
-                .attr('marker-end', link => (link.source.id === link.target.id || link.type === 'subClassOf' ? null : 'url(#arrow)'));
+                .attr('marker-start', null)
+                .attr('marker-end', link => {
+                    if (link.type === 'subClassOf') return 'url(#arrow-hollow)';
+                    if (link.source?.id === link.target?.id) return 'url(#arrow-loop)';
+                    return 'url(#arrow)';
+                });
 
             paths.append('title')
                 .text(link => createLinkTooltip(link));
@@ -449,6 +575,8 @@ const LinkRendererModule = (() => {
          * @param {d3.Selection} linkGroup - D3 selection for all link group elements
          */
         updateLinkPositions(linkGroup) {
+            assignSelfLoopLayout(linkGroup);
+
             // Update all paths (visual + hit) to reflect current node positions
             linkGroup.selectAll('path')
                 .attr('d', d => getLinkPath(d));
@@ -512,6 +640,8 @@ const LinkRendererModule = (() => {
          * @param {d3.Selection} linkGroup - D3 selection for link group
          */
         updateLinkLabels(linkGroup) {
+            assignSelfLoopLayout(linkGroup);
+
             linkGroup.selectAll('title')
                 .text(link => createLinkTooltip(link));
 
