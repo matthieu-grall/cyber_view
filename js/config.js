@@ -8,76 +8,17 @@ const AppConfig = {
     // ==================== COLOR PALETTE ====================
     colors: {
         nodeType: {
-            risk: '#a6cee3',
-            'feared-event': '#ffb6c1',
-            'business-asset': '#87ceeb',
-            'risk-source': '#4ecdc4',
-            'security-criteria': '#9b59b6',
-            'severity-level': '#9b59b6',
-            'likelihood-level': '#2ecc71',
-            action: '#f28e2b',
-            actor: '#4ecdc4',
-            'cyber-event': '#ffb6c1',
-            consequence: '#e15759',
-            'consequence-level': '#9b59b6',
-            dimension: '#9b59b6',
-            goal: '#76b7b2',
-            'information-object': '#87ceeb',
             'ontology-class': '#7f7f7f',
             undefined: '#d3d3d3'
         },
-        nodeSeverity: {
-            '1. Minimale': '#a6cee3',
-            '2. Limitée': '#1f78b4',
-            '3. Importante': '#b2df8a',
-            '4. Maximale': '#33a02c'
-        },
         linkType: {
-            'has-criteria': '#ff6b6b',
-            'affects-asset': '#ffa500',
-            'from-source': '#4ecdc4',
-            'has-severity': '#9b59b6',
-            'has-likelihood': '#2ecc71',
             'subClassOf': '#7f7f7f',
             'ontology-relation': '#8b0000',
             'default': '#999'
         }
     },
 
-    // ==================== NODE SIZES ====================
-    nodeSizes: {
-        baseRadius: {
-            risk: 12,
-            'security-criteria': 10,
-            'business-asset': 10,
-            'risk-source': 9,
-            'severity-level': 8,
-            'likelihood-level': 8,
-            action: 9,
-            actor: 9,
-            'cyber-event': 10,
-            consequence: 10,
-            'consequence-level': 8,
-            dimension: 9,
-            goal: 8,
-            'information-object': 10,
-            'ontology-class': 10,
-            'default': 8
-        },
-        degreeBoost: {
-            factor: 0.5,
-            max: 4
-        }
-    },
-
-    // Relationship labels are resolved dynamically from ontology definitions.
     dataFiles: {
-        risks: 'data/risks.json',
-        riskSources: 'data/risk-sources.json',
-        businessAssets: 'data/business-assets.json',
-        securityCriteria: 'data/security-criteria.json',
-        severityLevels: 'data/severity-levels.json',
-        likelihoodLevels: 'data/likelihood-levels.json',
         useCase: 'data/usecase-2026-08-05.json',
         cyberOntology: 'data/cyber-ontology.json'
     },
@@ -87,11 +28,6 @@ const AppConfig = {
             id: 'usecase-2026-08-05',
             label: 'Use case 2026-08-05',
             file: 'data/usecase-2026-08-05.json'
-        },
-        {
-            id: 'usecase-2026-06-05',
-            label: 'Use case 2026-06-05',
-            file: 'data/usecase-2026-06-05.json'
         }
     ],
     defaultUseCaseId: 'usecase-2026-08-05',
@@ -109,18 +45,9 @@ const AppConfig = {
      */
     selectors: {
         svgContainer: '#content_graph_container',
-        graph: '#graph',
-        severityFilter: '#severityFilter',
-        typeFilter: '#typeFilter',
         informationPanel: '#info',
-        ontologyLegend: '#ontology-nodes',
         languageToggle: '.language-toggle',
-        nodeCount: '#nodeCount',
-        linkCount: '#linkCount',
-        studySelect: '#studySelect',
         loadedStudyName: '#loadedFileName',
-        sourceSelect: '#sourceSelect',
-        modeSelect: '#modeSelect'
     },
 
     // ==================== SIMULATION FORCES ====================
@@ -129,20 +56,6 @@ const AppConfig = {
      * Adjust for different graph layouts
      */
     simulationForces: {
-        charge: {
-            strength: -100  // Negative = repulsive force
-        },
-        link: {
-            distance: 180,
-            // FIX (D): dedicated, larger link distance for the Ontology
-            // view, giving curved parallel/bidirectional links more room
-            // to breathe around highly-connected nodes.
-            distanceOntology: 260,
-            strength: 0.7
-        },
-        collide: {
-            radius: 12  // Additional collision padding
-        },
         center: {
             strength: 0.1  // Gentle centering force
         }
@@ -225,4 +138,7 @@ const GRAPH_CONFIG = {
 
     /** Fill-opacity of relation label background rectangles. */
     LABEL_BG_OPACITY: 0.92,
+
+    /** Fallback node box size (px) before label measurement is available. */
+    NODE_FALLBACK_RECT_SIZE: 16,
 };

@@ -7,12 +7,6 @@
 const DataLoaderModule = (() => {
     // ==================== PRIVATE STATE ====================
     const data = {
-        risks: [],
-        riskSources: [],
-        businessAssets: [],
-        securityCriteria: [],
-        severityLevels: [],
-        likelihoodLevels: [],
         currentUsecase: null,
         currentUsecaseRaw: null
     };
@@ -47,12 +41,6 @@ const DataLoaderModule = (() => {
             try {
                 const useCaseData = await loadJsonFile(useCaseFile);
 
-                data.risks = useCaseData.risks || [];
-                data.riskSources = useCaseData.riskSources || [];
-                data.businessAssets = useCaseData.businessAssets || [];
-                data.securityCriteria = useCaseData.securityCriteria || [];
-                data.severityLevels = useCaseData.severityLevels || [];
-                data.likelihoodLevels = useCaseData.likelihoodLevels || [];
                 data.currentUsecaseRaw = useCaseData;
                 data.currentUsecase = {
                     id: useCaseData.id || null,
@@ -84,12 +72,6 @@ const DataLoaderModule = (() => {
 
                 const useCaseData = JSON.parse(text);
 
-                data.risks = useCaseData.risks || [];
-                data.riskSources = useCaseData.riskSources || [];
-                data.businessAssets = useCaseData.businessAssets || [];
-                data.securityCriteria = useCaseData.securityCriteria || [];
-                data.severityLevels = useCaseData.severityLevels || [];
-                data.likelihoodLevels = useCaseData.likelihoodLevels || [];
                 data.currentUsecaseRaw = useCaseData;
                 data.currentUsecase = {
                     id: useCaseData.id || null,
@@ -147,25 +129,5 @@ const DataLoaderModule = (() => {
             return data.ontology || null;
         },
 
-        /**
-         * Resolve an ID reference to a label using reference data
-         * @param {string} id - ID to resolve
-         * @param {string} dataType - Type of reference data (e.g., 'severityLevels')
-         * @returns {string|null} Label or null if not found
-         */
-        resolveIdToLabel(id, dataType) {
-            if (!id || !data[dataType]) return null;
-            const item = data[dataType].find(d => d.id === id);
-            return item ? item.label : id;
-        },
-
-        /**
-         * Get reference data by type
-         * @param {string} dataType - Type of reference data
-         * @returns {Array} Array of reference data items
-         */
-        getReferenceData(dataType) {
-            return data[dataType] || [];
-        }
     };
 })();

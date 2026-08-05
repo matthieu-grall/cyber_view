@@ -15,17 +15,6 @@ const NodeRendererModule = (() => {
 
     // ==================== PRIVATE FUNCTIONS ====================
 
-    /**
-     * Calculate node radius based on degree (number of connections)
-     * @param {Object} node - D3 node object with degree property
-     * @returns {number} Radius in pixels
-     */
-    function calculateNodeRadius(node) {
-        const baseRadius = AppConfig.nodeSizes.baseRadius[node.type] || 8;
-        const boost = Math.min(node.degree * AppConfig.nodeSizes.degreeBoost.factor, AppConfig.nodeSizes.degreeBoost.max);
-        return baseRadius + boost;
-    }
-
     function resetGraphHighlight() {
         d3.selectAll('.node-bg')
             .style('opacity', null)        // revert to CSS / browser default (1)
@@ -81,26 +70,22 @@ const NodeRendererModule = (() => {
     }
 
     /**
-     * Get color for node based on type or severity
+     * Get node border color from ontology-native class metadata.
      * @param {Object} node - D3 node object
      * @returns {string} Color hex code
      */
     function getNodeColor(node) {
-        // Use a uniform visual style for ontology-native individuals, matching
-        // the ontology view expectation.
+        if (node?.type === 'ontology-class') {
+            return AppConfig.colors.nodeType['ontology-class'] || '#7f7f7f';
+        }
         if (node?.rawData?.class && typeof node.rawData.class === 'string' && node.rawData.class.startsWith('#class-')) {
             return AppConfig.colors.nodeType['ontology-class'] || '#7f7f7f';
         }
-
-        if (node.severity && AppConfig.colors.nodeSeverity[node.severity]) {
-            return AppConfig.colors.nodeSeverity[node.severity];
-        }
-        return AppConfig.colors.nodeType[node.type] || '#999999';
+        return AppConfig.colors.nodeType.undefined || '#999999';
     }
 
     /**
-     * Create tooltip text content for node
-     * Combines label, type, and severity information
+     * Create tooltip text content for node.
      * @param {Object} node - D3 node object
      * @returns {string} Formatted tooltip text
      */
@@ -122,10 +107,6 @@ const NodeRendererModule = (() => {
             }
         } else {
             tooltip += `\n[${typeLabel}]`;
-
-            if (node.severity) {
-                tooltip += `\nSeverity: ${node.severity}`;
-            }
 
             if (node.degree) {
                 tooltip += `\nConnections: ${node.degree}`;

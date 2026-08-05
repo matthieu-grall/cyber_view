@@ -35,7 +35,7 @@ const SimulationModule = (() => {
      * @param {number} svgWidth - SVG container width
      * @param {number} svgHeight - SVG container height
      * @param {number} [linkDistance] - Optional override for link distance
-     *   (e.g. a larger value for the Ontology view, see AppConfig.simulationForces.link.distanceOntology)
+    *   (e.g. a larger value for the Ontology view)
      * @returns {Object} Force parameters object
      */
     function getForceParameters(nodeCount, svgWidth, svgHeight, linkDistance) {

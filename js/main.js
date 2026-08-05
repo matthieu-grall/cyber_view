@@ -86,8 +86,8 @@ const CyberViewApplication = (() => {
      * @param {number} svgWidth - SVG width
      * @param {number} svgHeight - SVG height
      * @param {number} [linkDistance] - Optional override for the force-simulation
-     *   link distance (used by the Ontology view to give curved parallel/
-     *   bidirectional links more room; see AppConfig.simulationForces.link.distanceOntology)
+    *   link distance (used by the Ontology view to give curved parallel/
+    *   bidirectional links more room)
      */
     function renderGraph(nodes, links, svgWidth, svgHeight, linkDistance) {
         // Create force simulation

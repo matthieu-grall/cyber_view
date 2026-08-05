@@ -31,9 +31,9 @@ This project is licensed under a
 ## Features
 
 - **Interactive force-directed graph** — nodes represent cyber objects, edges represent their relationships; automatic layout powered by D3.js
-- **Two views** — *Individuals* (use case data: risks, sources, assets, criteria) and *Ontology* (cyber_ontology class hierarchy)
+- **Two views** — *Individuals* (ontology-native use case data) and *Ontology* (cyber_ontology class hierarchy)
 - **Node interaction** — hover for a tooltip, click for a details panel, drag to reposition
-- **Filtering** — filter by node type and severity level, combinable
+- **Filtering** — filter by node type with multi-select
 - **Multilingual** — French and English, switchable at any time, persisted in the browser
 - **Load your own data** — import any use case JSON file directly in the browser
 - **No installation required** — pure static web application
@@ -44,7 +44,7 @@ This project is licensed under a
 
 ### ✅ Current version — 2026-07-23
 
-The application is functional: the graph visualization works for both the Individuals and Ontology views, node details and graph interactions are operational, and the multilingual interface is in place. The latest cleanup pass also aligned the file loader wiring and added lightweight regression checks for the main assets.
+The application is functional: the graph visualization works for both the Individuals and Ontology views, node details and graph interactions are operational, and the multilingual interface is in place. The latest cleanup pass aligned the loader and removed obsolete legacy wiring.
 
 ### 🔄 Priorities
 

@@ -37,8 +37,6 @@ js/
 ├── interactions/
 │   ├── filters.js              # Filtering logic
 │   └── node-details.js         # Details panel
-└── app.js                      # Legacy (reference only)
-
 tests/
 └── smoke_check.py              # Regression checks for metadata and expected UI wiring
 ```
@@ -64,10 +62,10 @@ main.js (orchestration)
 Centralized application configuration:
 - Color palettes (node types, severity, links)
 - Node sizes
-- Relationship labels
 - DOM selectors
 - D3 simulation parameters
-- Data and translation file paths
+- Data use case and ontology file paths
+- Translation file paths
 
 #### `i18n.js`
 Multilingual system management:
@@ -78,10 +76,9 @@ Multilingual system management:
 
 #### `data-loader.js`
 Unified data loading:
-- Load 6 JSON files in parallel
-- ID to label resolution
-- Reference data caching
-- Methods: `loadAll()`, `resolveIdToLabel()`, `getReferenceData()`
+- Load use case payloads (file path or uploaded file)
+- Cache current payload metadata
+- Methods: `loadAll()`, `loadFromFile()`, `getCurrentUsecase()`, `getCurrentUsecaseRaw()`, `loadOntology()`
 
 #### `ontology.js`
 RDF/OWL ontology management:
@@ -93,9 +90,9 @@ RDF/OWL ontology management:
 
 #### `graph-data.js`
 Graph structure creation:
-- Transform raw data to nodes/links
-- Create nodes for: risks, criteria, assets, sources, levels
-- Create links based on relationships
+- Transform ontology-native payloads to nodes/links
+- Keep ontology relation semantics for labels/tooltips
+- Split parallel and bidirectional links with curve offsets
 - Calculate node degree
 - Method: `createGraphData()`
 
@@ -126,10 +123,10 @@ D3 physics simulation:
 
 #### `interactions/filters.js`
 Filtering logic:
-- Severity AND type filtering (AND logic)
+- Type filtering (multi-select)
 - Calculate visible nodes/links
 - Apply filters to DOM
-- Dynamic dropdown population
+- Dynamic filter population from ontology labels
 - Methods: `initialize()`, `setSeverityFilter()`, `setTypeFilter()`, `populateFilterOptions()`, `clearFilters()`
 
 #### `interactions/node-details.js`
@@ -197,8 +194,8 @@ AppConfig.colors.nodeSeverity['4. Maximale'] = '#8B0000';  // Maroon
 
 Edit `js/config.js`:
 ```javascript
-AppConfig.simulationForces.charge.strength = -150;  // Stronger
-AppConfig.simulationForces.link.distance = 200;     // Longer
+GRAPH_CONFIG.NODE_REPULSION = -320;        // Stronger repulsion
+GRAPH_CONFIG.DEFAULT_LINK_DISTANCE = 300;  // Longer links
 ```
 
 ### Fix a Bug
@@ -253,10 +250,10 @@ const text = I18nModule.getTranslation('category.myKey');
 
 ```
 {
-  "header": { "logo", "title" },
-  "menu": { "actions", "severityFilter", "typeFilter", "allSeverities", "allTypes" },
-  "information": { "title", "legend", "nodes", "error", "description", "severity", "connections", "properties" },
-  "footer": { "license", "cc", "flags", "flagsAuthor", "flagsSource", "background", "backgroundAuthor", "backgroundSource" }
+  "headerLabels": { "logo", "title" },
+  "commandsLabels": { "title", "file", "loadedFile", "loadFileButton", "view", "viewIndividuals", "viewOntology", "classFilter" },
+  "informationLabels": { "title", "zoomHint", "legend", "selectedIndividual", "classes", "relations", "description", "types" },
+  "footerLabels": { "license", "cc", "flags", "flagsAuthor", "flagsSource", "background", "backgroundAuthor", "backgroundSource" }
 }
 ```
 
@@ -286,22 +283,24 @@ AppConfig.nodeSizes.degreeBoost.factor = 0.5;  // Boost per link
 #### Simulation Forces
 
 ```javascript
-AppConfig.simulationForces.charge.strength = -100;  // Repulsion
-AppConfig.simulationForces.link.distance = 150;     // Link distance
+GRAPH_CONFIG.NODE_REPULSION = -280;
+GRAPH_CONFIG.DEFAULT_LINK_DISTANCE = 280;
+GRAPH_CONFIG.ONTOLOGY_LINK_DISTANCE = 400;
+AppConfig.simulationForces.center.strength = 0.1;
 ```
 
 #### DOM Selectors
 
 If HTML structure changes:
 ```javascript
-AppConfig.selectors.severityFilter = '#my-new-selector';
 AppConfig.selectors.svgContainer = '#my-container';
+AppConfig.selectors.loadedStudyName = '#my-loaded-name';
 ```
 
 #### File Paths
 
 ```javascript
-AppConfig.dataFiles.risks = 'data/risks.json';
+AppConfig.dataFiles.useCase = 'data/usecase-2026-08-05.json';
 AppConfig.translationFiles.fr = 'locales/fr.json';
 ```
 
@@ -342,7 +341,7 @@ d3.selectAll('circle').selectAll('title').size()  // Should be > 0
 
 **Check:**
 1. That `data/*.json` exist and are valid
-2. That SVG container exists (`id="graph_container"`)
+2. That SVG container exists (`id="content_graph_container"`)
 3. That console has no errors
 
 **Debug commands:**
@@ -360,18 +359,18 @@ d3.selectAll('circle').size()  // Should be > 0
 ### Filters Don't Work
 
 **Check:**
-1. That dropdowns have options:
+1. That class filter buttons are present:
 ```javascript
-d3.select('#severityFilter').selectAll('option').size()  // Should be > 1
+d3.select('#typeFilterContainer').selectAll('.type-filter__item').size()  // Should be > 0
 ```
 
-2. That nodes have correct `type` and `severity`:
+2. That nodes have correct `type`:
 ```javascript
 console.log(CyberViewApplication.getGraphData().nodes)
 ```
 
 **Solution:**
-- Ensure data contains `type` and `severity`
+- Ensure nodes expose `type`
 - Verify `filters.js` initializes correctly
 - Reload page (clear cache)
 
@@ -392,13 +391,13 @@ console.log(CyberViewApplication.getGraphData().nodes)
 ### Slow Performance
 
 For large graphs (1000+ nodes):
-- Increase `simulationForces.charge.strength` (less negative)
-- Decrease `simulationForces.link.distance`
+- Reduce absolute node repulsion
+- Decrease link distances
 - Reduce number of simulation ticks
 
 ```javascript
-AppConfig.simulationForces.charge.strength = -50;
-AppConfig.simulationForces.link.distance = 50;
+GRAPH_CONFIG.NODE_REPULSION = -180;
+GRAPH_CONFIG.DEFAULT_LINK_DISTANCE = 180;
 ```
 
 ---

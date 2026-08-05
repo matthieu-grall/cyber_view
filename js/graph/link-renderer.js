@@ -92,19 +92,16 @@ const LinkRendererModule = (() => {
         if (link.type === 'ontology-relation') {
             return AppConfig.colors.linkType['ontology-relation'] || '#8b0000';
         }
-        return AppConfig.colors.linkType[link.type] || AppConfig.colors.linkType['default'] || '#999';
+        return AppConfig.colors.linkType['default'] || '#999';
     }
 
     /**
-     * Get stroke width for link based on relationship type
-     * Links of certain types may be emphasized
+     * Get default stroke width for links.
      * @param {Object} link - D3 link object
      * @returns {number} Stroke width in pixels
      */
     function getLinkStrokeWidth(link) {
-        // Critical relationships get thicker stroke
-        const criticalTypes = ['has-criteria', 'affects-asset'];
-        return criticalTypes.includes(link.type) ? 2 : 1;
+        return 1;
     }
 
     /**
@@ -132,8 +129,9 @@ const LinkRendererModule = (() => {
     }
 
     function getNodeBorderPoint(node, targetX, targetY) {
-        const width = node.rectWidth || (AppConfig.nodeSizes.baseRadius[node.type] || 8) * 2;
-        const height = node.rectHeight || (AppConfig.nodeSizes.baseRadius[node.type] || 8) * 2;
+        const fallbackSize = GRAPH_CONFIG.NODE_FALLBACK_RECT_SIZE || 16;
+        const width = node.rectWidth || fallbackSize;
+        const height = node.rectHeight || fallbackSize;
         const halfWidth = width / 2;
         const halfHeight = height / 2;
         const dx = targetX - node.x;

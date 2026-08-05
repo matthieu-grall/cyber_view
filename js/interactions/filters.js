@@ -7,7 +7,6 @@
 const FiltersModule = (() => {
     // ==================== PRIVATE STATE ====================
     const state = {
-        activeSeverityFilter: null,
         activeTypeFilters: new Set(),
         visibleNodeIds: new Set(),
         currentNodes: [],
@@ -24,17 +23,7 @@ const FiltersModule = (() => {
         const visibleIds = new Set();
 
         state.currentNodes.forEach(node => {
-            let matches = true;
-
-            if (state.activeSeverityFilter && node.severity !== state.activeSeverityFilter) {
-                matches = false;
-            }
-
-            if (state.activeTypeFilters.size > 0 && !state.activeTypeFilters.has(node.type)) {
-                matches = false;
-            }
-
-            if (matches) {
+            if (state.activeTypeFilters.size === 0 || state.activeTypeFilters.has(node.type)) {
                 visibleIds.add(node.id);
             }
         });
@@ -92,7 +81,6 @@ const FiltersModule = (() => {
         initialize(nodes, links) {
             state.currentNodes = nodes;
             state.currentLinks = links;
-            state.activeSeverityFilter = null;
             state.activeTypeFilters.clear();
             state.visibleNodeIds = new Set(nodes.map(n => n.id));
         },
@@ -140,16 +128,6 @@ const FiltersModule = (() => {
         },
 
         /**
-         * Handle severity filter change event
-         * @param {string} severity - Selected severity value (empty string = all)
-         */
-        setSeverityFilter(severity) {
-            state.activeSeverityFilter = severity || null;
-            state.visibleNodeIds = calculateVisibleNodes();
-            applyFiltersToVisualization();
-        },
-
-        /**
          * Handle type filter change event
          * @param {string} type - Selected node type (empty string = all)
          */
@@ -169,7 +147,6 @@ const FiltersModule = (() => {
          * Clear all active filters
          */
         clearFilters() {
-            state.activeSeverityFilter = null;
             state.activeTypeFilters.clear();
             state.visibleNodeIds = new Set(state.currentNodes.map(n => n.id));
 
@@ -185,11 +162,10 @@ const FiltersModule = (() => {
 
         /**
          * Get current filter state
-         * @returns {Object} Object with activeSeverityFilter and activeTypeFilter
+         * @returns {Object} Object with active type filters
          */
         getFilterState() {
             return {
-                severity: state.activeSeverityFilter,
                 types: Array.from(state.activeTypeFilters)
             };
         },
