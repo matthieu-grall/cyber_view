@@ -33,6 +33,7 @@ const LinkRendererModule = (() => {
                     .style('stroke-width', null);
             }
         });
+        updateLabelVisibility(d3.selectAll('.link-group-item'));
     }
 
     /**
@@ -47,6 +48,7 @@ const LinkRendererModule = (() => {
                 .style('stroke-opacity', null)
                 .style('stroke-width', null);
         });
+        updateLabelVisibility(d3.selectAll('.link-group-item'));
     }
 
     /**
@@ -126,6 +128,36 @@ const LinkRendererModule = (() => {
         }
 
         return String(link.relationType || link.type || 'related-to');
+    }
+
+    function shouldDisplayLabel(link, selectedNodeId, hoveredNodeId) {
+        if (state.selectedLink) {
+            return link === state.selectedLink;
+        }
+        if (selectedNodeId) {
+            return link.source?.id === selectedNodeId;
+        }
+        if (hoveredNodeId) {
+            return link.source?.id === hoveredNodeId;
+        }
+        return false;
+    }
+
+    function updateLabelVisibility(linkGroup) {
+        const selectedNodeId = typeof NodeRendererModule !== 'undefined' && NodeRendererModule.getSelectedNodeId
+            ? NodeRendererModule.getSelectedNodeId()
+            : null;
+        const hoveredNodeId = typeof NodeRendererModule !== 'undefined' && NodeRendererModule.getHoveredNodeId
+            ? NodeRendererModule.getHoveredNodeId()
+            : null;
+
+        linkGroup.each(function(linkDatum) {
+            const groupSelection = d3.select(this);
+            const visible = shouldDisplayLabel(linkDatum, selectedNodeId, hoveredNodeId);
+            const displayValue = visible ? null : 'none';
+            groupSelection.select('text.link-label').style('display', displayValue);
+            groupSelection.select('rect.link-label-bg').style('display', displayValue);
+        });
     }
 
     function getNodeBorderPoint(node, targetX, targetY) {
@@ -405,6 +437,9 @@ const LinkRendererModule = (() => {
                     }
                 });
 
+            // Hide relation labels by default; reveal them from selection context.
+            updateLabelVisibility(linkGroup);
+
             return linkGroup;
         },
 
@@ -432,6 +467,8 @@ const LinkRendererModule = (() => {
                     return isAdjacent ? 'link-label link-label-adjacent' : 'link-label';
                 });
             });
+
+            updateLabelVisibility(linkGroup);
 
             // Build an entry list for every label (text + its background rect)
             const entries = [];
@@ -495,6 +532,8 @@ const LinkRendererModule = (() => {
                     d._labelHeight = bbox.height;
                 }
             });
+
+            updateLabelVisibility(linkGroup);
         },
 
         /**
@@ -504,6 +543,13 @@ const LinkRendererModule = (() => {
          */
         clearSelection() {
             clearLinkSelection();
+        },
+
+        /**
+         * Recompute relation-label visibility from current selection/hover context.
+         */
+        refreshLabelVisibility() {
+            updateLabelVisibility(d3.selectAll('.link-group-item'));
         }
     };
 })();

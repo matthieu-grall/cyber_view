@@ -260,9 +260,12 @@ const CyberViewApplication = (() => {
             state.renderHeight,
             GRAPH_CONFIG.ONTOLOGY_LINK_DISTANCE
         );
+        FiltersModule.initialize(graphData.nodes, graphData.links);
+        FiltersModule.populateFilterOptions();
+        FiltersModule.attachEventHandlers();
         NodeDetailsModule.initialize(graphData.nodes, graphData.links);
         NodeDetailsModule.attachEventHandlers();
-        document.getElementById('filters').style.display = 'none';
+        document.getElementById('filters').style.display = '';
     }
 
     function setupDataLoadingControls() {

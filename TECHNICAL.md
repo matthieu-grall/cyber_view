@@ -109,7 +109,7 @@ Node rendering:
 Link rendering:
 - Create SVG lines
 - Relationship tooltips
-- Labels for critical relationships
+- Contextual relation labels (hidden by default, shown for hovered/selected source node or selected edge)
 - Update positions (simulation tick)
 - Filtering based on node visibility
 - Methods: `renderLinks()`, `updateLinkPositions()`, `updateLinkLabels()`

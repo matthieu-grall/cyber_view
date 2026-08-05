@@ -10,7 +10,8 @@ const NodeRendererModule = (() => {
 
     // State for node selection highlight persistence
     const state = {
-        selectedNodeId: null
+        selectedNodeId: null,
+        hoveredNodeId: null
     };
 
     // ==================== PRIVATE FUNCTIONS ====================
@@ -54,11 +55,11 @@ const NodeRendererModule = (() => {
         // Dim non-adjacent links; emphasise links that touch the selected node
         d3.selectAll('.link')
             .style('stroke-opacity', link =>
-                (link.source.id === nodeId || link.target.id === nodeId)
+                (link.source.id === nodeId)
                     ? '0.85'
                     : String(GRAPH_CONFIG.DIM_OPACITY))
             .style('stroke-width', link =>
-                (link.source.id === nodeId || link.target.id === nodeId)
+                (link.source.id === nodeId)
                     ? '2.5px' : '1px');
 
         state.selectedNodeId = nodeId;
@@ -124,6 +125,14 @@ const NodeRendererModule = (() => {
          */
         getSelectedNodeId() {
             return state.selectedNodeId;
+        },
+
+        /**
+         * Get the ID of the currently hovered node.
+         * @returns {string|null} Hovered node ID or null
+         */
+        getHoveredNodeId() {
+            return state.hoveredNodeId;
         },
         /**
          * Create and append node elements to D3 selection
@@ -199,26 +208,35 @@ const NodeRendererModule = (() => {
                 .on('mouseenter', function(event, d) {
                     if (state.selectedNodeId) return;
 
+                    state.hoveredNodeId = d.id;
+                    if (typeof LinkRendererModule !== 'undefined' && LinkRendererModule.refreshLabelVisibility) {
+                        LinkRendererModule.refreshLabelVisibility();
+                    }
+
                     d3.select(this).select('rect.node-bg')
                         .attr('stroke-width', 2.5)
                         .style('filter', 'drop-shadow(0 0 6px rgba(0,0,0,0.22))');
 
                     d3.selectAll('.link')
                         .style('stroke-opacity', link =>
-                            (link.source.id === d.id || link.target.id === d.id) ? '0.85' : '0.10')
+                            (link.source.id === d.id) ? '0.85' : '0.10')
                         .style('stroke-width', link =>
-                            (link.source.id === d.id || link.target.id === d.id) ? '2.5px' : '1px');
+                            (link.source.id === d.id) ? '2.5px' : '1px');
 
                     d3.selectAll('.node-bg')
                         .style('opacity', node =>
                             (node.id === d.id ||
                              d3.selectAll('.link').filter(l =>
-                                (l.source.id === d.id && l.target.id === node.id) ||
-                                (l.target.id === d.id && l.source.id === node.id)
+                                (l.source.id === d.id && l.target.id === node.id)
                             ).size() > 0) ? null : GRAPH_CONFIG.DIM_OPACITY);
                 })
                 .on('mouseleave', function(event, d) {
                     if (state.selectedNodeId) return;
+
+                    state.hoveredNodeId = null;
+                    if (typeof LinkRendererModule !== 'undefined' && LinkRendererModule.refreshLabelVisibility) {
+                        LinkRendererModule.refreshLabelVisibility();
+                    }
 
                     d3.select(this).select('rect.node-bg')
                         .attr('stroke-width', 1)
@@ -227,6 +245,7 @@ const NodeRendererModule = (() => {
                     resetGraphHighlight();
                 })
                 .on('click', function(event, d) {
+                    state.hoveredNodeId = null;
                     applySelectionHighlight(d.id);
 
                     // Clear any active link selection when a node is focused
