@@ -105,10 +105,10 @@ const GRAPH_CONFIG = {
 
     /** Perpendicular offset (px) applied to bidirectional links without
      *  an explicit curveOffset from the data layer. */
-    BASE_CURVE_OFFSET: 45,
+    BASE_CURVE_OFFSET: 62,
 
     /** Perpendicular offset step (px) between each parallel link in a group. */
-    PARALLEL_OFFSET_STEP: 44,
+    PARALLEL_OFFSET_STEP: 54,
 
     /** Self-loop radius expressed as a multiplier of the node half-diagonal,
      *  so the loop always clears the rectangle and remains fully visible. */

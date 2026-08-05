@@ -93,6 +93,7 @@ Graph structure creation:
 - Transform ontology-native payloads to nodes/links
 - Keep ontology relation semantics for labels/tooltips
 - Split parallel and bidirectional links with curve offsets
+- For inverse links, keep identical offset sign across both directions so the renderer's direction-dependent normal bends them on opposite sides
 - Calculate node degree
 - Method: `createGraphData()`
 

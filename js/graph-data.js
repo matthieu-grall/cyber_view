@@ -136,6 +136,29 @@ const GraphDataModule = (() => {
                 parallelLinkGroups.forEach(group => {
                     if (group.length <= 1) return;
 
+                    const [a, b] = [group[0].source, group[0].target].slice().sort();
+                    const forward = group.filter(link => link.source === a && link.target === b)
+                        .sort((l1, l2) => String(l1.relationType || '').localeCompare(String(l2.relationType || '')));
+                    const reverse = group.filter(link => link.source === b && link.target === a)
+                        .sort((l1, l2) => String(l1.relationType || '').localeCompare(String(l2.relationType || '')));
+
+                    const hasBothDirections = forward.length > 0 && reverse.length > 0;
+                    if (hasBothDirections) {
+                        const baseOffset = GRAPH_CONFIG.BASE_CURVE_OFFSET;
+                        const offsetStep = GRAPH_CONFIG.PARALLEL_OFFSET_STEP;
+
+                        forward.forEach((link, index) => {
+                            link.curveOffset = baseOffset + (index * offsetStep);
+                        });
+                        reverse.forEach((link, index) => {
+                            // Keep the same sign as forward links: because the
+                            // geometry normal is direction-dependent, reverse edges
+                            // naturally bend to the opposite side.
+                            link.curveOffset = baseOffset + (index * offsetStep);
+                        });
+                        return;
+                    }
+
                     const baseOffset = GRAPH_CONFIG.PARALLEL_OFFSET_STEP;
                     const middleIndex = (group.length - 1) / 2;
                     group.forEach((link, index) => {
@@ -280,6 +303,29 @@ const GraphDataModule = (() => {
 
             parallelLinkGroups.forEach(group => {
                 if (group.length <= 1) return;
+
+                const [a, b] = [group[0].source, group[0].target].slice().sort();
+                const forward = group.filter(link => link.source === a && link.target === b)
+                    .sort((l1, l2) => String(l1.relationType || l1.type || '').localeCompare(String(l2.relationType || l2.type || '')));
+                const reverse = group.filter(link => link.source === b && link.target === a)
+                    .sort((l1, l2) => String(l1.relationType || l1.type || '').localeCompare(String(l2.relationType || l2.type || '')));
+
+                const hasBothDirections = forward.length > 0 && reverse.length > 0;
+                if (hasBothDirections) {
+                    const baseOffset = GRAPH_CONFIG.BASE_CURVE_OFFSET;
+                    const offsetStep = GRAPH_CONFIG.PARALLEL_OFFSET_STEP;
+
+                    forward.forEach((link, index) => {
+                        link.curveOffset = baseOffset + (index * offsetStep);
+                    });
+                    reverse.forEach((link, index) => {
+                        // Keep the same sign as forward links: because the
+                        // geometry normal is direction-dependent, reverse edges
+                        // naturally bend to the opposite side.
+                        link.curveOffset = baseOffset + (index * offsetStep);
+                    });
+                    return;
+                }
 
                 const baseOffset = GRAPH_CONFIG.PARALLEL_OFFSET_STEP;
                 const middleIndex = (group.length - 1) / 2;
