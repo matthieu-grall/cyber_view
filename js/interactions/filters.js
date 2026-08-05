@@ -13,6 +13,23 @@ const FiltersModule = (() => {
         currentLinks: []
     };
 
+    function getFilterKey(node) {
+        if (node?.type === 'ontology-class') {
+            return `class:${node.id}`;
+        }
+        return `type:${node?.type || 'undefined'}`;
+    }
+
+    function getFilterLabel(node) {
+        if (node?.type === 'ontology-class') {
+            const language = I18nModule.getLanguage();
+            return language === 'en'
+                ? (node.labelEn || node.label || node.id)
+                : (node.labelFr || node.label || node.id);
+        }
+        return OntologyModule.getNodeTypeLabel(node.type, I18nModule.getLanguage());
+    }
+
     // ==================== PRIVATE FUNCTIONS ====================
 
     /**
@@ -23,7 +40,8 @@ const FiltersModule = (() => {
         const visibleIds = new Set();
 
         state.currentNodes.forEach(node => {
-            if (state.activeTypeFilters.size === 0 || state.activeTypeFilters.has(node.type)) {
+            const filterKey = getFilterKey(node);
+            if (state.activeTypeFilters.size === 0 || state.activeTypeFilters.has(filterKey)) {
                 visibleIds.add(node.id);
             }
         });
@@ -95,18 +113,25 @@ const FiltersModule = (() => {
 
             container.innerHTML = '';
 
-            const counts = {};
+            const counts = new Map();
+            const labels = new Map();
             state.currentNodes.forEach(node => {
-                counts[node.type] = (counts[node.type] || 0) + 1;
+                const key = getFilterKey(node);
+                counts.set(key, (counts.get(key) || 0) + 1);
+                if (!labels.has(key)) {
+                    labels.set(key, getFilterLabel(node));
+                }
             });
 
-            const nodeTypes = [...new Set(state.currentNodes.map(node => node.type))].sort();
-            nodeTypes.forEach(type => {
-                const typeLabel = OntologyModule.getNodeTypeLabel(type, I18nModule.getLanguage());
+            const sortedKeys = Array.from(labels.keys()).sort((a, b) =>
+                String(labels.get(a)).localeCompare(String(labels.get(b)), I18nModule.getLanguage())
+            );
+
+            sortedKeys.forEach(key => {
                 const button = document.createElement('button');
                 button.className = 'type-filter__item';
-                button.setAttribute('data-type', type);
-                button.innerHTML = `<span class="label">${typeLabel}</span><span class="count">${counts[type] || 0}</span>`;
+                button.setAttribute('data-type', key);
+                button.innerHTML = `<span class="label">${labels.get(key)}</span><span class="count">${counts.get(key) || 0}</span>`;
                 container.appendChild(button);
             });
         },
@@ -119,8 +144,9 @@ const FiltersModule = (() => {
             if (!container) return;
 
             container.querySelectorAll('.type-filter__item').forEach(button => {
-                const type = button.getAttribute('data-type');
-                const typeLabel = OntologyModule.getNodeTypeLabel(type, I18nModule.getLanguage());
+                const key = button.getAttribute('data-type');
+                const sampleNode = state.currentNodes.find(node => getFilterKey(node) === key);
+                const typeLabel = sampleNode ? getFilterLabel(sampleNode) : key;
                 const count = button.querySelector('.count')?.textContent || '';
                 button.querySelector('.label').textContent = typeLabel;
                 if (count) button.querySelector('.count').textContent = count;
@@ -129,7 +155,7 @@ const FiltersModule = (() => {
 
         /**
          * Handle type filter change event
-         * @param {string} type - Selected node type (empty string = all)
+         * @param {string} type - Selected filter key (empty string = all)
          */
         setTypeFilter(type) {
             // Toggle single type selection: if empty -> clear
@@ -162,7 +188,7 @@ const FiltersModule = (() => {
 
         /**
          * Get current filter state
-         * @returns {Object} Object with active type filters
+         * @returns {Object} Object with active filter keys
          */
         getFilterState() {
             return {

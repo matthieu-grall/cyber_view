@@ -124,7 +124,7 @@ D3 physics simulation:
 
 #### `interactions/filters.js`
 Filtering logic:
-- Type filtering (multi-select)
+- Multi-select filtering by node type (Individuals) and by class identity (Ontology)
 - Calculate visible nodes/links
 - Apply filters to DOM
 - Dynamic filter population from ontology labels

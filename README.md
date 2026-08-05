@@ -33,7 +33,7 @@ This project is licensed under a
 - **Interactive force-directed graph** — nodes represent cyber objects, edges represent their relationships; automatic layout powered by D3.js
 - **Two views** — *Individuals* (ontology-native use case data) and *Ontology* (cyber_ontology class hierarchy)
 - **Node interaction** — hover for a tooltip, click for a details panel, drag to reposition
-- **Filtering** — filter by node type with multi-select
+- **Filtering** — multi-select filtering by node type (Individuals) or ontology class (Ontology)
 - **Multilingual** — French and English, switchable at any time, persisted in the browser
 - **Load your own data** — import any use case JSON file directly in the browser
 - **No installation required** — pure static web application
@@ -78,6 +78,6 @@ Requires a modern browser (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+). No bu
 ## Going further
 
 - **[TECHNICAL.md](TECHNICAL.md)** — architecture, file organization, module descriptions, development guide
-- **[data/cyber-ontology-rules.md](data/cyber-ontology-rules.md)** — ontology design principles, naming conventions, modeling rules
+- **[data/ONTOLOGY.md](data/ONTOLOGY.md)** — ontology design principles, naming conventions, modeling rules
 - **[cyber_ontology](https://github.com/matthieu-grall/cyber_ontology)** — the reference ontology this project builds on
 - **[AI methodological tools](https://github.com/matthieu-grall/ai)** — related methodological resources
