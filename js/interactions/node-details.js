@@ -98,6 +98,7 @@ const NodeDetailsModule = (() => {
         const connected = getConnectedNodes(node);
         const rawData = node.rawData || {};
         const definition = rawData.isDefinedBy?.[language] || rawData.isDefinedBy?.fr || rawData.isDefinedBy?.en || '';
+        const classLabel = node.type !== 'ontology-class' ? typeLabel : '';
         const rationale = rawData.labelRationale?.[language] || rawData.labelRationale?.fr || rawData.labelRationale?.en || '';
         const properties = Array.isArray(rawData.properties) ? rawData.properties : [];
 
@@ -107,6 +108,7 @@ const NodeDetailsModule = (() => {
             <div class="node-details__body">
                 <div class="node-details__header">
                     <h2>${escapeHtml(displayLabel)}</h2>
+                    ${classLabel ? `<p class="node-details__definition">${escapeHtml(classLabel)}</p>` : ''}
                     ${definition ? `<p class="node-details__definition">${escapeHtml(definition)}</p>` : ''}
                 </div>
         `;

@@ -99,8 +99,8 @@ Graph structure creation:
 
 #### `graph/node-renderer.js`
 Node rendering:
-- Create SVG circles with styling
-- Native tooltips (SVG `<title>`)
+- Create SVG rectangles with styling
+- Native tooltips (SVG `<title>`) with localized relation count for individuals
 - Sizes proportional to degree
 - Interactions: drag, hover, click
 - Visibility filtering
@@ -128,12 +128,14 @@ Filtering logic:
 - Calculate visible nodes/links
 - Apply filters to DOM
 - Dynamic filter population from ontology labels
-- Methods: `initialize()`, `setSeverityFilter()`, `setTypeFilter()`, `populateFilterOptions()`, `clearFilters()`
+- Methods: `initialize()`, `setTypeFilter()`, `populateFilterOptions()`, `clearFilters()`
 
 #### `interactions/node-details.js`
 Node details panel:
 - Display detailed node information on click
+- Show localized class label under selected individual title
 - List connected nodes with relationships
+- Preserve line breaks in ontology definitions
 - XSS protection (HTML escaping)
 - Multilingual update
 - Methods: `displayNodeDetails()`, `clearNodeDetails()`, `updateLabels()`

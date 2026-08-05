@@ -36,6 +36,7 @@
     "ontologyDefinition": "Définition",
     "ontologyDefinitionFR": "Définition FR",
     "ontologyDefinitionEN": "Définition EN",
+    "inheritedClassRelation": "Classe héritée",
     "types": "Types"
   },
   "footerLabels": {

@@ -42,9 +42,9 @@ This project is licensed under a
 
 ## Status and roadmap
 
-### ✅ Current version — 2026-07-23
+### ✅ Current version — 2026-08-05
 
-The application is functional: the graph visualization works for both the Individuals and Ontology views, node details and graph interactions are operational, and the multilingual interface is in place. The latest cleanup pass aligned the loader and removed obsolete legacy wiring.
+The application is functional: the ontology is consolidated for the first usecase, data is consistent with this ontology, the graph visualization works for both the Individuals and Ontology views, node details and graph interactions are operational, and the multilingual interface is in place. The latest cleanup pass aligned the loader and removed obsolete legacy wiring.
 
 ### 🔄 Priorities
 

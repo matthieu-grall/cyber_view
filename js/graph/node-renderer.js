@@ -92,11 +92,19 @@ const NodeRendererModule = (() => {
      */
     function createNodeTooltip(node) {
         const language = I18nModule.getLanguage();
-        const nodeLabel = node.label;
         const definition = node.rawData?.isDefinedBy;
-        let tooltip = `${nodeLabel}`;
-
         const typeLabel = OntologyModule.getNodeTypeLabel(node.type, language);
+        const relationsLabel = I18nModule.getTranslation('informationLabels.relations') || 'Relations';
+
+        if (node.type !== 'ontology-class') {
+            const lines = [typeLabel];
+            if (node.degree) {
+                lines.push(`${relationsLabel}: ${node.degree}`);
+            }
+            return lines.join('\n');
+        }
+
+        let tooltip = `${node.label}`;
         if (node.type === 'ontology-class' && definition) {
             const definitionText = typeof definition === 'string'
                 ? definition
@@ -104,13 +112,7 @@ const NodeRendererModule = (() => {
             if (definitionText) {
                 tooltip += `\n${definitionText}`;
             } else {
-                tooltip += `\n[${typeLabel}]`;
-            }
-        } else {
-            tooltip += `\n[${typeLabel}]`;
-
-            if (node.degree) {
-                tooltip += `\nConnections: ${node.degree}`;
+                tooltip += `\n${typeLabel}`;
             }
         }
 

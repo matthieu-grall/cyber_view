@@ -36,6 +36,7 @@
     "ontologyDefinition": "Definition",
     "ontologyDefinitionFR": "Definition FR",
     "ontologyDefinitionEN": "Definition EN",
+    "inheritedClassRelation": "Inherited class",
     "types": "Types"
   },
   "footerLabels": {

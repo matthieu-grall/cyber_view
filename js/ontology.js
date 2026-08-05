@@ -95,6 +95,10 @@ const OntologyModule = (() => {
 
     function getRelationLabel(relationType, language = 'fr') {
         if (!relationType) return '';
+        if (normalizeKey(relationType) === 'subclassof') {
+            return I18nModule.getTranslation('informationLabels.inheritedClassRelation')
+                || (language === 'fr' ? 'Classe hérité' : 'Inherited class');
+        }
         const relation = getRelationDefinition(relationType);
         if (relation && relation.label) {
             return relation.label[language] || relation.label.fr || relation.label.en || String(relationType);

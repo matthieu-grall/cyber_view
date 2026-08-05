@@ -379,6 +379,10 @@ a:has(.license-icon) {
     font-style: italic;
 }
 
+.node-details__definition {
+    white-space: pre-line;
+}
+
 .node-details__properties {
     margin: 0;
     padding-left: 16px;
