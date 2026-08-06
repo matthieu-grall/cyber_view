@@ -9,16 +9,18 @@ const LinkRendererModule = (() => {
     /** Datum of the currently selected link, or null. */
     const state = { selectedLink: null };
 
-    // Self-loop layout tuning (second pass): distribute loops around a node,
-    // keep them attached to node borders, and increase visual separation.
-    const SELF_LOOP_PORT_COUNT = 8;
-    const SELF_LOOP_BASE_PADDING = 20;
-    const SELF_LOOP_LAYER_STEP = 14;
-    const SELF_LOOP_NODE_SPREAD = 0.34;
-    const SELF_LOOP_CONTROL_GAIN = 0.62;
-    const SELF_LOOP_ANCHOR_PHASE = Math.PI / 8;
-    const SELF_LOOP_ENDPOINT_GAP = 5;
-    const SELF_LOOP_LABEL_OFFSET = 8;
+    // Number of sides used to distribute multiple self-loops around a node:
+    // 4 means top, right, bottom, left.
+    const SELF_LOOP_SIDE_COUNT = 4;
+    // Base outward distance (in px) from node border to the loop crest.
+    // Higher values create larger and more readable arcs.
+    const SELF_LOOP_BASE_PADDING = 28;
+    // Extra outward distance (in px) applied per additional loop layer
+    // on the same node, preventing tight overlap between sibling loops.
+    const SELF_LOOP_LAYER_STEP = 18;
+    // Outward shift (in px) applied to the self-loop label anchor so text
+    // sits outside the curve instead of colliding with node borders/arrows.
+    const SELF_LOOP_LABEL_OFFSET = 12;
 
     // ==================== PRIVATE FUNCTIONS ====================
 
@@ -189,8 +191,7 @@ const LinkRendererModule = (() => {
 
     /**
      * Compute a per-node collective layout for self-loops.
-     * The computed index/count are attached to each self-loop datum and
-     * consumed by getLinkGeometry.
+     * Loops are spread by side (top/right/bottom/left), then by outer layers.
      * @param {d3.Selection} linkGroup - Selection of link group items
      */
     function assignSelfLoopLayout(linkGroup) {
@@ -207,19 +208,12 @@ const LinkRendererModule = (() => {
 
         loopsByNode.forEach(group => {
             group.sort((a, b) => getLinkLabel(a).localeCompare(getLinkLabel(b), I18nModule.getLanguage()));
-            const total = group.length;
-            const portsPerLayer = SELF_LOOP_PORT_COUNT;
             group.forEach((link, index) => {
-                const layer = Math.floor(index / portsPerLayer);
-                const indexInLayer = index % portsPerLayer;
-                const slotsInLayer = Math.min(portsPerLayer, total - (layer * portsPerLayer));
-                // Spread occupied ports across the wheel instead of packing
-                // them adjacently (example with 2 loops: ports 0 and 4).
-                const portIndex = Math.floor((indexInLayer * portsPerLayer) / slotsInLayer);
+                const side = index % SELF_LOOP_SIDE_COUNT;
+                const layer = Math.floor(index / SELF_LOOP_SIDE_COUNT);
                 link._selfLoopIndex = index;
-                link._selfLoopCount = total;
+                link._selfLoopSide = side;
                 link._selfLoopLayer = layer;
-                link._selfLoopPortIndex = portIndex;
             });
         });
     }
@@ -282,54 +276,67 @@ const LinkRendererModule = (() => {
         if (isSelfLoop) {
             const hw = (source.rectWidth || 80) / 2;
             const hh = (source.rectHeight || 28) / 2;
-            const nodeExtent = Math.max(hw, hh);
             const loopIndex = Number.isInteger(link._selfLoopIndex) ? link._selfLoopIndex : 0;
+            const side = Number.isInteger(link._selfLoopSide)
+                ? link._selfLoopSide
+                : (loopIndex % SELF_LOOP_SIDE_COUNT);
             const orbitLayer = Number.isInteger(link._selfLoopLayer)
                 ? link._selfLoopLayer
-                : Math.floor(loopIndex / SELF_LOOP_PORT_COUNT);
-            const portIndex = Number.isInteger(link._selfLoopPortIndex)
-                ? link._selfLoopPortIndex
-                : (loopIndex % SELF_LOOP_PORT_COUNT);
+                : Math.floor(loopIndex / SELF_LOOP_SIDE_COUNT);
 
-            // Pick a side around the node and keep start/end anchored on the
-            // node border instead of floating detached from the shape.
-            const anchorAngle = (-Math.PI / 2)
-                + SELF_LOOP_ANCHOR_PHASE
-                + (portIndex * (2 * Math.PI / SELF_LOOP_PORT_COUNT));
-            const startDir = anchorAngle - SELF_LOOP_NODE_SPREAD;
-            const endDir = anchorAngle + SELF_LOOP_NODE_SPREAD;
-            const startPointRaw = getNodeBorderPoint(source,
-                centerX + Math.cos(startDir) * 1000,
-                centerY + Math.sin(startDir) * 1000);
-            const endPointRaw = getNodeBorderPoint(source,
-                centerX + Math.cos(endDir) * 1000,
-                centerY + Math.sin(endDir) * 1000);
-            const startPoint = {
-                x: startPointRaw.x + Math.cos(startDir) * SELF_LOOP_ENDPOINT_GAP,
-                y: startPointRaw.y + Math.sin(startDir) * SELF_LOOP_ENDPOINT_GAP
-            };
-            const endPoint = {
-                x: endPointRaw.x + Math.cos(endDir) * SELF_LOOP_ENDPOINT_GAP,
-                y: endPointRaw.y + Math.sin(endDir) * SELF_LOOP_ENDPOINT_GAP
-            };
+            // Outward controls loop size; sideSpan controls start/end spread
+            // on the same side of the rectangle.
+            const outward = SELF_LOOP_BASE_PADDING + (orbitLayer * SELF_LOOP_LAYER_STEP);
+            const sideSpan = Math.max(10, Math.min(hw, hh) * 0.85);
 
-            const loopRadius = nodeExtent + SELF_LOOP_BASE_PADDING + (orbitLayer * SELF_LOOP_LAYER_STEP);
-            const apexDistance = loopRadius;
-            const apexX = centerX + Math.cos(anchorAngle) * apexDistance;
-            const apexY = centerY + Math.sin(anchorAngle) * apexDistance;
+            let startPoint;
+            let endPoint;
+            let c1x;
+            let c1y;
+            let c2x;
+            let c2y;
 
-            // Tangential control points shape a lobe-like loop and provide
-            // enough curvature to keep neighboring loops visually separated.
-            const tx = -Math.sin(anchorAngle);
-            const ty = Math.cos(anchorAngle);
-            const controlOffset = loopRadius * SELF_LOOP_CONTROL_GAIN;
-            const c1x = apexX + tx * controlOffset;
-            const c1y = apexY + ty * controlOffset;
-            const c2x = apexX - tx * controlOffset;
-            const c2y = apexY - ty * controlOffset;
+            // Use a single cubic lobe outside one node side.
+            // Path orientation keeps arrowheads consistently at arrival only.
+            if (side === 0) { // top
+                const y = centerY - hh;
+                const apexY = y - outward;
+                startPoint = { x: centerX - sideSpan, y };
+                endPoint = { x: centerX + sideSpan, y };
+                c1x = startPoint.x;
+                c1y = apexY;
+                c2x = endPoint.x;
+                c2y = apexY;
+            } else if (side === 1) { // right
+                const x = centerX + hw;
+                const apexX = x + outward;
+                startPoint = { x, y: centerY - sideSpan };
+                endPoint = { x, y: centerY + sideSpan };
+                c1x = apexX;
+                c1y = startPoint.y;
+                c2x = apexX;
+                c2y = endPoint.y;
+            } else if (side === 2) { // bottom
+                const y = centerY + hh;
+                const apexY = y + outward;
+                startPoint = { x: centerX + sideSpan, y };
+                endPoint = { x: centerX - sideSpan, y };
+                c1x = startPoint.x;
+                c1y = apexY;
+                c2x = endPoint.x;
+                c2y = apexY;
+            } else { // left
+                const x = centerX - hw;
+                const apexX = x - outward;
+                startPoint = { x, y: centerY + sideSpan };
+                endPoint = { x, y: centerY - sideSpan };
+                c1x = apexX;
+                c1y = startPoint.y;
+                c2x = apexX;
+                c2y = endPoint.y;
+            }
 
-            // Place label around the curve midpoint (not at the remote apex)
-            // then nudge outward for readability.
+            // Place label near the curve midpoint and nudge outward.
             const midX = 0.125 * startPoint.x + 0.375 * c1x + 0.375 * c2x + 0.125 * endPoint.x;
             const midY = 0.125 * startPoint.y + 0.375 * c1y + 0.375 * c2y + 0.125 * endPoint.y;
             const lx = midX - centerX;
@@ -464,7 +471,7 @@ const LinkRendererModule = (() => {
                 defs.append('marker')
                     .attr('id', 'arrow-loop')
                     .attr('viewBox', '0 -5 10 10')
-                    .attr('refX', 9)
+                    .attr('refX', 3)
                     .attr('refY', 0)
                     .attr('markerWidth', 5)
                     .attr('markerHeight', 5)

@@ -109,6 +109,8 @@ Node rendering:
 #### `graph/link-renderer.js`
 Link rendering:
 - Create SVG lines
+- Render self-loops as simple non-crossing cubic arcs distributed around node sides (top/right/bottom/left) with layer-based spacing
+- Keep a single loop arrowhead on `marker-end` to preserve direction readability
 - Relationship tooltips
 - Contextual relation labels (hidden by default, shown for hovered/selected source node or selected edge)
 - Update positions (simulation tick)
