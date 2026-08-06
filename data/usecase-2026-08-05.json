@@ -1,6 +1,13 @@
 {
     "id":  "usecase-2026-08-05",
     "name":  "Use case 2026-08-05",
+    "metadata":  {
+                     "usecaseUri":  "#usecase-risk-management",
+                     "sourceApplication":  "risk-management-app-a",
+                     "datasetObject":  "risk-study-facial-recognition",
+                     "datasetRevision":  "2026-08-05",
+                     "extractedAt":  "2026-08-05"
+                 },
     "individuals":  [
                         {
                             "id":  "dimension-confidentialite",

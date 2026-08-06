@@ -11,6 +11,8 @@
     "view": "View",
     "viewIndividuals": "Individuals",
     "viewOntology": "Ontology",
+    "filters": "Filters",
+    "usecaseFilter": "Use cases",
     "classFilter": "Classes",
     "allClasses": "All",
     "resetLayout": "Reset layout"

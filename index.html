@@ -69,10 +69,13 @@ License: Creative Commons Attribution 4.0 International (CC BY 4.0)
                 <button id="resetLayoutButton" class="layout-reset__button" data-i18n="commandsLabels.resetLayout">₻éinitialiser le layout</button>
             </div>
 
-            <!-- Type filter: scrollable, sized for many classes -->
+            <!-- Filters: use cases then classes, same visual pattern -->
             <div id="filters" class="type-filter">
-                <h3 data-i18n="commandsLabels.classFilter">Filtres</h3>
-                <div id="typeFilterContainer" class="type-filter__list" role="group" aria-label="Types"></div>
+                <h3 data-i18n="commandsLabels.filters">Filtres</h3>
+                <h4 class="type-filter__subtitle" data-i18n="commandsLabels.usecaseFilter">Cas d'usage</h4>
+                <div id="usecaseFilterContainer" class="type-filter__list" role="group" aria-label="Use cases"></div>
+                <h4 class="type-filter__subtitle" data-i18n="commandsLabels.classFilter">Classes</h4>
+                <div id="classFilterContainer" class="type-filter__list" role="group" aria-label="Classes"></div>
             </div>
 
         </div>
@@ -149,7 +152,7 @@ License: Creative Commons Attribution 4.0 International (CC BY 4.0)
     <!-- SIMULATION: D3 force-directed simulation and physics -->
     <script src="js/graph/simulation.js"></script>
 
-    <!-- INTERACTIONS: Filter logic for severity and node type -->
+    <!-- INTERACTIONS: Filter logic for use cases and classes -->
     <script src="js/interactions/filters.js"></script>
 
     <!-- INTERACTIONS: Node details panel and click-to-display logic -->

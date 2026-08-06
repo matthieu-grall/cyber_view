@@ -11,6 +11,8 @@ const OntologyModule = (() => {
     const classByLabel = new Map();
     const relationByUri = new Map();
     const relationByNormalizedLabel = new Map();
+    const usecaseByUri = new Map();
+    const usecaseUriByNormalizedLabel = new Map();
 
     const collectionNameToClassUriFallback = {
         risks: '#class-risk',
@@ -40,6 +42,22 @@ const OntologyModule = (() => {
         classByLabel.clear();
         relationByUri.clear();
         relationByNormalizedLabel.clear();
+        usecaseByUri.clear();
+        usecaseUriByNormalizedLabel.clear();
+
+        (data.usecases || []).forEach(usecase => {
+            const uri = usecase?.uri || usecase?.id || usecase?.['@id'];
+            if (!uri) return;
+            usecaseByUri.set(uri, usecase);
+
+            const normalizedLabelFr = normalizeKey(usecase.label?.fr);
+            const normalizedLabelEn = normalizeKey(usecase.label?.en);
+            if (normalizedLabelFr) usecaseUriByNormalizedLabel.set(normalizedLabelFr, uri);
+            if (normalizedLabelEn) usecaseUriByNormalizedLabel.set(normalizedLabelEn, uri);
+
+            const normalizedUriKey = normalizeKey(uri.replace(/^#usecase-/, ''));
+            if (normalizedUriKey) usecaseUriByNormalizedLabel.set(normalizedUriKey, uri);
+        });
 
         (data.classes || []).forEach(ontologyClass => {
             const uri = ontologyClass.uri || ontologyClass.id || ontologyClass['@id'];
@@ -85,6 +103,48 @@ const OntologyModule = (() => {
 
     function getClassDefinitionByUri(uri) {
         return classByUri.get(uri) || null;
+    }
+
+    function getClassLabelByUri(uri, language = 'fr') {
+        const ontologyClass = getClassDefinitionByUri(uri);
+        if (!ontologyClass) return uri;
+        return ontologyClass.label?.[language]
+            || ontologyClass.label?.fr
+            || ontologyClass.label?.en
+            || uri;
+    }
+
+    function normalizeUsecaseUri(usecaseRef) {
+        if (!usecaseRef || typeof usecaseRef !== 'string') return null;
+        if (usecaseByUri.has(usecaseRef)) return usecaseRef;
+        if (/^#usecase-/.test(usecaseRef)) return usecaseRef;
+
+        const normalized = normalizeKey(usecaseRef);
+        if (usecaseUriByNormalizedLabel.has(normalized)) {
+            return usecaseUriByNormalizedLabel.get(normalized);
+        }
+
+        const fallback = `#usecase-${String(usecaseRef).trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}`;
+        return fallback || null;
+    }
+
+    function getUsecaseLabelByUri(uri, language = 'fr') {
+        if (!uri) return '';
+        const usecase = usecaseByUri.get(uri);
+        if (usecase?.label) {
+            return usecase.label[language] || usecase.label.fr || usecase.label.en || uri;
+        }
+        return uri;
+    }
+
+    function getClassUsecaseUris(classUri) {
+        const ontologyClass = getClassDefinitionByUri(classUri);
+        if (!ontologyClass) return [];
+
+        const refs = Array.isArray(ontologyClass.usecases) ? ontologyClass.usecases : [];
+        return refs
+            .map(normalizeUsecaseUri)
+            .filter(Boolean);
     }
 
     function getRelationDefinition(relationType) {
@@ -231,6 +291,52 @@ const OntologyModule = (() => {
          */
         getClassDefinitionByUri(uri) {
             return getClassDefinitionByUri(uri);
+        },
+
+        /**
+         * Get localized ontology class label by class URI.
+         * @param {string} uri
+         * @param {string} language
+         * @returns {string}
+         */
+        getClassLabelByUri(uri, language = 'fr') {
+            return getClassLabelByUri(uri, language);
+        },
+
+        /**
+         * Normalize a use case reference to its URI form.
+         * @param {string} usecaseRef
+         * @returns {string|null}
+         */
+        normalizeUsecaseUri(usecaseRef) {
+            return normalizeUsecaseUri(usecaseRef);
+        },
+
+        /**
+         * Get all declared use case definitions from ontology root.
+         * @returns {Array}
+         */
+        getUsecases() {
+            return Array.from(usecaseByUri.values());
+        },
+
+        /**
+         * Get localized use case label by URI.
+         * @param {string} uri
+         * @param {string} language
+         * @returns {string}
+         */
+        getUsecaseLabelByUri(uri, language = 'fr') {
+            return getUsecaseLabelByUri(uri, language);
+        },
+
+        /**
+         * Get normalized use case URIs assigned to a class URI.
+         * @param {string} classUri
+         * @returns {Array<string>}
+         */
+        getClassUsecaseUris(classUri) {
+            return getClassUsecaseUris(classUri);
         },
 
         /**

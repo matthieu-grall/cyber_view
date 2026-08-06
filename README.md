@@ -7,6 +7,7 @@ The objective of cyber_view is to **enable the visualization of data used in the
 The general idea would be to simulate a structured data lake, which will expand progressively, with new data from different cyber use cases, and to offer different visualizations of this data.
 
 ![Screenshot1](img/screenshot1.png)
+![Screenshot2](img/screenshot2.png)
 
 This should also allow to:
 - **demonstrate the value of data visualization**, for example to carry out risk studies (e.g., realizing that objects have already been created and reusing them, identifying inconsistencies and managing them, acting on the various components of risks and not only on vulnerabilities, etc.);
@@ -33,7 +34,7 @@ This project is licensed under a
 - **Interactive force-directed graph** — nodes represent cyber objects, edges represent their relationships; automatic layout powered by D3.js
 - **Two views** — *Individuals* (ontology-native use case data) and *Ontology* (cyber_ontology class hierarchy)
 - **Node interaction** — hover for a tooltip, click for a details panel, drag to reposition
-- **Filtering** — multi-select filtering by node type (Individuals) or ontology class (Ontology)
+- **Filtering** — separate multi-select filters by use case and by class, with consistent UI in both views
 - **Multilingual** — French and English, switchable at any time, persisted in the browser
 - **Load your own data** — import any use case JSON file directly in the browser
 - **No installation required** — pure static web application

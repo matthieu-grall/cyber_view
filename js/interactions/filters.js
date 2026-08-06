@@ -7,27 +7,41 @@
 const FiltersModule = (() => {
     // ==================== PRIVATE STATE ====================
     const state = {
-        activeTypeFilters: new Set(),
+        activeUsecaseFilters: new Set(),
+        activeClassFilters: new Set(),
         visibleNodeIds: new Set(),
         currentNodes: [],
         currentLinks: []
     };
 
-    function getFilterKey(node) {
-        if (node?.type === 'ontology-class') {
-            return `class:${node.id}`;
-        }
-        return `type:${node?.type || 'undefined'}`;
+    function getClassKey(node) {
+        if (node?.classUri) return String(node.classUri);
+        if (node?.type === 'ontology-class') return String(node.id);
+        return String(node?.type || 'undefined');
     }
 
-    function getFilterLabel(node) {
+    function getClassLabel(node) {
+        const language = I18nModule.getLanguage();
+        if (node?.classUri && OntologyModule.getClassLabelByUri) {
+            return OntologyModule.getClassLabelByUri(node.classUri, language) || node.classUri;
+        }
         if (node?.type === 'ontology-class') {
-            const language = I18nModule.getLanguage();
             return language === 'en'
                 ? (node.labelEn || node.label || node.id)
                 : (node.labelFr || node.label || node.id);
         }
         return OntologyModule.getNodeTypeLabel(node.type, I18nModule.getLanguage());
+    }
+
+    function getUsecaseUris(node) {
+        return Array.isArray(node?.usecaseUris) ? node.usecaseUris : [];
+    }
+
+    function getUsecaseLabel(usecaseUri) {
+        const label = OntologyModule.getUsecaseLabelByUri
+            ? OntologyModule.getUsecaseLabelByUri(usecaseUri, I18nModule.getLanguage())
+            : '';
+        return label || String(usecaseUri || 'unknown-usecase');
     }
 
     // ==================== PRIVATE FUNCTIONS ====================
@@ -36,12 +50,18 @@ const FiltersModule = (() => {
      * Determine which nodes should be visible based on active filters
      * @returns {Set} Set of visible node IDs
      */
-        function calculateVisibleNodes() {
+    function calculateVisibleNodes() {
         const visibleIds = new Set();
 
         state.currentNodes.forEach(node => {
-            const filterKey = getFilterKey(node);
-            if (state.activeTypeFilters.size === 0 || state.activeTypeFilters.has(filterKey)) {
+            const classKey = getClassKey(node);
+            const nodeUsecases = getUsecaseUris(node);
+            const matchesUsecase = state.activeUsecaseFilters.size === 0
+                || nodeUsecases.some(uri => state.activeUsecaseFilters.has(uri));
+            const matchesClass = state.activeClassFilters.size === 0
+                || state.activeClassFilters.has(classKey);
+
+            if (matchesUsecase && matchesClass) {
                 visibleIds.add(node.id);
             }
         });
@@ -99,40 +119,67 @@ const FiltersModule = (() => {
         initialize(nodes, links) {
             state.currentNodes = nodes;
             state.currentLinks = links;
-            state.activeTypeFilters.clear();
+            state.activeUsecaseFilters.clear();
+            state.activeClassFilters.clear();
             state.visibleNodeIds = new Set(nodes.map(n => n.id));
         },
 
         /**
-         * Populate filter dropdown options
+         * Populate use case and class filter options
          * Called after data is loaded
          */
         populateFilterOptions() {
-            const container = document.getElementById('typeFilterContainer');
-            if (!container) return;
+            const usecaseContainer = document.getElementById('usecaseFilterContainer');
+            const classContainer = document.getElementById('classFilterContainer');
+            if (!usecaseContainer || !classContainer) return;
 
-            container.innerHTML = '';
+            usecaseContainer.innerHTML = '';
+            classContainer.innerHTML = '';
 
-            const counts = new Map();
-            const labels = new Map();
+            const usecaseCounts = new Map();
+            const usecaseLabels = new Map();
+            const classCounts = new Map();
+            const classLabels = new Map();
+
             state.currentNodes.forEach(node => {
-                const key = getFilterKey(node);
-                counts.set(key, (counts.get(key) || 0) + 1);
-                if (!labels.has(key)) {
-                    labels.set(key, getFilterLabel(node));
+                const classKey = getClassKey(node);
+                classCounts.set(classKey, (classCounts.get(classKey) || 0) + 1);
+                if (!classLabels.has(classKey)) {
+                    classLabels.set(classKey, getClassLabel(node));
                 }
+
+                getUsecaseUris(node).forEach(usecaseUri => {
+                    usecaseCounts.set(usecaseUri, (usecaseCounts.get(usecaseUri) || 0) + 1);
+                    if (!usecaseLabels.has(usecaseUri)) {
+                        usecaseLabels.set(usecaseUri, getUsecaseLabel(usecaseUri));
+                    }
+                });
             });
 
-            const sortedKeys = Array.from(labels.keys()).sort((a, b) =>
-                String(labels.get(a)).localeCompare(String(labels.get(b)), I18nModule.getLanguage())
+            const sortedUsecaseKeys = Array.from(usecaseLabels.keys()).sort((a, b) =>
+                String(usecaseLabels.get(a)).localeCompare(String(usecaseLabels.get(b)), I18nModule.getLanguage())
             );
 
-            sortedKeys.forEach(key => {
+            sortedUsecaseKeys.forEach(key => {
                 const button = document.createElement('button');
                 button.className = 'type-filter__item';
-                button.setAttribute('data-type', key);
-                button.innerHTML = `<span class="label">${labels.get(key)}</span><span class="count">${counts.get(key) || 0}</span>`;
-                container.appendChild(button);
+                button.setAttribute('data-filter-kind', 'usecase');
+                button.setAttribute('data-filter-key', key);
+                button.innerHTML = `<span class="label">${usecaseLabels.get(key)}</span><span class="count">${usecaseCounts.get(key) || 0}</span>`;
+                usecaseContainer.appendChild(button);
+            });
+
+            const sortedClassKeys = Array.from(classLabels.keys()).sort((a, b) =>
+                String(classLabels.get(a)).localeCompare(String(classLabels.get(b)), I18nModule.getLanguage())
+            );
+
+            sortedClassKeys.forEach(key => {
+                const button = document.createElement('button');
+                button.className = 'type-filter__item';
+                button.setAttribute('data-filter-kind', 'class');
+                button.setAttribute('data-filter-key', key);
+                button.innerHTML = `<span class="label">${classLabels.get(key)}</span><span class="count">${classCounts.get(key) || 0}</span>`;
+                classContainer.appendChild(button);
             });
         },
 
@@ -140,48 +187,86 @@ const FiltersModule = (() => {
          * Update filter labels after language change
          */
         updateFilterLabels() {
-            const container = document.getElementById('typeFilterContainer');
-            if (!container) return;
+            const updateContainerLabels = (container, kind) => {
+                if (!container) return;
+                container.querySelectorAll('.type-filter__item').forEach(button => {
+                    const key = button.getAttribute('data-filter-key');
+                    if (!key) return;
 
-            container.querySelectorAll('.type-filter__item').forEach(button => {
-                const key = button.getAttribute('data-type');
-                const sampleNode = state.currentNodes.find(node => getFilterKey(node) === key);
-                const typeLabel = sampleNode ? getFilterLabel(sampleNode) : key;
-                const count = button.querySelector('.count')?.textContent || '';
-                button.querySelector('.label').textContent = typeLabel;
-                if (count) button.querySelector('.count').textContent = count;
-            });
+                    let label = key;
+                    if (kind === 'usecase') {
+                        label = getUsecaseLabel(key);
+                    } else {
+                        const sampleNode = state.currentNodes.find(node => getClassKey(node) === key);
+                        if (sampleNode) {
+                            label = getClassLabel(sampleNode);
+                        }
+                    }
+
+                    const labelSpan = button.querySelector('.label');
+                    if (labelSpan) labelSpan.textContent = label;
+                });
+            };
+
+            updateContainerLabels(document.getElementById('usecaseFilterContainer'), 'usecase');
+            updateContainerLabels(document.getElementById('classFilterContainer'), 'class');
         },
 
         /**
-         * Handle type filter change event
-         * @param {string} type - Selected filter key (empty string = all)
+         * Handle class filter change event
+         * @param {string} classUri - Selected class filter key
          */
-        setTypeFilter(type) {
-            // Toggle single type selection: if empty -> clear
-            if (!type) {
-                state.activeTypeFilters.clear();
+        setClassFilter(classUri) {
+            if (!classUri) {
+                state.activeClassFilters.clear();
             } else {
-                if (state.activeTypeFilters.has(type)) state.activeTypeFilters.delete(type);
-                else state.activeTypeFilters.add(type);
+                if (state.activeClassFilters.has(classUri)) state.activeClassFilters.delete(classUri);
+                else state.activeClassFilters.add(classUri);
             }
             state.visibleNodeIds = calculateVisibleNodes();
             applyFiltersToVisualization();
         },
 
         /**
+         * Handle use case filter change event
+         * @param {string} usecaseUri - Selected use case URI
+         */
+        setUsecaseFilter(usecaseUri) {
+            if (!usecaseUri) {
+                state.activeUsecaseFilters.clear();
+            } else {
+                if (state.activeUsecaseFilters.has(usecaseUri)) state.activeUsecaseFilters.delete(usecaseUri);
+                else state.activeUsecaseFilters.add(usecaseUri);
+            }
+            state.visibleNodeIds = calculateVisibleNodes();
+            applyFiltersToVisualization();
+        },
+
+        /**
+         * Legacy compatibility alias (class facet)
+         * @param {string} value - Class filter key
+         */
+        setTypeFilter(value) {
+            this.setClassFilter(value);
+        },
+
+        /**
          * Clear all active filters
          */
         clearFilters() {
-            state.activeTypeFilters.clear();
+            state.activeUsecaseFilters.clear();
+            state.activeClassFilters.clear();
             state.visibleNodeIds = new Set(state.currentNodes.map(n => n.id));
 
-            const container = document.getElementById('typeFilterContainer');
-            if (container) {
+            [
+                document.getElementById('usecaseFilterContainer'),
+                document.getElementById('classFilterContainer')
+            ].forEach(container => {
+                if (!container) return;
                 container.querySelectorAll('.type-filter__item--active').forEach(button => {
                     button.classList.remove('type-filter__item--active');
                 });
-            }
+            });
 
             applyFiltersToVisualization();
         },
@@ -192,33 +277,42 @@ const FiltersModule = (() => {
          */
         getFilterState() {
             return {
-                types: Array.from(state.activeTypeFilters)
+                usecases: Array.from(state.activeUsecaseFilters),
+                classes: Array.from(state.activeClassFilters)
             };
         },
 
         /**
-         * Attach change event handlers to filter controls
+         * Attach click event handlers to both filter controls
          */
         attachEventHandlers() {
-            const container = document.getElementById('typeFilterContainer');
-            if (!container) return;
+            const attachToContainer = (container, kind) => {
+                if (!container || container.dataset.bound === 'true') return;
 
-            container.addEventListener('click', (event) => {
-                const button = event.target.closest('.type-filter__item');
-                if (!button) return;
+                container.addEventListener('click', (event) => {
+                    const button = event.target.closest('.type-filter__item');
+                    if (!button) return;
 
-                const type = button.getAttribute('data-type');
-                const isActive = button.classList.toggle('type-filter__item--active');
+                    const key = button.getAttribute('data-filter-key');
+                    if (!key) return;
 
-                if (isActive) {
-                    state.activeTypeFilters.add(type);
-                } else {
-                    state.activeTypeFilters.delete(type);
-                }
+                    const isActive = button.classList.toggle('type-filter__item--active');
+                    const targetSet = kind === 'usecase'
+                        ? state.activeUsecaseFilters
+                        : state.activeClassFilters;
 
-                state.visibleNodeIds = calculateVisibleNodes();
-                applyFiltersToVisualization();
-            });
+                    if (isActive) targetSet.add(key);
+                    else targetSet.delete(key);
+
+                    state.visibleNodeIds = calculateVisibleNodes();
+                    applyFiltersToVisualization();
+                });
+
+                container.dataset.bound = 'true';
+            };
+
+            attachToContainer(document.getElementById('usecaseFilterContainer'), 'usecase');
+            attachToContainer(document.getElementById('classFilterContainer'), 'class');
         }
     };
 })();

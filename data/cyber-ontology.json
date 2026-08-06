@@ -1,4 +1,20 @@
 {
+  "usecases": [
+    {
+      "uri": "#usecase-risk-management",
+      "label": {
+        "fr": "Gestion des risques",
+        "en": "#usecase-risk-management"
+      }
+    },
+    {
+      "uri": "#usecase-it-management",
+      "label": {
+        "fr": "Gestion de parc informatique",
+        "en": "#usecase-it-management"
+      }
+    }
+  ],
   "classes": [
     {
       "uri": "#class-action",
@@ -20,7 +36,7 @@
         "2026-07-18: add labelRationale, improve definition and relations, change #relation-triggers to #relation-causes"
       ],
       "usecases": [
-        "Risk management"
+        "#usecase-risk-management"
       ],
       "properties": [
       ],
@@ -114,7 +130,7 @@
         "2026-07-18: add labelRationale, improve definition and relations"
       ],
       "usecases": [
-        "Risk management"
+        "#usecase-risk-management"
       ],
       "properties": [
       ],
@@ -184,7 +200,7 @@
         "2026-07-18: move synonyms to definition"
       ],
       "usecases": [
-        "Risk management"
+        "#usecase-risk-management"
       ],
       "properties": [
       ],
@@ -212,7 +228,7 @@
         "2026-07-18: add labelRationale, improve definition"
       ],
       "usecases": [
-        "Risk management"
+        "#usecase-risk-management"
       ],
       "properties": [
       ],
@@ -280,7 +296,7 @@
         "2026-07-18: add labelRationale, definition and relations"
       ],
       "usecases": [
-        "Risk management"
+        "#usecase-risk-management"
       ],
       "properties": [
       ],
@@ -316,8 +332,8 @@
         "2026-07-11: add labelRationale, improve definition"
       ],
       "usecases": [
-        "IT management",
-        "Risk management"
+        "#usecase-it-management",
+        "#usecase-risk-management"
       ],
       "properties": [
         {
@@ -382,7 +398,7 @@
         "2026-07-18: correct labels"
       ],
       "usecases": [
-        "Risk management"
+        "#usecase-risk-management"
       ],
       "properties": [
       ],
@@ -453,7 +469,7 @@
         "2026-07-18: improve definition"
       ],
       "usecases": [
-        "Risk management"
+        "#usecase-risk-management"
       ],
       "properties": [
       ],
@@ -489,7 +505,7 @@
         "2026-07-18: add labelRationale, improve labels and definition"
       ],
       "usecases": [
-        "Risk management"
+        "#usecase-risk-management"
       ],
       "properties": [
       ],
@@ -528,7 +544,7 @@
         "2026-07-18: rename #relation-is-including-in to #relation-is-included-in"
       ],
       "usecases": [
-        "Risk management"
+        "#usecase-risk-management"
       ],
       "properties": [
       ],
@@ -572,7 +588,7 @@
         "2026-07-18: add labelRationale, definition and relations"
       ],
       "usecases": [
-        "Risk management"
+        "#usecase-risk-management"
       ],
       "properties": [
       ],
@@ -608,7 +624,7 @@
         "2026-07-18: add labelRationale, definition and relations"
       ],
       "usecases": [
-        "Risk management"
+        "#usecase-risk-management"
       ],
       "properties": [
       ],
@@ -654,7 +670,7 @@
         "2026-07-18: improve rationale"
       ],
       "usecases": [
-        "Risk management"
+        "#usecase-risk-management"
       ],
       "properties": [
       ],
@@ -687,3 +703,4 @@
     }
   ]
 }
+

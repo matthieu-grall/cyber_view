@@ -78,12 +78,14 @@ Multilingual system management:
 Unified data loading:
 - Load use case payloads (file path or uploaded file)
 - Cache current payload metadata
+- Preserve dataset metadata (including use case URI and provenance fields)
 - Methods: `loadAll()`, `loadFromFile()`, `getCurrentUsecase()`, `getCurrentUsecaseRaw()`, `loadOntology()`
 
 #### `ontology.js`
 RDF/OWL ontology management:
 - Load cyber-ontology.json
 - Map node types to ontology classes
+- Resolve use case registry (`#usecase-*` URIs) and localized labels
 - Localized labels and definitions
 - Dynamic legend generation
 - Methods: `load()`, `getNodeTypeLabel()`, `getNodeTypeDefinition()`, `generateLegend()`
@@ -92,6 +94,7 @@ RDF/OWL ontology management:
 Graph structure creation:
 - Transform ontology-native payloads to nodes/links
 - Keep ontology relation semantics for labels/tooltips
+- Attach `classUri` and normalized `usecaseUris` on nodes for filtering
 - Split parallel and bidirectional links with curve offsets
 - For inverse links, keep identical offset sign across both directions so the renderer's direction-dependent normal bends them on opposite sides
 - Calculate node degree
@@ -126,11 +129,14 @@ D3 physics simulation:
 
 #### `interactions/filters.js`
 Filtering logic:
-- Multi-select filtering by node type (Individuals) and by class identity (Ontology)
+- Two independent multi-select filters with shared design:
+  - use case filter (URI-based)
+  - class filter (URI-based)
+- OR logic inside each facet and AND logic across facets
 - Calculate visible nodes/links
 - Apply filters to DOM
 - Dynamic filter population from ontology labels
-- Methods: `initialize()`, `setTypeFilter()`, `populateFilterOptions()`, `clearFilters()`
+- Methods: `initialize()`, `setUsecaseFilter()`, `setClassFilter()`, `populateFilterOptions()`, `clearFilters()`
 
 #### `interactions/node-details.js`
 Node details panel:
@@ -256,7 +262,7 @@ const text = I18nModule.getTranslation('category.myKey');
 ```
 {
   "headerLabels": { "logo", "title" },
-  "commandsLabels": { "title", "file", "loadedFile", "loadFileButton", "view", "viewIndividuals", "viewOntology", "classFilter" },
+  "commandsLabels": { "title", "file", "loadedFile", "loadFileButton", "view", "viewIndividuals", "viewOntology", "filters", "usecaseFilter", "classFilter" },
   "informationLabels": { "title", "zoomHint", "legend", "selectedIndividual", "classes", "relations", "description", "types" },
   "footerLabels": { "license", "cc", "flags", "flagsAuthor", "flagsSource", "background", "backgroundAuthor", "backgroundSource" }
 }

@@ -21,6 +21,14 @@ const GraphDataModule = (() => {
             const nodeMap = new Map();
             const links = [];
 
+            function normalizeUsecaseUris(usecaseRefs) {
+                const refs = Array.isArray(usecaseRefs) ? usecaseRefs : [];
+                const normalized = refs
+                    .map(ref => (OntologyModule.normalizeUsecaseUri ? OntologyModule.normalizeUsecaseUri(ref) : ref))
+                    .filter(Boolean);
+                return Array.from(new Set(normalized));
+            }
+
             function normalizeUriFragment(value, prefix) {
                 if (!value || typeof value !== 'string') return '';
                 return value
@@ -52,7 +60,7 @@ const GraphDataModule = (() => {
                     item && typeof item === 'object' && typeof item.id === 'string' && typeof item.class === 'string');
             }
 
-            function addNode(id, type, label, rawData) {
+            function addNode(id, type, label, rawData, classUri = null, usecaseUris = []) {
                 if (!id) return null;
                 if (nodeMap.has(id)) {
                     const existing = nodeMap.get(id);
@@ -64,6 +72,13 @@ const GraphDataModule = (() => {
                     if (!existing.rawData && rawData) {
                         existing.rawData = rawData;
                     }
+                    if (!existing.classUri && classUri) {
+                        existing.classUri = classUri;
+                    }
+                    existing.usecaseUris = Array.from(new Set([
+                        ...(existing.usecaseUris || []),
+                        ...(Array.isArray(usecaseUris) ? usecaseUris : [])
+                    ]));
                     return existing;
                 }
                 const node = {
@@ -71,6 +86,8 @@ const GraphDataModule = (() => {
                     type: type || 'undefined',
                     label: label || id,
                     rawData: rawData || null,
+                    classUri: classUri || null,
+                    usecaseUris: Array.isArray(usecaseUris) ? usecaseUris : [],
                     degree: 0,
                     isUndefined: type === 'undefined'
                 };
@@ -99,6 +116,10 @@ const GraphDataModule = (() => {
 
             if (isOntologyIndividualsPayload(usecasePayload)) {
                 const individuals = usecasePayload.individuals;
+                const payloadUsecaseUris = normalizeUsecaseUris([
+                    usecasePayload?.metadata?.usecaseUri,
+                    usecasePayload?.metadata?.usecase
+                ]);
 
                 individuals.forEach(individual => {
                     const id = individual.id;
@@ -106,7 +127,16 @@ const GraphDataModule = (() => {
 
                     const type = normalizeIndividualType(individual.class);
                     const label = inferLabelFromIndividual(individual);
-                    addNode(id, type, label, individual);
+                    const classUsecaseUris = OntologyModule.getClassUsecaseUris
+                        ? OntologyModule.getClassUsecaseUris(individual.class)
+                        : [];
+                    const individualUsecaseUris = normalizeUsecaseUris(individual.usecases);
+                    const usecaseUris = Array.from(new Set([
+                        ...payloadUsecaseUris,
+                        ...classUsecaseUris,
+                        ...individualUsecaseUris
+                    ]));
+                    addNode(id, type, label, individual, individual.class || null, usecaseUris);
                 });
 
                 individuals.forEach(individual => {
@@ -240,6 +270,10 @@ const GraphDataModule = (() => {
                     label,
                     labelFr,
                     labelEn,
+                    classUri: id,
+                    usecaseUris: (ontologyClass.usecases || [])
+                        .map(ref => (OntologyModule.normalizeUsecaseUri ? OntologyModule.normalizeUsecaseUri(ref) : ref))
+                        .filter(Boolean),
                     rawData: ontologyClass,
                     // keep original subClassOf raw value for reference
                     subClassOf: ontologyClass.subClassOf || null,

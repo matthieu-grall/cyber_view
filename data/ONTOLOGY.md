@@ -23,11 +23,17 @@ The ontology is designed to be:
 
 ## 3. Core Structure
 
-The ontology is a JSON file with a root `classes` array. Each entry is a class.
+The ontology is a JSON file with:
+- a root `usecases` array (registry of stable use case URIs)
+- a root `classes` array (class definitions)
 
 Each class may define:
 - `properties` — datatype attributes (literal values)
 - `relations` — links to other classes
+
+Each use case must define:
+- `uri` — stable identifier (`#usecase-*`)
+- `label.fr` and `label.en` — localized labels
 
 ---
 
@@ -50,7 +56,12 @@ The `#class-` prefix is the sole type indicator. No separate `"type"` field is n
 - Format: `#relation-*` (kebab-case)
 - Examples: `#relation-impacts`, `#relation-relies-on`
 
-### 4.4 General rules
+### 4.4 Use cases
+
+- Format: `#usecase-*` (kebab-case)
+- Examples: `#usecase-risk-management`, `#usecase-it-management`
+
+### 4.5 General rules
 
 - Use lowercase
 - Use hyphen-separated words (kebab-case)
@@ -75,7 +86,7 @@ Each class must follow this template:
     "en": "..."
   },
   "versionInfo": "YYYY-MM-DD: description",
-  "usecases": ["Use case name"],
+  "usecases": ["#usecase-risk-management"],
   "properties": [...],
   "relations": [...]
 }
@@ -176,15 +187,25 @@ Each class must define:
 
 ## 11. Use Cases
 
-Each class must declare which use cases it belongs to:
+Use cases are declared once at ontology root:
 
 ```json
-"usecases": ["Risk management"]
+"usecases": [
+  {
+    "uri": "#usecase-risk-management",
+    "label": { "fr": "Gestion des risques", "en": "Risk management" }
+  }
+]
 ```
 
-- Plain string array — no wrapper object needed
-- Allows filtering classes by scope
-- A class may belong to multiple use cases: `["Risk management", "Compliance"]`
+Each class must reference use cases by URI:
+
+```json
+"usecases": ["#usecase-risk-management"]
+```
+
+- A class may belong to multiple use cases
+- Labels belong to the use case registry, not to class-local strings
 
 ---
 
@@ -195,6 +216,10 @@ Individual data objects (not part of the ontology file) must:
 - Declare a `classRef` referencing a class URI
 - Use property keys matching the `#property-*` URIs defined in that class
 - Reference other objects via their identifiers for object relations
+
+Dataset-level metadata should carry one canonical use case URI for the full payload,
+and may include provenance fields such as source application, dataset object,
+revision, and extraction date.
 
 Example:
 ```json

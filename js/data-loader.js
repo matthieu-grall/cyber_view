@@ -46,7 +46,8 @@ const DataLoaderModule = (() => {
                     id: useCaseData.id || null,
                     name: useCaseData.name || null,
                     description: useCaseData.description || null,
-                    date: useCaseData.date || null
+                    date: useCaseData.date || null,
+                    metadata: useCaseData.metadata || null
                 };
 
                 return data;
@@ -77,7 +78,8 @@ const DataLoaderModule = (() => {
                     id: useCaseData.id || null,
                     name: useCaseData.name || null,
                     description: useCaseData.description || null,
-                    date: useCaseData.date || null
+                    date: useCaseData.date || null,
+                    metadata: useCaseData.metadata || null
                 };
 
                 return data;

@@ -254,6 +254,12 @@ a:has(.license-icon) {
     margin-bottom: 15px;
 }
 
+.type-filter__subtitle {
+    margin: 10px 0 6px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
 .type-filter__list {
     display: flex;
     flex-direction: column;
