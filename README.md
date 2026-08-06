@@ -49,16 +49,18 @@ The application is functional: the ontology is consolidated for the first usecas
 
 ### 🔄 Priorities
 
-1. **UI** — keep the HTML/CSS structure lean and documented while refining visual polish, including graph readability under dense edge layouts
-1. **Data** — consolidate the JSON structure and formalize data management rules
-1. **Ontology** — enrich the cyber_ontology (new classes, properties, relations)
-1. **Features** — extend node interaction and graph exploration workflows, especially for relation-centric navigation
+1. **Consolidate ontology and individuals**
+1. **Add conformance checks for individuals against the ontology**, with explicit highlighting of inconsistencies
+1. **Create a favicon**
+1. **Add a search feature**
+1. **Create a .json file editor**
 
 ### ⭕ Later!
 
-1. Data editing;
-1. <many instances> Other risk management visualizations;
-1. <many instances> Other cyber use cases.
+1. **Add more use cases**
+1. **Study additional dedicated visualizations** for specific use cases, especially regarding visual form
+1. **Add another visualization**, for example a risk assessment matrix
+
 ---
 
 ## Quick start
