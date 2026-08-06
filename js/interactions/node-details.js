@@ -9,7 +9,8 @@ const NodeDetailsModule = (() => {
     const state = {
         currentNode: null,
         allNodes: [],
-        allLinks: []
+        allLinks: [],
+        detailsPanelProvider: null
     };
 
     // ==================== PRIVATE FUNCTIONS ====================
@@ -187,6 +188,24 @@ const NodeDetailsModule = (() => {
         return html;
     }
 
+    function createDetailsHelpers() {
+        return {
+            getConnectedNodes,
+            escapeHtml,
+            formatPropertyValue
+        };
+    }
+
+    function resolveNodeDetailsHTML(node) {
+        if (typeof state.detailsPanelProvider === 'function') {
+            const html = state.detailsPanelProvider(node, createDetailsHelpers());
+            if (typeof html === 'string' && html.length > 0) {
+                return html;
+            }
+        }
+        return createNodeDetailsHTML(node);
+    }
+
     /**
      * Escape HTML special characters to prevent XSS
      * @param {string} text - Text to escape
@@ -218,7 +237,7 @@ const NodeDetailsModule = (() => {
             state.currentNode = node;
 
             const infoPanel = d3.select(AppConfig.selectors.informationPanel);
-            infoPanel.html(createNodeDetailsHTML(node))
+            infoPanel.html(resolveNodeDetailsHTML(node))
                 .style('display', 'block');
 
             // Keep selected node highlighted
@@ -258,6 +277,14 @@ const NodeDetailsModule = (() => {
             if (state.currentNode) {
                 this.displayNodeDetails(state.currentNode);
             }
+        },
+
+        setDetailsPanelProvider(provider) {
+            state.detailsPanelProvider = typeof provider === 'function' ? provider : null;
+        },
+
+        createDefaultDetailsHTML(node) {
+            return createNodeDetailsHTML(node);
         },
 
         /**

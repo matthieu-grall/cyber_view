@@ -11,7 +11,8 @@ const NodeRendererModule = (() => {
     // State for node selection highlight persistence
     const state = {
         selectedNodeId: null,
-        hoveredNodeId: null
+        hoveredNodeId: null,
+        tooltipProvider: null
     };
 
     // ==================== PRIVATE FUNCTIONS ====================
@@ -90,7 +91,7 @@ const NodeRendererModule = (() => {
      * @param {Object} node - D3 node object
      * @returns {string} Formatted tooltip text
      */
-    function createNodeTooltip(node) {
+    function createDefaultNodeTooltip(node) {
         const language = I18nModule.getLanguage();
         const definition = node.rawData?.isDefinedBy;
         const typeLabel = OntologyModule.getNodeTypeLabel(node.type, language);
@@ -119,6 +120,16 @@ const NodeRendererModule = (() => {
         return tooltip;
     }
 
+    function createNodeTooltip(node) {
+        if (typeof state.tooltipProvider === 'function') {
+            const tooltip = state.tooltipProvider(node);
+            if (typeof tooltip === 'string' && tooltip.length > 0) {
+                return tooltip;
+            }
+        }
+        return createDefaultNodeTooltip(node);
+    }
+
     // ==================== PUBLIC API ====================
     return {
         /**
@@ -136,6 +147,15 @@ const NodeRendererModule = (() => {
         getHoveredNodeId() {
             return state.hoveredNodeId;
         },
+
+        setTooltipProvider(provider) {
+            state.tooltipProvider = typeof provider === 'function' ? provider : null;
+        },
+
+        createDefaultTooltip(node) {
+            return createDefaultNodeTooltip(node);
+        },
+
         /**
          * Create and append node elements to D3 selection
          * @param {d3.Selection} nodeGroup - D3 selection for node group

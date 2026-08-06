@@ -41,6 +41,18 @@ This project is licensed under a
 
 ---
 
+## Architecture status
+
+The project now prepares a **three-layer architecture** to support future visualizations without changing current behavior:
+
+- **Visualizations layer** — rendering engines (currently a shared Network engine)
+- **Views layer** — business-oriented views (currently Individuals and Ontology)
+- **Data layer** — independent data loading and graph-data preparation
+
+In the current version, **Individuals** and **Ontology** are wired as two view definitions using the same network visualization engine, with no UI or feature change.
+
+---
+
 ## Status and roadmap
 
 ### ✅ Current version — 2026-08-06
@@ -49,16 +61,16 @@ The application is functional: the ontology is consolidated for the first usecas
 
 ### 🔄 Priorities
 
-1. **Consolidate ontology and individuals**
 1. **Add conformance checks for individuals against the ontology**, with explicit highlighting of inconsistencies
 1. **Create a favicon**
-1. **Add a search feature**
-1. **Create a .json file editor**
+1. **Consolidate ontology and individuals**
 
 ### ⭕ Later!
 
-1. **Add more use cases**
 1. **Study additional dedicated visualizations** for specific use cases, especially regarding visual form
+1. **Add a search feature**
+1. **Create a .json file editor**
+1. **Add more use cases**
 1. **Add another visualization**, for example a risk assessment matrix
 
 ---

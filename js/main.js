@@ -10,114 +10,20 @@ const CyberViewApplication = (() => {
         isInitialized: false,
         currentData: null,
         currentView: 'usecase',
-        currentUsecaseData: null,
-        simulation: null,
-        nodeGroup: null,
-        linkGroup: null
+        currentUsecaseData: null
     };
 
     // ==================== PRIVATE FUNCTIONS ====================
 
-    /**
-     * Initialize the D3 visualization canvas
-     * Creates SVG container with zoom, pan, and resize capabilities
-     * @returns {Object} Object containing svg, container, and zoom behavior
-     */
-    function initializeVisualization() {
-        const container = d3.select(AppConfig.selectors.svgContainer);
-        const width = container.node().clientWidth;
-        const height = container.node().clientHeight;
-
-        // Clear existing SVG if any
-        container.selectAll('svg').remove();
-
-        // Create SVG element
-        const svg = container
-            .append('svg')
-            .attr('width', width)
-            .attr('height', height)
-            .attr('viewBox', [0, 0, width, height]);
-
-        // Create background rectangle for zoom/pan and click detection
-        svg.append('rect')
-            .attr('width', width)
-            .attr('height', height)
-            .attr('fill', 'white')
-            .attr('class', 'svg-background');
-
-        // Create groups for layered rendering (links below nodes)
-        const linkGroup = svg.append('g')
-            .attr('class', 'link-group');
-
-        const nodeGroup = svg.append('g')
-            .attr('class', 'node-group');
-
-        // Create zoom behavior
-        const zoom = d3.zoom()
-            .on('zoom', (event) => {
-                linkGroup.attr('transform', event.transform);
-                nodeGroup.attr('transform', event.transform);
-            });
-
-        svg.call(zoom);
-
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            const newWidth = container.node().clientWidth;
-            const newHeight = container.node().clientHeight;
-            
-            svg.attr('width', newWidth)
-                .attr('height', newHeight)
-                .attr('viewBox', [0, 0, newWidth, newHeight]);
-
-            // Update background
-            svg.selectAll('.svg-background')
-                .attr('width', newWidth)
-                .attr('height', newHeight);
-        });
-
-        return { svg, container, width, height, linkGroup, nodeGroup, zoom };
+    function registerViews() {
+        ViewManagerModule.registerViews([IndividualsView, OntologyView]);
     }
 
-    /**
-     * Render the graph with nodes and links
-     * @param {Array} nodes - Processed nodes array
-     * @param {Array} links - Processed links array
-     * @param {number} svgWidth - SVG width
-     * @param {number} svgHeight - SVG height
-     * @param {number} [linkDistance] - Optional override for the force-simulation
-    *   link distance (used by the Ontology view to give curved parallel/
-    *   bidirectional links more room)
-     */
-    function renderGraph(nodes, links, svgWidth, svgHeight, linkDistance) {
-        // Create force simulation
-        const simulation = SimulationModule.createSimulation(nodes, links, svgWidth, svgHeight, linkDistance);
-        state.simulation = simulation;
-
-        // Create D3 selections for data binding
-        state.linkGroup.selectAll('.link-group-item').remove(); // Clear existing
-        state.nodeGroup.selectAll('.node-group-item').remove();
-
-        // Bind link data
-        const linkSelection = state.linkGroup.selectAll('g')
-            .data(links)
-            .enter()
-            .append('g')
-            .attr('class', 'link-group-item');
-
-        LinkRendererModule.renderLinks(linkSelection);
-
-        // Bind node data
-        const nodeSelection = state.nodeGroup.selectAll('g')
-            .data(nodes, d => d.id)
-            .enter()
-            .append('g')
-            .attr('class', 'node-group-item');
-
-        NodeRendererModule.renderNodes(nodeSelection, simulation);
-
-        // Attach simulation tick handler
-        SimulationModule.attachTickHandler(simulation, nodeSelection, linkSelection);
+    function getViewContext() {
+        return {
+            state,
+            services: DataServicesModule
+        };
     }
 
     /**
@@ -143,11 +49,7 @@ const CyberViewApplication = (() => {
                 NodeDetailsModule.updateLabels();
 
                 // Update node and link labels
-                const nodeSelection = d3.selectAll('.node-group-item');
-                const linkSelection = d3.selectAll('.link-group-item');
-                
-                NodeRendererModule.updateNodeLabels(nodeSelection);
-                LinkRendererModule.updateLinkLabels(linkSelection);
+                NetworkVisualizationModule.updateLabels();
 
                 // Update UI state
                 document.querySelectorAll(AppConfig.selectors.languageToggle).forEach(toggle => {
@@ -167,15 +69,11 @@ const CyberViewApplication = (() => {
         });
     }
 
-    function getUseCaseConfig(useCaseId) {
-        return AppConfig.useCases.find(useCase => useCase.id === useCaseId);
-    }
-
     function updateLoadedStudyName() {
         const loadedStudyNameElement = document.querySelector(AppConfig.selectors.loadedStudyName);
         if (!loadedStudyNameElement) return;
 
-        const currentUsecase = DataLoaderModule.getCurrentUsecase();
+        const currentUsecase = DataServicesModule.getCurrentUsecaseMetadata();
         if (!currentUsecase) {
             loadedStudyNameElement.textContent = '';
             return;
@@ -185,16 +83,15 @@ const CyberViewApplication = (() => {
         loadedStudyNameElement.textContent = label;
     }
 
-    async function loadUseCaseData(useCaseId) {
-        const useCaseConfig = getUseCaseConfig(useCaseId);
-        if (!useCaseConfig) {
-            throw new Error(`Use case not found: ${useCaseId}`);
-        }
+    function updateViewButtons(viewId) {
+        const viewBtnIndividuals = document.getElementById('viewBtnIndividuals');
+        const viewBtnOntology = document.getElementById('viewBtnOntology');
+        if (!viewBtnIndividuals || !viewBtnOntology) return;
 
-        const allData = await DataLoaderModule.loadAll(useCaseConfig.file);
-        state.currentUsecaseData = allData;
-        updateLoadedStudyName();
-        return allData;
+        viewBtnIndividuals.classList.toggle('view-toggle__btn--active', viewId === 'usecase');
+        viewBtnOntology.classList.toggle('view-toggle__btn--active', viewId === 'ontology');
+        viewBtnIndividuals.setAttribute('aria-pressed', viewId === 'usecase');
+        viewBtnOntology.setAttribute('aria-pressed', viewId === 'ontology');
     }
 
     function initializeViewControls() {
@@ -204,13 +101,10 @@ const CyberViewApplication = (() => {
 
         if (viewBtnIndividuals && viewBtnOntology) {
             const setSource = async (source) => {
-                // Keep the CSS class consistent with HTML markup
-                viewBtnIndividuals.classList.toggle('view-toggle__btn--active', source === 'usecase');
-                viewBtnOntology.classList.toggle('view-toggle__btn--active', source === 'ontology');
-                // Update ARIA pressed state for accessibility
-                viewBtnIndividuals.setAttribute('aria-pressed', source === 'usecase');
-                viewBtnOntology.setAttribute('aria-pressed', source === 'ontology');
-                state.currentView = source === 'ontology' ? 'ontology' : 'usecase';
+                const viewId = source === 'ontology' ? 'ontology' : 'usecase';
+                ViewManagerModule.setCurrentView(viewId);
+                state.currentView = viewId;
+                updateViewButtons(viewId);
                 await renderCurrentView();
             };
 
@@ -220,46 +114,22 @@ const CyberViewApplication = (() => {
     }
 
     async function renderCurrentView() {
-        if (state.currentView === 'ontology') {
-            await renderOntologyGraph();
-        } else {
-            await renderUsecaseGraph();
-        }
-    }
-
-    async function renderUsecaseGraph() {
-        if (!state.currentUsecaseData) {
-            await loadUseCaseData(AppConfig.defaultUseCaseId);
+        const currentView = ViewManagerModule.getCurrentView();
+        if (!currentView) {
+            throw new Error('No active view registered');
         }
 
-        const rawUsecase = state.currentUsecaseData?.currentUsecaseRaw || state.currentUsecaseData;
-        const graphData = GraphDataModule.createGraphData(rawUsecase);
+        const context = getViewContext();
+        const graphData = await currentView.getGraphData(context);
+        const tooltipProvider = currentView.getTooltipProvider ? currentView.getTooltipProvider(context) : null;
+        const detailsPanelProvider = currentView.getDetailsPanelProvider ? currentView.getDetailsPanelProvider(context) : null;
+        const visualizationOptions = currentView.getVisualizationOptions ? currentView.getVisualizationOptions(context) : {};
 
         state.currentData = graphData;
-        renderGraph(graphData.nodes, graphData.links, state.renderWidth, state.renderHeight);
-        FiltersModule.initialize(graphData.nodes, graphData.links);
-        FiltersModule.populateFilterOptions();
-        FiltersModule.attachEventHandlers();
-        NodeDetailsModule.initialize(graphData.nodes, graphData.links);
-        NodeDetailsModule.attachEventHandlers();
-        document.getElementById('filters').style.display = '';
-    }
+        NetworkVisualizationModule.setTooltipProvider(tooltipProvider);
+        NetworkVisualizationModule.setDetailsPanelProvider(detailsPanelProvider);
+        NetworkVisualizationModule.render(graphData.nodes, graphData.links, visualizationOptions);
 
-    async function renderOntologyGraph() {
-        const ontologyData = await DataLoaderModule.loadOntology();
-        const graphData = GraphDataModule.createOntologyGraph(ontologyData, I18nModule.getLanguage());
-
-        state.currentData = graphData;
-        // FIX (D): use a dedicated, larger link distance for the Ontology
-        // view so curved parallel/bidirectional relations have more room
-        // around highly-connected nodes.
-        renderGraph(
-            graphData.nodes,
-            graphData.links,
-            state.renderWidth,
-            state.renderHeight,
-            GRAPH_CONFIG.ONTOLOGY_LINK_DISTANCE
-        );
         FiltersModule.initialize(graphData.nodes, graphData.links);
         FiltersModule.populateFilterOptions();
         FiltersModule.attachEventHandlers();
@@ -279,10 +149,10 @@ const CyberViewApplication = (() => {
                 if (!file) return;
 
                 try {
-                    const allData = await DataLoaderModule.loadFromFile(file);
+                    const allData = await DataServicesModule.loadUseCaseDataFromFile(file);
                     state.currentUsecaseData = allData;
-                    if (state.currentView === 'usecase') {
-                        await renderUsecaseGraph();
+                    if (ViewManagerModule.getCurrentViewId() === 'usecase') {
+                        await renderCurrentView();
                     }
                     updateLoadedStudyName();
                 } catch (error) {
@@ -335,15 +205,11 @@ const CyberViewApplication = (() => {
                 setupDataLoadingControls();
 
                 // ========== STAGE 4: Initialize visualization ==========
-                const vizConfig = initializeVisualization();
-                state.nodeGroup = vizConfig.nodeGroup;
-                state.linkGroup = vizConfig.linkGroup;
-                state.renderWidth = vizConfig.width;
-                state.renderHeight = vizConfig.height;
+                NetworkVisualizationModule.initialize();
                 logProgress('VIZ', 'Visualization canvas created');
 
                 // ========== STAGE 5: Load use case data ==========
-                const allData = await loadUseCaseData(AppConfig.defaultUseCaseId);
+                const allData = await DataServicesModule.loadDefaultUseCaseData();
                 logProgress('DATA', 'Use case data loaded');
 
                 // ========== STAGE 6: Load ontology ==========
@@ -353,13 +219,20 @@ const CyberViewApplication = (() => {
 
                 // ========== STAGE 7: Store use case data ==========
                 state.currentUsecaseData = allData;
+                updateLoadedStudyName();
                 logProgress('DATA', 'Use case data cached for rendering');
 
-                // ========== STAGE 8: Render initial view ==========
+                // ========== STAGE 8: Register and initialize views ==========
+                registerViews();
+                ViewManagerModule.setCurrentView('usecase');
+                state.currentView = 'usecase';
+                updateViewButtons('usecase');
+
+                // ========== STAGE 9: Render initial view ==========
                 await renderCurrentView();
                 logProgress('RENDER', 'Initial view rendered');
 
-                // ========== STAGE 9: Set up language switching ==========
+                // ========== STAGE 10: Set up language switching ==========
                 setupLanguageSwitching();
                 logProgress('LANG_SWITCH', 'Language switching initialized');
 

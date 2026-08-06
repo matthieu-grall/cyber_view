@@ -20,40 +20,72 @@
 
 ### Modular Organization
 
-The application uses a modular architecture with 11 JavaScript files organized by responsibility. The latest cleanup also introduced a lightweight regression smoke check under the tests folder so the core assets and wiring stay consistent as the project evolves:
+The application now uses a layered modular architecture so business views can evolve independently from rendering engines. Existing behavior remains unchanged, and the current network graph engine is still shared by both existing views:
 
 ```
+src/
+├── core/
+│   ├── services/
+│   │   └── data-services.js                     # Data-oriented service facade
+│   └── view-manager/
+│       └── view-manager.js                      # Active view registration/switching
+├── visualizations/
+│   ├── network/
+│   │   ├── network-visualization.js             # Shared network visualization facade
+│   │   ├── renderer/.gitkeep                    # Reserved for future extraction
+│   │   ├── simulation/.gitkeep                  # Reserved for future extraction
+│   │   ├── geometry/.gitkeep                    # Reserved for future extraction
+│   │   ├── selection/.gitkeep                   # Reserved for future extraction
+│   │   ├── node-renderer/.gitkeep               # Reserved for future extraction
+│   │   └── link-renderer/.gitkeep               # Reserved for future extraction
+│   ├── matrix/.gitkeep                          # Placeholder for future visualization
+│   └── timeline/.gitkeep                        # Placeholder for future visualization
+└── views/
+  ├── shared/
+  │   └── network-view-base.js                 # Shared view contract for network views
+  ├── individuals/
+  │   └── view.js                              # Individuals business view definition
+  └── ontology/
+    └── view.js                              # Ontology business view definition
+
 js/
-├── config.js                    # Centralized configuration
-├── i18n.js                     # Translation system
-├── data-loader.js              # Data loading
-├── ontology.js                 # Ontology management
-├── graph-data.js               # Graph structure creation
-├── main.js                     # Application orchestration
+├── config.js                                    # Centralized configuration
+├── i18n.js                                      # Translation system
+├── data-loader.js                               # Data loading
+├── ontology.js                                  # Ontology registry and labels
+├── graph-data.js                                # Graph structure creation
+├── main.js                                      # Application orchestration (via ViewManager)
 ├── graph/
-│   ├── node-renderer.js        # Node rendering
-│   ├── link-renderer.js        # Link rendering
-│   └── simulation.js           # D3 physics simulation
+│   ├── node-renderer.js                         # Node rendering engine
+│   ├── link-renderer.js                         # Link rendering engine
+│   └── simulation.js                            # D3 physics simulation
 ├── interactions/
-│   ├── filters.js              # Filtering logic
-│   └── node-details.js         # Details panel
+│   ├── filters.js                               # Filtering logic
+│   └── node-details.js                          # Details panel logic
 tests/
-└── smoke_check.py              # Regression checks for metadata and expected UI wiring
+├── smoke_check.py                               # Regression checks for metadata and expected UI wiring
+└── smoke.test.mjs                               # JS syntax and asset wiring checks
 ```
 ### Module Dependencies
 
 ```
-main.js (orchestration)
-├── config.js (constants)
-├── i18n.js (translations)
-├── data-loader.js (data)
-├── ontology.js (semantics)
-├── graph-data.js (structure)
-├── graph/node-renderer.js (nodes)
-├── graph/link-renderer.js (links)
-├── graph/simulation.js (physics)
-├── interactions/filters.js (filters)
-└── interactions/node-details.js (details)
+main.js
+├── ViewManagerModule (active business view)
+├── DataServicesModule (data/graph access)
+├── NetworkVisualizationModule (shared rendering engine)
+├── IndividualsView / OntologyView (view definitions)
+├── i18n.js / ontology.js (language + semantic labels)
+└── interactions modules (filters + details)
+
+IndividualsView / OntologyView
+├── provide graph data source
+├── provide tooltip/details providers
+└── provide visualization options (e.g. ontology link distance)
+
+NetworkVisualizationModule
+├── graph/node-renderer.js
+├── graph/link-renderer.js
+└── graph/simulation.js
 ```
 
 ### Module Descriptions
