@@ -293,7 +293,8 @@
       },
       "versionInfo": [
         "2026-07-09: add #class-consequence-level",
-        "2026-07-18: add labelRationale, definition and relations"
+        "2026-07-18: add labelRationale, definition and relations",
+        "2026-09-19: add inverse estimation relation with #class-risk"
       ],
       "usecases": [
         "#usecase-risk-management"
@@ -308,6 +309,14 @@
             "en": "is estimation of"
           },
           "range": "#class-consequence"
+        },
+        {
+          "uri": "#relation-is-estimation-of",
+          "label": {
+            "fr": "est une estimation de",
+            "en": "is estimation of"
+          },
+          "range": "#class-risk"
         }
       ]
     },
@@ -586,7 +595,8 @@
       },
       "versionInfo": [
         "2026-07-09: Add #class-likelihood-level",
-        "2026-07-18: add labelRationale, definition and relations"
+        "2026-07-18: add labelRationale, definition and relations",
+        "2026-09-19: add inverse estimation relation with #class-risk"
       ],
       "usecases": [
         "#usecase-risk-management"
@@ -601,6 +611,14 @@
             "en": "is estimation of"
           },
           "range": "#class-action"
+        },
+        {
+          "uri": "#relation-is-estimation-of",
+          "label": {
+            "fr": "est une estimation de",
+            "en": "is estimation of"
+          },
+          "range": "#class-risk"
         }
       ]
     },
@@ -668,7 +686,8 @@
         "2026-06-05: add #class-risk",
         "2026-07-07: add prefix class-, usecases, properties and relations, remove types",
         "2026-07-11: add labelRationale, improve definition",
-        "2026-07-18: improve rationale"
+        "2026-07-18: improve rationale",
+        "2026-09-19: add estimation relations with consequence and likelihood levels"
       ],
       "usecases": [
         "#usecase-risk-management"
@@ -699,6 +718,22 @@
             "en": "includes"
           },
           "range": "#class-cyber-event"
+        },
+        {
+          "uri": "#relation-is-estimated-as",
+          "label": {
+            "fr": "est estimé comme",
+            "en": "is estimated as"
+          },
+          "range": "#class-consequence-level"
+        },
+        {
+          "uri": "#relation-is-estimated-as",
+          "label": {
+            "fr": "est estimé comme",
+            "en": "is estimated as"
+          },
+          "range": "#class-likelihood-level"
         }
       ]
     }
