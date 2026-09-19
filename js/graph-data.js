@@ -298,8 +298,8 @@ const GraphDataModule = (() => {
                         if (!parentId || !classMap.has(parentId)) return;
 
                         links.push({
-                            source: parentId,
-                            target: childId,
+                            source: childId,
+                            target: parentId,
                             type: 'subClassOf'
                         });
                     });

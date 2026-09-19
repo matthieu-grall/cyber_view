@@ -541,7 +541,8 @@
         "2026-07-07: add prefix class-, usecases, properties and relations, remove types",
         "2026-07-10: rename to #class-business-object, add labelRationale, improve definition",
         "2026-07-11: rename to #class-information-object, improve rationale and definition",
-        "2026-07-18: rename #relation-is-including-in to #relation-is-included-in"
+        "2026-07-18: rename #relation-is-including-in to #relation-is-included-in",
+        "2026-09-19: merge #relation-relies-on into #relation-is-supported-by"
       ],
       "usecases": [
         "#usecase-risk-management"
@@ -550,12 +551,12 @@
       ],
       "relations": [
         {
-          "uri": "#relation-relies-on",
+          "uri": "#relation-is-supported-by",
           "label": {
-            "fr": "repose sur",
-            "en": "relies on"
+            "fr": "est porté par",
+            "en": "is carried by"
           },
-          "range": "#class-supporting-asset"
+          "range": "#class-medium"
         },
         {
           "uri": "#relation-is-included-in",
