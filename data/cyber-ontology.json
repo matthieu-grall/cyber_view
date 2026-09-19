@@ -82,10 +82,10 @@
           "range": "#class-cyber-event"
         },
         {
-          "uri": "#relation-is-estimated-as",
+          "uri": "#relation-is-likelihood-estimated-as",
           "label": {
-            "fr": "est estimé comme",
-            "en": "is estimated as"
+            "fr": "est estimé en vraisemblance comme",
+            "en": "is likelihood-estimated as"
           },
           "range": "#class-likelihood-level"
         },
@@ -250,10 +250,10 @@
           "range": "#class-consequence"
         },
         {
-          "uri": "#relation-is-estimated-as",
+          "uri": "#relation-is-severity-estimated-as",
           "label": {
-            "fr": "est estimé comme",
-            "en": "is estimated as"
+            "fr": "est estimé en gravité comme",
+            "en": "is severity-estimated as"
           },
           "range": "#class-consequence-level"
         },
@@ -303,18 +303,18 @@
       ],
       "relations": [
         {
-          "uri": "#relation-is-estimation-of",
+          "uri": "#relation-is-severity-estimation-of",
           "label": {
-            "fr": "est une estimation de",
-            "en": "is estimation of"
+            "fr": "est une estimation de gravité de",
+            "en": "is severity estimation of"
           },
           "range": "#class-consequence"
         },
         {
-          "uri": "#relation-is-estimation-of",
+          "uri": "#relation-is-severity-estimation-of",
           "label": {
-            "fr": "est une estimation de",
-            "en": "is estimation of"
+            "fr": "est une estimation de gravité de",
+            "en": "is severity estimation of"
           },
           "range": "#class-risk"
         }
@@ -605,18 +605,18 @@
       ],
       "relations": [
         {
-          "uri": "#relation-is-estimation-of",
+          "uri": "#relation-is-likelihood-estimation-of",
           "label": {
-            "fr": "est une estimation de",
-            "en": "is estimation of"
+            "fr": "est une estimation de vraisemblance de",
+            "en": "is likelihood estimation of"
           },
           "range": "#class-action"
         },
         {
-          "uri": "#relation-is-estimation-of",
+          "uri": "#relation-is-likelihood-estimation-of",
           "label": {
-            "fr": "est une estimation de",
-            "en": "is estimation of"
+            "fr": "est une estimation de vraisemblance de",
+            "en": "is likelihood estimation of"
           },
           "range": "#class-risk"
         }
@@ -720,18 +720,18 @@
           "range": "#class-cyber-event"
         },
         {
-          "uri": "#relation-is-estimated-as",
+          "uri": "#relation-is-severity-estimated-as",
           "label": {
-            "fr": "est estimé comme",
-            "en": "is estimated as"
+            "fr": "est estimé en gravité comme",
+            "en": "is severity-estimated as"
           },
           "range": "#class-consequence-level"
         },
         {
-          "uri": "#relation-is-estimated-as",
+          "uri": "#relation-is-likelihood-estimated-as",
           "label": {
-            "fr": "est estimé comme",
-            "en": "is estimated as"
+            "fr": "est estimé en vraisemblance comme",
+            "en": "is likelihood-estimated as"
           },
           "range": "#class-likelihood-level"
         }

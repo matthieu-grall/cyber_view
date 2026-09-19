@@ -236,8 +236,12 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-severity-estimation-of",
                                                   "target":  "consequence-image-r03"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimation-of",
+                                                  "target":  "risk-r03"
                                               }
                                           ]
                         },
@@ -252,12 +256,20 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-likelihood-estimation-of",
                                                   "target":  "action-operationnel-r03-exfiltration-d-algorithme-ou-parametres"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-likelihood-estimation-of",
                                                   "target":  "action-operationnel-r06-exfiltration-de-donnees-sensibles"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimation-of",
+                                                  "target":  "risk-r03"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimation-of",
+                                                  "target":  "risk-r06"
                                               }
                                           ]
                         },
@@ -272,36 +284,68 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-severity-estimation-of",
                                                   "target":  "consequence-operationnel-acces-bloques-r01"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-severity-estimation-of",
                                                   "target":  "consequence-cout-humain-et-financier-r04"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-severity-estimation-of",
                                                   "target":  "consequence-droits-fondamentaux-vie-privee-biais-discrimination-r05"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-severity-estimation-of",
                                                   "target":  "consequence-vie-privee-r06"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-severity-estimation-of",
                                                   "target":  "consequence-operationnel-acces-bloques-r07"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-severity-estimation-of",
                                                   "target":  "consequence-operationnel-acces-bloques-r10"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-severity-estimation-of",
                                                   "target":  "consequence-vie-privee-r12"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-severity-estimation-of",
                                                   "target":  "consequence-operationnel-acces-bloques-r13"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimation-of",
+                                                  "target":  "risk-r01"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimation-of",
+                                                  "target":  "risk-r04"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimation-of",
+                                                  "target":  "risk-r05"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimation-of",
+                                                  "target":  "risk-r06"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimation-of",
+                                                  "target":  "risk-r07"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimation-of",
+                                                  "target":  "risk-r10"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimation-of",
+                                                  "target":  "risk-r12"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimation-of",
+                                                  "target":  "risk-r13"
                                               }
                                           ]
                         },
@@ -316,32 +360,60 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-likelihood-estimation-of",
                                                   "target":  "action-operationnel-r01-destruction-physique-ou-logique"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-likelihood-estimation-of",
                                                   "target":  "action-operationnel-r04-suppression-ou-corruption-de-jeux-de-donnees"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-likelihood-estimation-of",
                                                   "target":  "action-operationnel-r05-empoisonnement-des-donnees-d-entrainement"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-likelihood-estimation-of",
                                                   "target":  "action-operationnel-r10-sabotage-des-cameras"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-likelihood-estimation-of",
                                                   "target":  "action-operationnel-r11-injection-de-fausses-donnees"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-likelihood-estimation-of",
                                                   "target":  "action-operationnel-r14-modification-de-resultats"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-likelihood-estimation-of",
                                                   "target":  "action-operationnel-r15-usage-de-faux-resultats"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimation-of",
+                                                  "target":  "risk-r01"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimation-of",
+                                                  "target":  "risk-r04"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimation-of",
+                                                  "target":  "risk-r05"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimation-of",
+                                                  "target":  "risk-r10"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimation-of",
+                                                  "target":  "risk-r11"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimation-of",
+                                                  "target":  "risk-r14"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimation-of",
+                                                  "target":  "risk-r15"
                                               }
                                           ]
                         },
@@ -356,24 +428,44 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-severity-estimation-of",
                                                   "target":  "consequence-droits-fondamentaux-vie-privee-discrimination-r02"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-severity-estimation-of",
                                                   "target":  "consequence-securite-acces-de-personnes-non-autorisees-r08"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-severity-estimation-of",
                                                   "target":  "consequence-securite-acces-de-personnes-non-autorisees-operationnel-acces-bloques-r11"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-severity-estimation-of",
                                                   "target":  "consequence-securite-acces-de-personnes-non-autorisees-r14"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-severity-estimation-of",
                                                   "target":  "consequence-securite-rejeu-pour-acces-de-personnes-non-autorisees-r15"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimation-of",
+                                                  "target":  "risk-r02"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimation-of",
+                                                  "target":  "risk-r08"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimation-of",
+                                                  "target":  "risk-r11"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimation-of",
+                                                  "target":  "risk-r14"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimation-of",
+                                                  "target":  "risk-r15"
                                               }
                                           ]
                         },
@@ -388,24 +480,44 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-likelihood-estimation-of",
                                                   "target":  "action-operationnel-r02-injection-de-biais-dans-modele"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-likelihood-estimation-of",
                                                   "target":  "action-operationnel-r07-suppression-de-donnees"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-likelihood-estimation-of",
                                                   "target":  "action-operationnel-r09-exfiltration-via-api"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-likelihood-estimation-of",
                                                   "target":  "action-operationnel-r12-exfiltration-de-flux-video"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-likelihood-estimation-of",
                                                   "target":  "action-operationnel-r13-suppression-de-donnees"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimation-of",
+                                                  "target":  "risk-r02"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimation-of",
+                                                  "target":  "risk-r07"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimation-of",
+                                                  "target":  "risk-r09"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimation-of",
+                                                  "target":  "risk-r12"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimation-of",
+                                                  "target":  "risk-r13"
                                               }
                                           ]
                         },
@@ -420,8 +532,12 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-severity-estimation-of",
                                                   "target":  "consequence-droits-fondamentaux-vie-privee-usurpations-empreinte-inutilisable-a-vie-r09"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimation-of",
+                                                  "target":  "risk-r09"
                                               }
                                           ]
                         },
@@ -436,8 +552,12 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimation-of",
+                                                  "type":  "#relation-is-likelihood-estimation-of",
                                                   "target":  "action-operationnel-r08-alteration-de-donnees"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimation-of",
+                                                  "target":  "risk-r08"
                                               }
                                           ]
                         },
@@ -1044,7 +1164,7 @@
                                                   "target":  "cyber-event-disparition-fonction-de-reconnaissance-faciale"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-severity-estimated-as",
                                                   "target":  "consequence-level-2"
                                               }
                                           ]
@@ -1078,6 +1198,14 @@
                                               {
                                                   "type":  "#relation-includes",
                                                   "target":  "action-operationnel-r01-destruction-physique-ou-logique"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimated-as",
+                                                  "target":  "consequence-level-2"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimated-as",
+                                                  "target":  "likelihood-level-2"
                                               }
                                           ]
                         },
@@ -1092,7 +1220,7 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-likelihood-estimated-as",
                                                   "target":  "likelihood-level-2"
                                               },
                                               {
@@ -1260,7 +1388,7 @@
                                                   "target":  "cyber-event-modification-non-desiree-fonction-de-reconnaissance-faciale"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-severity-estimated-as",
                                                   "target":  "consequence-level-3"
                                               }
                                           ]
@@ -1294,6 +1422,14 @@
                                               {
                                                   "type":  "#relation-includes",
                                                   "target":  "action-operationnel-r02-injection-de-biais-dans-modele"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimated-as",
+                                                  "target":  "consequence-level-3"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimated-as",
+                                                  "target":  "likelihood-level-3"
                                               }
                                           ]
                         },
@@ -1308,7 +1444,7 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-likelihood-estimated-as",
                                                   "target":  "likelihood-level-3"
                                               },
                                               {
@@ -1476,7 +1612,7 @@
                                                   "target":  "cyber-event-acces-non-autorise-fonction-de-reconnaissance-faciale"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-severity-estimated-as",
                                                   "target":  "consequence-level-1"
                                               }
                                           ]
@@ -1510,6 +1646,14 @@
                                               {
                                                   "type":  "#relation-includes",
                                                   "target":  "action-operationnel-r03-exfiltration-d-algorithme-ou-parametres"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimated-as",
+                                                  "target":  "consequence-level-1"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimated-as",
+                                                  "target":  "likelihood-level-1"
                                               }
                                           ]
                         },
@@ -1524,7 +1668,7 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-likelihood-estimated-as",
                                                   "target":  "likelihood-level-1"
                                               },
                                               {
@@ -1692,7 +1836,7 @@
                                                   "target":  "cyber-event-disparition-donnees-dentrainement"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-severity-estimated-as",
                                                   "target":  "consequence-level-2"
                                               }
                                           ]
@@ -1726,6 +1870,14 @@
                                               {
                                                   "type":  "#relation-includes",
                                                   "target":  "action-operationnel-r04-suppression-ou-corruption-de-jeux-de-donnees"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimated-as",
+                                                  "target":  "consequence-level-2"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimated-as",
+                                                  "target":  "likelihood-level-2"
                                               }
                                           ]
                         },
@@ -1740,7 +1892,7 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-likelihood-estimated-as",
                                                   "target":  "likelihood-level-2"
                                               },
                                               {
@@ -1908,7 +2060,7 @@
                                                   "target":  "cyber-event-modification-non-desiree-donnees-dentrainement"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-severity-estimated-as",
                                                   "target":  "consequence-level-2"
                                               }
                                           ]
@@ -1942,6 +2094,14 @@
                                               {
                                                   "type":  "#relation-includes",
                                                   "target":  "action-operationnel-r05-empoisonnement-des-donnees-d-entrainement"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimated-as",
+                                                  "target":  "consequence-level-2"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimated-as",
+                                                  "target":  "likelihood-level-2"
                                               }
                                           ]
                         },
@@ -1956,7 +2116,7 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-likelihood-estimated-as",
                                                   "target":  "likelihood-level-2"
                                               },
                                               {
@@ -2124,7 +2284,7 @@
                                                   "target":  "cyber-event-acces-non-autorise-donnees-dentrainement"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-severity-estimated-as",
                                                   "target":  "consequence-level-2"
                                               }
                                           ]
@@ -2158,6 +2318,14 @@
                                               {
                                                   "type":  "#relation-includes",
                                                   "target":  "action-operationnel-r06-exfiltration-de-donnees-sensibles"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimated-as",
+                                                  "target":  "consequence-level-2"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimated-as",
+                                                  "target":  "likelihood-level-1"
                                               }
                                           ]
                         },
@@ -2172,7 +2340,7 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-likelihood-estimated-as",
                                                   "target":  "likelihood-level-1"
                                               },
                                               {
@@ -2340,7 +2508,7 @@
                                                   "target":  "cyber-event-disparition-empreintes-biometriques"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-severity-estimated-as",
                                                   "target":  "consequence-level-2"
                                               }
                                           ]
@@ -2374,6 +2542,14 @@
                                               {
                                                   "type":  "#relation-includes",
                                                   "target":  "action-operationnel-r07-suppression-de-donnees"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimated-as",
+                                                  "target":  "consequence-level-2"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimated-as",
+                                                  "target":  "likelihood-level-3"
                                               }
                                           ]
                         },
@@ -2388,7 +2564,7 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-likelihood-estimated-as",
                                                   "target":  "likelihood-level-3"
                                               },
                                               {
@@ -2528,7 +2704,7 @@
                                                   "target":  "cyber-event-modification-non-desiree-empreintes-biometriques"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-severity-estimated-as",
                                                   "target":  "consequence-level-3"
                                               }
                                           ]
@@ -2562,6 +2738,14 @@
                                               {
                                                   "type":  "#relation-includes",
                                                   "target":  "action-operationnel-r08-alteration-de-donnees"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimated-as",
+                                                  "target":  "consequence-level-3"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimated-as",
+                                                  "target":  "likelihood-level-4"
                                               }
                                           ]
                         },
@@ -2576,7 +2760,7 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-likelihood-estimated-as",
                                                   "target":  "likelihood-level-4"
                                               },
                                               {
@@ -2744,7 +2928,7 @@
                                                   "target":  "cyber-event-acces-non-autorise-empreintes-biometriques"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-severity-estimated-as",
                                                   "target":  "consequence-level-4"
                                               }
                                           ]
@@ -2778,6 +2962,14 @@
                                               {
                                                   "type":  "#relation-includes",
                                                   "target":  "action-operationnel-r09-exfiltration-via-api"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimated-as",
+                                                  "target":  "consequence-level-4"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimated-as",
+                                                  "target":  "likelihood-level-3"
                                               }
                                           ]
                         },
@@ -2792,7 +2984,7 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-likelihood-estimated-as",
                                                   "target":  "likelihood-level-3"
                                               },
                                               {
@@ -2960,7 +3152,7 @@
                                                   "target":  "cyber-event-disparition-donnees-captees"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-severity-estimated-as",
                                                   "target":  "consequence-level-2"
                                               }
                                           ]
@@ -2994,6 +3186,14 @@
                                               {
                                                   "type":  "#relation-includes",
                                                   "target":  "action-operationnel-r10-sabotage-des-cameras"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimated-as",
+                                                  "target":  "consequence-level-2"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimated-as",
+                                                  "target":  "likelihood-level-2"
                                               }
                                           ]
                         },
@@ -3008,7 +3208,7 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-likelihood-estimated-as",
                                                   "target":  "likelihood-level-2"
                                               },
                                               {
@@ -3148,7 +3348,7 @@
                                                   "target":  "cyber-event-modification-non-desiree-donnees-captees"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-severity-estimated-as",
                                                   "target":  "consequence-level-3"
                                               }
                                           ]
@@ -3182,6 +3382,14 @@
                                               {
                                                   "type":  "#relation-includes",
                                                   "target":  "action-operationnel-r11-injection-de-fausses-donnees"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimated-as",
+                                                  "target":  "consequence-level-3"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimated-as",
+                                                  "target":  "likelihood-level-2"
                                               }
                                           ]
                         },
@@ -3196,7 +3404,7 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-likelihood-estimated-as",
                                                   "target":  "likelihood-level-2"
                                               },
                                               {
@@ -3364,7 +3572,7 @@
                                                   "target":  "cyber-event-acces-non-autorise-donnees-captees"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-severity-estimated-as",
                                                   "target":  "consequence-level-2"
                                               }
                                           ]
@@ -3398,6 +3606,14 @@
                                               {
                                                   "type":  "#relation-includes",
                                                   "target":  "action-operationnel-r12-exfiltration-de-flux-video"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimated-as",
+                                                  "target":  "consequence-level-2"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimated-as",
+                                                  "target":  "likelihood-level-3"
                                               }
                                           ]
                         },
@@ -3412,7 +3628,7 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-likelihood-estimated-as",
                                                   "target":  "likelihood-level-3"
                                               },
                                               {
@@ -3580,7 +3796,7 @@
                                                   "target":  "cyber-event-disparition-resultats-didentification"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-severity-estimated-as",
                                                   "target":  "consequence-level-2"
                                               }
                                           ]
@@ -3614,6 +3830,14 @@
                                               {
                                                   "type":  "#relation-includes",
                                                   "target":  "action-operationnel-r13-suppression-de-donnees"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimated-as",
+                                                  "target":  "consequence-level-2"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimated-as",
+                                                  "target":  "likelihood-level-3"
                                               }
                                           ]
                         },
@@ -3628,7 +3852,7 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-likelihood-estimated-as",
                                                   "target":  "likelihood-level-3"
                                               },
                                               {
@@ -3768,7 +3992,7 @@
                                                   "target":  "cyber-event-modification-non-desiree-resultats-didentification"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-severity-estimated-as",
                                                   "target":  "consequence-level-3"
                                               }
                                           ]
@@ -3802,6 +4026,14 @@
                                               {
                                                   "type":  "#relation-includes",
                                                   "target":  "action-operationnel-r14-modification-de-resultats"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimated-as",
+                                                  "target":  "consequence-level-3"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimated-as",
+                                                  "target":  "likelihood-level-2"
                                               }
                                           ]
                         },
@@ -3816,7 +4048,7 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-likelihood-estimated-as",
                                                   "target":  "likelihood-level-2"
                                               },
                                               {
@@ -3984,7 +4216,7 @@
                                                   "target":  "cyber-event-acces-non-autorise-resultats-didentification"
                                               },
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-severity-estimated-as",
                                                   "target":  "consequence-level-3"
                                               }
                                           ]
@@ -4018,6 +4250,14 @@
                                               {
                                                   "type":  "#relation-includes",
                                                   "target":  "action-operationnel-r15-usage-de-faux-resultats"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-severity-estimated-as",
+                                                  "target":  "consequence-level-3"
+                                              },
+                                              {
+                                                  "type":  "#relation-is-likelihood-estimated-as",
+                                                  "target":  "likelihood-level-2"
                                               }
                                           ]
                         },
@@ -4032,7 +4272,7 @@
                                            ],
                             "relations":  [
                                               {
-                                                  "type":  "#relation-is-estimated-as",
+                                                  "type":  "#relation-is-likelihood-estimated-as",
                                                   "target":  "likelihood-level-2"
                                               },
                                               {
